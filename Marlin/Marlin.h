@@ -25,7 +25,7 @@
 #include "Configuration.h"
 #include "pins.h"
 
-#if ARDUINO >= 100 
+#if ARDUINO >= 100
   #if defined(__AVR_ATmega644P__)
     #include "WProgram.h"
   #else
@@ -46,17 +46,14 @@
 
 #include "WString.h"
 
-#if MOTHERBOARD == 8  // Teensylu
-  #define MYSERIAL Serial
-#else
-  #define MYSERIAL MSerial
-#endif
+#define MYSERIAL MSerial
+
 
 //this is a unfinsihed attemp to removes a lot of warning messages, see:
 // http://www.avrfreaks.net/index.php?name=PNphpBB2&file=printview&t=57011
-//typedef char prog_char PROGMEM; 
+//typedef char prog_char PROGMEM;
 // //#define PSTR    (s )        ((const PROGMEM char *)(s))
-// //# define MYPGM(s) (__extension__({static prog_char __c[] = (s); &__c[0];})) 
+// //# define MYPGM(s) (__extension__({static prog_char __c[] = (s); &__c[0];}))
 // //#define MYPGM(s) ((const prog_char *g PROGMEM=s))
 #define MYPGM(s) PSTR(s)
 //#define MYPGM(s)  (__extension__({static char __c[] __attribute__((__progmem__)) = (s); &__c[0];}))  //This is the normal behaviour
@@ -126,13 +123,22 @@ void manage_inactivity();
 #endif
 
 #if Z_ENABLE_PIN > -1
-  #ifdef Z_DUAL_STEPPER_DRIVERS
-    #define  enable_z() { WRITE(Z_ENABLE_PIN, Z_ENABLE_ON); WRITE(Z2_ENABLE_PIN, Z_ENABLE_ON); }
-    #define disable_z() { WRITE(Z_ENABLE_PIN,!Z_ENABLE_ON); WRITE(Z2_ENABLE_PIN,!Z_ENABLE_ON); }
-  #else
-    #define  enable_z() WRITE(Z_ENABLE_PIN, Z_ENABLE_ON)
-    #define disable_z() WRITE(Z_ENABLE_PIN,!Z_ENABLE_ON)
-  #endif
+  //#ifdef Z_STEPPER_SINGLE_DEFINE
+    #define enable_z() { WRITE(Z_ENABLE_PIN, Z_ENABLE_ON); WRITE(Z2_ENABLE_PIN, Z_ENABLE_ON); WRITE(Z3_ENABLE_PIN, Z_ENABLE_ON); }
+    #define disable_z() { WRITE(Z_ENABLE_PIN,!Z_ENABLE_ON); WRITE(Z2_ENABLE_PIN,!Z_ENABLE_ON); WRITE(Z3_ENABLE_PIN, !Z_ENABLE_ON);}
+  //#endif
+  //if(Z_STEPPER_SINGLE == 1){
+  //  define  enable_z() WRITE(Z_ENABLE_PIN, Z_ENABLE_ON)
+  //  define disable_z() WRITE(Z_ENABLE_PIN,!Z_ENABLE_ON)
+  //}
+  //if(Z_STEPPER_SINGLE == 2){
+  //  define  enable_z() WRITE(Z2_ENABLE_PIN, Z_ENABLE_ON)
+  //  define disable_z() WRITE(Z2_ENABLE_PIN,!Z_ENABLE_ON)
+  //}
+  // if(Z_STEPPER_SINGLE == 3){
+  //  define  enable_z() WRITE(Z3_ENABLE_PIN, Z_ENABLE_ON)
+  //  define disable_z() WRITE(Z3_ENABLE_PIN,!Z_ENABLE_ON)
+  // }
 #else
   #define enable_z() ;
   #define disable_z() ;
@@ -173,12 +179,18 @@ void get_coordinates();
 void prepare_move();
 void kill();
 void Stop();
+void door_open();
+void door_closed();
 
+float zprobe_3points_Willem(bool CorrectionMove);
 bool IsStopped();
-
 void enquecommand(const char *cmd); //put an ascii command at the end of the current buffer.
-void prepare_arc_move(char isclockwise);
 void clamp_to_software_endstops(float target[3]);
+
+
+#ifdef FILAMENT_DETECTION
+  void checkFilamentError();
+#endif
 
 #ifdef FAST_PWM_FAN
 void setPwmFrequency(uint8_t pin, int val);
@@ -196,6 +208,15 @@ extern float add_homeing[3];
 extern float min_pos[3];
 extern float max_pos[3];
 extern unsigned char FanSpeed;
+
+void ZAdjust1(float Distance);
+void ZAdjust2(float Distance);
+void ZAdjust3(float Distance);
+
+#if EXTRUDERS > 1
+  extern float extruder_offset[2][EXTRUDERS];
+#endif
+
 
 // Handling multiple extruders pins
 extern uint8_t active_extruder;

@@ -30,9 +30,7 @@
 
 
 #include "Marlin.h"
-#include "ultralcd.h"
 #include "temperature.h"
-#include "watchdog.h"
 
 //===========================================================================
 //=============================public variables============================
@@ -140,7 +138,7 @@ void PID_autotune(float temp)
   float Kp, Ki, Kd;
   float max, min;
   
-  SERIAL_ECHOLN("PID Autotune start");
+  //SERIAL_ECHOLN("PID Autotune start");
   
   disable_heater(); // switch off all heaters.
   
@@ -172,7 +170,7 @@ void PID_autotune(float temp)
           t_low=t2 - t1;
           if(cycles > 0) {
             bias += (d*(t_high - t_low))/(t_low + t_high);
-            bias = constrain(bias, 20 ,PID_MAX-20);
+            bias = constrain(bias, 30 ,PID_MAX-30);
             if(bias > PID_MAX/2) d = PID_MAX - 1 - bias;
             else d = bias;
 
@@ -216,26 +214,29 @@ void PID_autotune(float temp)
         }
       } 
     }
-    if(input > (temp + 20)) {
+    if(input > (temp + 30)) {
       SERIAL_PROTOCOLLNPGM("PID Autotune failed! Temperature to high");
+      SERIAL_PROTOCOLLNPGM("ok");
       return;
     }
     if(millis() - temp_millis > 2000) {
       temp_millis = millis();
-      SERIAL_PROTOCOLPGM("ok T:");
+      SERIAL_PROTOCOLPGM("T:");
       SERIAL_PROTOCOL(degHotend(0));   
       SERIAL_PROTOCOLPGM(" @:");
       SERIAL_PROTOCOLLN(getHeaterPower(0));       
     }
     if(((millis() - t1) + (millis() - t2)) > (10L*60L*1000L*2L)) {
       SERIAL_PROTOCOLLNPGM("PID Autotune failed! timeout");
+      SERIAL_PROTOCOLLNPGM("ok");
+
       return;
     }
     if(cycles > 5) {
       SERIAL_PROTOCOLLNPGM("PID Autotune finished ! Place the Kp, Ki and Kd constants in the configuration.h");
+      SERIAL_PROTOCOLLNPGM("ok");
       return;
     }
-    LCD_STATUS;
   }
 }
 
@@ -259,10 +260,6 @@ void manage_heater()
   static int bed_is_on=0;
 #endif
 
-  #ifdef USE_WATCHDOG
-    wd_reset();
-  #endif
-  
   float pid_input;
   float pid_output;
 
@@ -281,11 +278,18 @@ void manage_heater()
 
     #ifndef PID_OPENLOOP
         pid_error[e] = pid_setpoint[e] - pid_input;
-        if(pid_error[e] > 10) {
+
+        //d term is calculated regardless of running PID or not
+        //K1 defined in Configuration.h in the PID settings
+        //Added by Ayberk Ozgur
+        dTerm[e] = (1.0 - K1)*(Kd*(pid_input - temp_dState[e])) + K1*dTerm[e];
+        temp_dState[e] = pid_input;
+
+        if(pid_error[e] > 30) {
           pid_output = PID_MAX;
           pid_reset[e] = true;
         }
-        else if(pid_error[e] < -10) {
+        else if(pid_error[e] < -30) {
           pid_output = 0;
           pid_reset[e] = true;
         }
@@ -294,19 +298,32 @@ void manage_heater()
             temp_iState[e] = 0.0;
             pid_reset[e] = false;
           }
+
+          //p term
           pTerm[e] = Kp * pid_error[e];
+
+          //i term
           temp_iState[e] += pid_error[e];
           temp_iState[e] = constrain(temp_iState[e], temp_iState_min[e], temp_iState_max[e]);
           iTerm[e] = Ki * temp_iState[e];
-          //K1 defined in Configuration.h in the PID settings
-          #define K2 (1.0-K1)
-          dTerm[e] = (Kd * (pid_input - temp_dState[e]))*K2 + (K1 * dTerm[e]);
-          temp_dState[e] = pid_input;
+
           pid_output = constrain(pTerm[e] + iTerm[e] - dTerm[e], 0, PID_MAX);
         }
     #endif //PID_OPENLOOP
     #ifdef PID_DEBUG
-    SERIAL_ECHOLN(" PIDDEBUG "<<e<<": Input "<<pid_input<<" Output "<<pid_output" pTerm "<<pTerm[e]<<" iTerm "<<iTerm[e]<<" dTerm "<<dTerm[e]);  
+        SERIAL_ECHO_START;
+        SERIAL_ECHO(" PIDDEBUG ");
+        SERIAL_ECHO(e);
+        SERIAL_ECHO(": Input ");
+        SERIAL_ECHO(pid_input);
+        SERIAL_ECHO(" Output ");
+        SERIAL_ECHO(pid_output);
+        SERIAL_ECHO(" pTerm ");
+        SERIAL_ECHO(pTerm[e]);
+        SERIAL_ECHO(" iTerm ");
+        SERIAL_ECHO(iTerm[e]);
+        SERIAL_ECHO(" dTerm ");
+        SERIAL_ECHOLN(dTerm[e]);
     #endif //PID_DEBUG
   #else /* PID off */
     pid_output = 0;
@@ -329,7 +346,6 @@ void manage_heater()
     if(watchmillis && millis() - watchmillis > WATCHPERIOD){
         if(watch_oldtemp[0] >= degHotend(active_extruder)){
             setTargetHotend(0,active_extruder);
-            LCD_MESSAGEPGM("Heating failed");
             SERIAL_ECHO_START;
             SERIAL_ECHOLN("Heating failed");
         }else{
@@ -1018,4 +1034,3 @@ ISR(TIMER0_COMPB_vect)
 #endif
   }
 }
-

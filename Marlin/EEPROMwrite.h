@@ -6,14 +6,6 @@
 #include "temperature.h"
 //#include <EEPROM.h>
 
-int plaPreheatHotendTemp;
-int plaPreheatHPBTemp;
-int plaPreheatFanSpeed;
-
-int absPreheatHotendTemp;
-int absPreheatHPBTemp;
-int absPreheatFanSpeed;
-
 template <class T> int EEPROM_writeAnything(int &ee, const T& value)
 {
   const byte* p = (const byte*)(const void*)&value;
@@ -44,7 +36,7 @@ template <class T> int EEPROM_readAnything(int &ee, T& value)
 // the default values are used whenever there is a change to the data, to prevent
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
-#define EEPROM_VERSION "V07"
+#define EEPROM_VERSION "V11" // PimR 20-07-2015 Added extruder offsets
 
 inline void EEPROM_StoreSettings() 
 {
@@ -64,12 +56,8 @@ inline void EEPROM_StoreSettings()
   EEPROM_writeAnything(i,max_z_jerk);
   EEPROM_writeAnything(i,max_e_jerk);
   EEPROM_writeAnything(i,add_homeing);
-  EEPROM_writeAnything(i,plaPreheatHotendTemp);
-  EEPROM_writeAnything(i,plaPreheatHPBTemp);
-  EEPROM_writeAnything(i,plaPreheatFanSpeed);
-  EEPROM_writeAnything(i,absPreheatHotendTemp);
-  EEPROM_writeAnything(i,absPreheatHPBTemp);
-  EEPROM_writeAnything(i,absPreheatFanSpeed);
+  EEPROM_writeAnything(i,extruder_offset);
+
   #ifdef PIDTEMP
     EEPROM_writeAnything(i,Kp);
     EEPROM_writeAnything(i,Ki);
@@ -88,7 +76,7 @@ inline void EEPROM_StoreSettings()
 }
 
 
-inline void EEPROM_printSettings()
+inline void EEPROM_printSettings(bool def = false)
 {  // if def=true, the default values will be used
 //  #ifdef EEPROM_SETTINGS  
       SERIAL_ECHO_START;
@@ -98,9 +86,8 @@ inline void EEPROM_printSettings()
       SERIAL_ECHOPAIR(" Y",axis_steps_per_unit[1]);
       SERIAL_ECHOPAIR(" Z",axis_steps_per_unit[2]);
       SERIAL_ECHOPAIR(" E",axis_steps_per_unit[3]);
-      SERIAL_ECHOLN("");
-      
-    SERIAL_ECHO_START;
+      SERIAL_ECHOLN("");      
+      SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM("Maximum feedrates (mm/s):");
       SERIAL_ECHO_START;
       SERIAL_ECHOPAIR("  M203 X",max_feedrate[0]);
@@ -108,7 +95,7 @@ inline void EEPROM_printSettings()
       SERIAL_ECHOPAIR(" Z", max_feedrate[2] ); 
       SERIAL_ECHOPAIR(" E", max_feedrate[3]);
       SERIAL_ECHOLN("");
-    SERIAL_ECHO_START;
+      SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM("Maximum Acceleration (mm/s2):");
       SERIAL_ECHO_START;
       SERIAL_ECHOPAIR("  M201 X" ,max_acceleration_units_per_sq_second[0] ); 
@@ -116,13 +103,13 @@ inline void EEPROM_printSettings()
       SERIAL_ECHOPAIR(" Z" ,max_acceleration_units_per_sq_second[2] );
       SERIAL_ECHOPAIR(" E" ,max_acceleration_units_per_sq_second[3]);
       SERIAL_ECHOLN("");
-    SERIAL_ECHO_START;
+      SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM("Acceleration: S=acceleration, T=retract acceleration");
       SERIAL_ECHO_START;
       SERIAL_ECHOPAIR("  M204 S",acceleration ); 
       SERIAL_ECHOPAIR(" T" ,retract_acceleration);
       SERIAL_ECHOLN("");
-    SERIAL_ECHO_START;
+      SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM("Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum xY jerk (mm/s),  Z=maximum Z jerk (mm/s)");
       SERIAL_ECHO_START;
       SERIAL_ECHOPAIR("  M205 S",minimumfeedrate ); 
@@ -132,14 +119,14 @@ inline void EEPROM_printSettings()
       SERIAL_ECHOPAIR(" Z" ,max_z_jerk);
       SERIAL_ECHOPAIR(" E" ,max_e_jerk);
       SERIAL_ECHOLN(""); 
-    SERIAL_ECHO_START;
+      SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM("Home offset (mm):");
       SERIAL_ECHO_START;
       SERIAL_ECHOPAIR("  M206 X",add_homeing[0] );
       SERIAL_ECHOPAIR(" Y" ,add_homeing[1] );
       SERIAL_ECHOPAIR(" Z" ,add_homeing[2] );
       SERIAL_ECHOLN("");
-    #ifdef PIDTEMP
+      #ifdef PIDTEMP
       SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM("PID settings:");
       SERIAL_ECHO_START;
@@ -147,7 +134,18 @@ inline void EEPROM_printSettings()
       SERIAL_ECHOPAIR(" I" ,Ki/PID_dT); 
       SERIAL_ECHOPAIR(" D" ,Kd*PID_dT);
       SERIAL_ECHOLN(""); 
-    #endif
+      #endif
+      if(!def) // Only show Extruder with EEPROM reading or Memory Reading
+      {
+        SERIAL_ECHO_START;
+        SERIAL_ECHOLNPGM("Extruder 2 offsets(will not reset with firmware reset):");
+        SERIAL_ECHO_START;
+        // Inverted, see comments at M50 for explanation
+        SERIAL_ECHOPAIR(" X" ,-extruder_offset[0][1]);
+        SERIAL_ECHOPAIR(" Y" ,-extruder_offset[1][1]);
+        SERIAL_ECHOLN("");
+      }
+ 
 //  #endif
 } 
 
@@ -174,12 +172,7 @@ inline void EEPROM_RetrieveSettings(bool def=false)
       EEPROM_readAnything(i,max_z_jerk);
       EEPROM_readAnything(i,max_e_jerk);
       EEPROM_readAnything(i,add_homeing);
-	  EEPROM_readAnything(i,plaPreheatHotendTemp);
-	  EEPROM_readAnything(i,plaPreheatHPBTemp);
-	  EEPROM_readAnything(i,plaPreheatFanSpeed);
-	  EEPROM_readAnything(i,absPreheatHotendTemp);
-	  EEPROM_readAnything(i,absPreheatHPBTemp);
-	  EEPROM_readAnything(i,absPreheatFanSpeed);
+      EEPROM_readAnything(i,extruder_offset);
       #ifndef PIDTEMP
         float Kp,Ki,Kd;
       #endif
@@ -210,20 +203,15 @@ inline void EEPROM_RetrieveSettings(bool def=false)
       max_xy_jerk=DEFAULT_XYJERK;
       max_z_jerk=DEFAULT_ZJERK;
       max_e_jerk=DEFAULT_EJERK;
+      Kp=DEFAULT_Kp;
+      Ki=(DEFAULT_Ki*PID_dT);
+      Kd=(DEFAULT_Kd/PID_dT);
       add_homeing[0] = add_homeing[1] = add_homeing[2] = 0;
       SERIAL_ECHO_START;
       SERIAL_ECHOLN("Using Default settings:");
-#ifdef ULTIPANEL
-	  plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP;
-	  plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP;
-	  plaPreheatFanSpeed = PLA_PREHEAT_FAN_SPEED;
-	  absPreheatHotendTemp = ABS_PREHEAT_HOTEND_TEMP;
-	  absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP;
-	  absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
-#endif
     }
   #ifdef EEPROM_CHITCHAT
-    EEPROM_printSettings();
+    EEPROM_printSettings(def);
   #endif
 }  
 

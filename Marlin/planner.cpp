@@ -55,7 +55,6 @@
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"
-#include "ultralcd.h"
 #include "language.h"
 
 //===========================================================================
@@ -101,14 +100,6 @@ volatile unsigned char block_buffer_tail;           // Index of the block to pro
 //===========================================================================
 #ifdef PREVENT_DANGEROUS_EXTRUDE
 bool allow_cold_extrude=false;
-#endif
-#ifdef XY_FREQUENCY_LIMIT
-// Used for the frequency limit
-static unsigned char old_direction_bits = 0;               // Old direction bits. Used for speed calculations
-static long x_segment_time[3]={
-  0,0,0};                     // Segment times (in us). Used for speed calculations
-static long y_segment_time[3]={
-  0,0,0};
 #endif
 
 // Returns the index of the next block in the ring buffer
@@ -502,7 +493,6 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   while(block_buffer_tail == next_buffer_head) { 
     manage_heater(); 
     manage_inactivity(); 
-    LCD_STATUS;
   }
 
   // The target position of the tool in absolute steps
@@ -639,35 +629,6 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
       speed_factor = min(speed_factor, max_feedrate[i] / fabs(current_speed[i]));
   }
 
-  // Max segement time in us.
-#ifdef XY_FREQUENCY_LIMIT
-#define MAX_FREQ_TIME (1000000.0/XY_FREQUENCY_LIMIT)
-
-  // Check and limit the xy direction change frequency
-  unsigned char direction_change = block->direction_bits ^ old_direction_bits;
-  old_direction_bits = block->direction_bits;
-
-  if((direction_change & (1<<X_AXIS)) == 0) {
-    x_segment_time[0] += segment_time;
-  }
-  else {
-    x_segment_time[2] = x_segment_time[1];
-    x_segment_time[1] = x_segment_time[0];
-    x_segment_time[0] = segment_time;
-  }
-  if((direction_change & (1<<Y_AXIS)) == 0) {
-    y_segment_time[0] += segment_time;
-  }
-  else {
-    y_segment_time[2] = y_segment_time[1];
-    y_segment_time[1] = y_segment_time[0];
-    y_segment_time[0] = segment_time;
-  }
-  long max_x_segment_time = max(x_segment_time[0], max(x_segment_time[1], x_segment_time[2]));
-  long max_y_segment_time = max(y_segment_time[0], max(y_segment_time[1], y_segment_time[2]));
-  long min_xy_segment_time =min(max_x_segment_time, max_y_segment_time);
-  if(min_xy_segment_time < MAX_FREQ_TIME) speed_factor = min(speed_factor, speed_factor * (float)min_xy_segment_time / (float)MAX_FREQ_TIME);
-#endif
 
   // Correct the speed  
   if( speed_factor < 1.0) {
