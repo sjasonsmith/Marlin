@@ -14,7 +14,7 @@ exec_test () {
     printf "\033[0;32mPassed\033[0m\n"
     return 0
   else
-    git reset --hard HEAD
+    #git reset --hard HEAD
     printf "\033[0;31mFailed!\033[0m\n"
     return 1
   fi
@@ -31,11 +31,11 @@ if [[ $2 = "ALL" ]]; then
     printf "Running \033[0;32m$f\033[0m Tests\n"
     exec_test $1 "$testenv --target clean" "Setup Build Environment"
     $f $1 $testenv
-    git reset --hard HEAD
+    #git reset --hard HEAD
   done
 else
   exec_test $1 "$2 --target clean" "Setup Build Environment"
   $2-tests $1 $2
-  git reset --hard HEAD
+  #git reset --hard HEAD
 fi
 printf "\033[0;32mAll tests completed successfully\033[0m\n"
