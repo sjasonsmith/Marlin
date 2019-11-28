@@ -1481,8 +1481,8 @@ void Stepper::stepper_pulse_phase_isr() {
       i2s_push_sample();
     #endif
 
-    // TODO: need to deal with MINIMUM_STEPPER_PULSE over i2s
-    #if MINIMUM_STEPPER_PULSE && DISABLED(I2S_STEPPER_STREAM)
+    // TODO: need to deal with MINIMUM_STEPPER_PULSE_NS over i2s
+    #if MINIMUM_STEPPER_PULSE_NS && DISABLED(I2S_STEPPER_STREAM)
       // Just wait for the requested pulse duration
       while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
     #endif
@@ -1521,7 +1521,7 @@ void Stepper::stepper_pulse_phase_isr() {
     if (events_to_do) {
       // Just wait for the requested pulse duration
       while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
-      #if MINIMUM_STEPPER_PULSE
+      #if MINIMUM_STEPPER_PULSE_NS
         // Add to the value, the time that the pulse must be active (to be used on the next loop)
         pulse_end += hal_timer_t(MIN_PULSE_TICKS);
       #endif
@@ -1925,7 +1925,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
       #endif
 
       // Enforce a minimum duration for STEP pulse ON
-      #if MINIMUM_STEPPER_PULSE
+      #if MINIMUM_STEPPER_PULSE_NS
         // Just wait for the requested pulse duration
         while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
       #endif
@@ -1946,7 +1946,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
       // Just wait for the requested pulse duration
       if (LA_steps) {
         while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
-        #if MINIMUM_STEPPER_PULSE
+        #if MINIMUM_STEPPER_PULSE_NS
           // Add to the value, the time that the pulse must be active (to be used on the next loop)
           pulse_end += hal_timer_t(MIN_PULSE_TICKS);
         #endif
@@ -2297,8 +2297,8 @@ void Stepper::report_positions() {
 
 #if ENABLED(BABYSTEPPING)
 
-  #if MINIMUM_STEPPER_PULSE
-    #define STEP_PULSE_CYCLES ((MINIMUM_STEPPER_PULSE) * CYCLES_PER_MICROSECOND)
+  #if MINIMUM_STEPPER_PULSE_NS
+    #define STEP_PULSE_CYCLES NANOSECONDS_TO_CYCLES(MINIMUM_STEPPER_PULSE_NS)
   #else
     #define STEP_PULSE_CYCLES 0
   #endif

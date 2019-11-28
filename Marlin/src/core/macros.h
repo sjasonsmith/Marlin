@@ -58,6 +58,9 @@
   #define CYCLES_PER_MICROSECOND (F_CPU / 1000000UL) // 16 or 20 on AVR
 #endif
 
+// Number of cycles in the specified number of nanoseconds, rounded up
+#define NANOSECONDS_TO_CYCLES(NS) ((NS + NANOSECONDS_PER_CYCLE - 1) / NANOSECONDS_PER_CYCLE)
+
 // Nanoseconds per cycle
 #define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
 
