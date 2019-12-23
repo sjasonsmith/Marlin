@@ -345,17 +345,19 @@ constexpr uint32_t NS_PER_PULSE_TIMER_TICK = 1000000000UL / (STEPPER_TIMER_RATE)
 // Round up when converting from ns to timer ticks
 constexpr uint32_t NS_TO_PULSE_TIMER_TICKS(uint32_t NS) { return (NS + (NS_PER_PULSE_TIMER_TICK) / 2) / (NS_PER_PULSE_TIMER_TICK); }
 
+// Use a simple delay to time the high pulse, since no other actions
+// occur in this phase of the pulse. This eliminates the overhead
+// of working with the pulse timer.
+#define PULSE_DIRECT_DELAY_OVERHEAD_NS (CYCLES_TO_NS(PULSE_DIRECT_DELAY_OVERHEAD_CYCLES))
+constexpr uint_fast16_t pulse_high_delay_ns = _MIN_PULSE_HIGH_NS - _MIN(_MIN_PULSE_HIGH_NS, (PULSE_DIRECT_DELAY_OVERHEAD_NS));
+#define PULSE_HIGH_DELAY()  DELAY_NS(pulse_high_delay_ns)
+
+// Use the pulse timer during the low phase, to allow processing
+// to occur in parallel with the pulse duration.
 #define TIMER_SETUP_NS (CYCLES_TO_NS(TIMER_READ_ADD_AND_STORE_CYCLES))
-
-#define PULSE_HIGH_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_HIGH_NS - _MIN(_MIN_PULSE_HIGH_NS, TIMER_SETUP_NS)))
 #define PULSE_LOW_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_LOW_NS - _MIN(_MIN_PULSE_LOW_NS, TIMER_SETUP_NS)))
-
-#define START_TIMED_PULSE(DIR) (end_tick_count = HAL_timer_get_count(PULSE_TIMER_NUM) + PULSE_##DIR##_TICK_COUNT)
-#define AWAIT_TIMED_PULSE() while (HAL_timer_get_count(PULSE_TIMER_NUM) < end_tick_count) { }
-#define START_HIGH_PULSE()  START_TIMED_PULSE(HIGH)
-#define START_LOW_PULSE()   START_TIMED_PULSE(LOW)
-#define AWAIT_HIGH_PULSE()  AWAIT_TIMED_PULSE()
-#define AWAIT_LOW_PULSE()   AWAIT_TIMED_PULSE()
+#define START_LOW_PULSE()   do { end_tick_count = HAL_timer_get_count(PULSE_TIMER_NUM) + PULSE_LOW_TICK_COUNT; } while(0)
+#define AWAIT_LOW_PULSE()   while (HAL_timer_get_count(PULSE_TIMER_NUM) < end_tick_count) { }
 
 void Stepper::wake_up() {
   // TCNT1 = 0;
@@ -1526,8 +1528,7 @@ void Stepper::stepper_pulse_phase_isr() {
 
     // TODO: need to deal with MINIMUM_STEPPER_PULSE over i2s
     #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
-      START_HIGH_PULSE();
-      AWAIT_HIGH_PULSE();
+      PULSE_HIGH_DELAY();
     #endif
 
     // Pulse stop
@@ -1967,13 +1968,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
       // Enforce a minimum duration for STEP pulse ON
       #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE)
-        START_HIGH_PULSE();
-      #endif
-
-      LA_steps < 0 ? ++LA_steps : --LA_steps;
-
-      #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE)
-        AWAIT_HIGH_PULSE();
+        PULSE_HIGH_DELAY();
       #endif
 
       // Set the STEP pulse OFF
@@ -1983,10 +1978,12 @@ uint32_t Stepper::stepper_block_phase_isr() {
         E_STEP_WRITE(stepper_extruder, INVERT_E_STEP_PIN);
       #endif
 
+      LA_steps < 0 ? ++LA_steps : --LA_steps;
+
       // For minimum pulse time wait before looping
       // Just wait for the requested pulse duration
       #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE)
-        if (LA_steps) START_LOW_PULSE();
+        if (LA_steps > 0) START_LOW_PULSE();
       #endif
     } // LA_steps
 
