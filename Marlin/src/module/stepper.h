@@ -75,6 +75,11 @@
    */
   #define TIMER_READ_ADD_AND_STORE_CYCLES 34UL
 
+  // Cycles to eliminate from delay time, to account for normal
+  // overhead. Should always be rounded down, to ensure error results
+  // in longer rather than shorter pulses.
+  #define PULSE_DIRECT_DELAY_OVERHEAD_CYCLES uint_fast8_t(0)
+
   // The base ISR takes 792 cycles
   #define ISR_BASE_CYCLES  792UL
 
@@ -104,6 +109,11 @@
 #else
   // Cycles to perform actions in START_TIMED_PULSE
   #define TIMER_READ_ADD_AND_STORE_CYCLES 13UL
+
+  // Cycles to eliminate from delay time, to account for normal
+  // overhead. Should always be rounded down, to ensure error results
+  // in longer rather than shorter pulses.
+  #define PULSE_DIRECT_DELAY_OVERHEAD_CYCLES uint8_t(1)
 
   // The base ISR takes 752 cycles
   #define ISR_BASE_CYCLES  752UL
@@ -185,7 +195,7 @@
   constexpr uint32_t _MIN_PULSE_LOW_NS = _MIN_PULSE_HIGH_NS;
 #elif MAXIMUM_STEPPER_RATE
   // Assume 50% duty cycle
-  constexpr uint32_t _MIN_PULSE_HIGH_NS = 500000000UL / MAXIMUM_STEPPER_RATE;
+  constexpr uint_fast16_t _MIN_PULSE_HIGH_NS = 500000000UL / MAXIMUM_STEPPER_RATE;
   constexpr uint32_t _MIN_PULSE_LOW_NS = _MIN_PULSE_HIGH_NS;
 #else
   #error "Expected at least one of MINIMUM_STEPPER_PULSE or MAXIMUM_STEPPER_RATE to be defined"
