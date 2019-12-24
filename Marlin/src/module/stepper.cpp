@@ -1906,14 +1906,19 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
     if (LA_use_advance_lead) {
       if (step_events_completed > decelerate_after && LA_current_adv_steps > LA_final_adv_steps) {
-        LA_steps--;
-        LA_current_adv_steps--;
+        if (LA_steps >= 0) {
+          --LA_steps;
+          --LA_current_adv_steps;
+        }
         interval = LA_isr_rate;
       }
       else if (step_events_completed < decelerate_after && LA_current_adv_steps < LA_max_adv_steps) {
-             //step_events_completed <= (uint32_t)accelerate_until) {
-        LA_steps++;
-        LA_current_adv_steps++;
+        // Do not add additional steps if this is occurring at the same time as steps from the pulse ISR
+        // This avoids overly fast pulses in the middle of otherwise slow pulse trains
+        if (LA_steps <= 0) {
+          ++LA_steps;
+          ++LA_current_adv_steps;
+        }
         interval = LA_isr_rate;
       }
       else
