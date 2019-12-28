@@ -691,3 +691,8 @@
   #endif // NEWPANEL
 
 #endif // HAS_SPI_LCD
+
+  #define DEBUG_STEP_PIN_stepISR 40
+  #define DEBUG_STEP_PIN_advanceISR 59
+  #define DEBUG_STEP_PIN_advanceLoop 42
+  #define DEBUG_STEP_PIN_stepISR_e 44

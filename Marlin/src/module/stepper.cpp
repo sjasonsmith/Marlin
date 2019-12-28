@@ -1280,6 +1280,7 @@ HAL_STEP_TIMER_ISR() {
 #endif
 
 void Stepper::isr() {
+  WRITE(DEBUG_STEP_PIN_stepISR, true);
   #ifndef __AVR__
     // Disable interrupts, to avoid ISR preemption while we reprogram the period
     // (AVR enters the ISR with global interrupts disabled, so no need to do it here)
@@ -1405,6 +1406,7 @@ void Stepper::isr() {
 
   // Don't forget to finally reenable interrupts
   ENABLE_ISRS();
+  WRITE(DEBUG_STEP_PIN_stepISR, false);
 }
 
 /**
@@ -1487,7 +1489,10 @@ void Stepper::stepper_pulse_phase_isr() {
         #if ENABLED(LIN_ADVANCE)
           delta_error.e -= advance_divisor;
           // Don't step E here - But remember the number of steps to perform
+          WRITE(DEBUG_STEP_PIN_stepISR_e, true);
           motor_direction(E_AXIS) ? --LA_steps : ++LA_steps;
+          WRITE(DEBUG_STEP_PIN_stepISR_e, false);
+
         #else
           step_needed[E_AXIS] = delta_error.e >= 0;
         #endif
@@ -1902,6 +1907,8 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
   // Timer interrupt for E. LA_steps is set in the main routine
   uint32_t Stepper::advance_isr() {
+  WRITE(DEBUG_STEP_PIN_advanceISR, true);
+
     uint32_t interval;
 
     if (LA_use_advance_lead) {
@@ -1957,6 +1964,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
     hal_timer_t end_tick_count = 0;
 
     while (LA_steps) {
+  WRITE(DEBUG_STEP_PIN_advanceLoop, true);
       #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
         if (firstStep)
           firstStep = false;
@@ -1990,9 +1998,12 @@ uint32_t Stepper::stepper_block_phase_isr() {
       #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE)
         if (LA_steps > 0) START_LOW_PULSE();
       #endif
+  WRITE(DEBUG_STEP_PIN_advanceLoop, false);
     } // LA_steps
 
+  WRITE(DEBUG_STEP_PIN_advanceISR, false);
     return interval;
+
   }
 #endif // LIN_ADVANCE
 
@@ -2214,6 +2225,15 @@ void Stepper::init() {
     #endif
     digipot_init();
   #endif
+
+  SET_OUTPUT(DEBUG_STEP_PIN_stepISR);
+  WRITE(DEBUG_STEP_PIN_stepISR, false);
+  SET_OUTPUT(DEBUG_STEP_PIN_advanceISR);
+  WRITE(DEBUG_STEP_PIN_advanceISR, false);
+  SET_OUTPUT(DEBUG_STEP_PIN_advanceLoop);
+  WRITE(DEBUG_STEP_PIN_advanceLoop, false);
+  SET_OUTPUT(DEBUG_STEP_PIN_stepISR_e);
+  WRITE(DEBUG_STEP_PIN_stepISR_e, false);
 }
 
 /**

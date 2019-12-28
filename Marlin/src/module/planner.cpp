@@ -2191,6 +2191,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #if ENABLED(LIN_ADVANCE)
     if (block->use_advance_lead) {
       block->advance_speed = (STEPPER_TIMER_RATE) / (extruder_advance_K[active_extruder] * block->e_D_ratio * block->acceleration * settings.axis_steps_per_mm[E_AXIS_N(extruder)]);
+      block->advance_speed = _MIN(block->advance_speed, SQRT(block->nominal_speed_sqr));
       #if ENABLED(LA_DEBUG)
         if (extruder_advance_K[active_extruder] * block->e_D_ratio * block->acceleration * 2 < SQRT(block->nominal_speed_sqr) * block->e_D_ratio)
           SERIAL_ECHOLNPGM("More than 2 steps per eISR loop executed.");
