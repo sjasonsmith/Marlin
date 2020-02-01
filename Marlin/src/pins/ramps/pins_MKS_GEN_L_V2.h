@@ -69,6 +69,23 @@
 #define E0_DIAG_PIN            2
 #define E1_DIAG_PIN           15
 
+#ifndef E1_SERIAL_RX_PIN
+  // The pins wired to E1 are not compatible with software serial, which requires port change interrupts.
+  // This driver can be manually connected to a compatible pin on the board
+  // SERVO0 and SERVO1 are readily accessible and serial-compatible.
+  // Uncomment one of the sets of lines below to use one of these pins.
+  #define E1_SERIAL_RX_PIN  11 // SERVO0
+  #define SERVO0_PIN -1
+
+  //#define E1_SERIAL_RX_PIN  12 // SERVO1
+  //#define SERVO1_PIN -1
+#endif
+
+#if !defined(E1_SERIAL_TX_PIN) && defined(E1_SERIAL_RX_PIN)
+  // Use single-pin serial
+  #define E1_SERIAL_TX_PIN E1_SERIAL_RX_PIN
+#endif
+
 #ifndef SERVO1_PIN
   #define SERVO1_PIN          12
 #endif
@@ -77,13 +94,6 @@
 #endif
 #ifndef SERVO3_PIN
   #define SERVO3_PIN          32
-#endif
-
-#ifndef E1_SERIAL_TX_PIN
-  #define E1_SERIAL_TX_PIN    20
-#endif
-#ifndef E1_SERIAL_RX_PIN
-  #define E1_SERIAL_RX_PIN    21
 #endif
 
 #include "pins_RAMPS.h"
