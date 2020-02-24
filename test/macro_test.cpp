@@ -132,6 +132,62 @@ void test_RREPEAT2(void) {
     TEST_ASSERT_EQUAL(45, COUNT_BY(9, FIVE));
 }
 
+void test_RREPEAT2_defined(void) {
+#define _COUNT_BY_ONE(N) 1
+#define _COUNT_BY_TWO(N) 2
+#define _COUNT_BY_FIVE(N) 5
+
+#define _COUNT(N,T)    + _COUNT_BY_##T(N)
+#define COUNT_BY(N, T)  (0 RREPEAT2(N, _COUNT, T))
+
+
+    TEST_ASSERT_EQUAL(5, COUNT_BY(5, ONE));
+    TEST_ASSERT_EQUAL(1, COUNT_BY(1, ONE));
+    TEST_ASSERT_EQUAL(2, COUNT_BY(1, TWO));
+    TEST_ASSERT_EQUAL(18, COUNT_BY(9, TWO));
+    TEST_ASSERT_EQUAL(5, COUNT_BY(1, FIVE));
+    TEST_ASSERT_EQUAL(45, COUNT_BY(9, FIVE));
+
+    #define E0_MYVAR MyValue
+    #define _HAS_MYVAR(N) defined(N##_MYVAR)
+
+    constexpr bool has_myvar =
+    #if _HAS_MYVAR(E0)
+        true;
+    #else
+        false;
+    #endif
+    TEST_ASSERT_TRUE(has_myvar);
+
+    #define HAS_MYVAR(N) _HAS_MYVAR(N)
+    constexpr bool has_myvar2 =
+    #if HAS_MYVAR(E0)
+        true;
+    #else
+        false;
+    #endif
+    TEST_ASSERT_TRUE(has_myvar2);
+
+    #define AXIS_HAS_MYVAR(A) (_HAS_MYVAR(A))
+    constexpr bool axis_has_myvar =
+    #if AXIS_HAS_MYVAR(E0)
+        true;
+    #else
+        false;
+    #endif
+    TEST_ASSERT_TRUE(axis_has_myvar);
+
+    #define OR_AHMV(N)    || AXIS_HAS_MYVAR(E0)
+    #define ANY_AXIS_HAS_MYVAR   (0 RREPEAT(1, OR_AHMV))
+    constexpr bool any_axis_has_myvar =
+    #if ANY_AXIS_HAS_MYVAR
+        true;
+    #else
+        false;
+    #endif
+    TEST_ASSERT_TRUE(any_axis_has_myvar);
+}
+
 void test_something(void) {
     #define E0_HARDWARE_SERIAL Serial1
     #define _HAS_HW_SERIAL(N) defined(N##_HARDWARE_SERIAL)
@@ -191,10 +247,11 @@ void test_something(void) {
 int main(int argc, char **argv) {
     UNITY_BEGIN();
     RUN_TEST(test_AXIS_IS_TMC_A4988);
-    RUN_TEST(test_AXIS_IS_TMC_TMC2209);
+    //RUN_TEST(test_AXIS_IS_TMC_TMC2209);
     //RUN_TEST(test_AXIS_IS_TMC_TMC2209_E0);
     RUN_TEST(test_RREPEAT2);
-    RUN_TEST(test_something);
+    RUN_TEST(test_RREPEAT2_defined);
+    //RUN_TEST(test_something);
     UNITY_END();
 
     return 0;
