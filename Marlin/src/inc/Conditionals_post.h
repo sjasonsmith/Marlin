@@ -1444,59 +1444,6 @@
 #define HAS_Z4_MAX (PIN_EXISTS(Z4_MAX))
 #define HAS_Z_MIN_PROBE_PIN (HAS_CUSTOM_PROBE_PIN && PIN_EXISTS(Z_MIN_PROBE))
 
-// Cannot use a macro with a defined() statement inside REPEAT macros.
-// [AXIS]_HARDWARE_SERIAL definitions are typically strings which cannot be
-// tested directly, as they will evaluate to 0.
-#ifdef X_HARDWARE_SERIAL
-  #define _HAS_X_HARDWARE_SERIAL 1
-#endif
-#ifdef X2_HARDWARE_SERIAL
-  #define _HAS_X2_HARDWARE_SERIAL 1
-#endif
-#ifdef Y_HARDWARE_SERIAL
-  #define _HAS_Y_HARDWARE_SERIAL 1
-#endif
-#ifdef Y2_HARDWARE_SERIAL
-  #define _HAS_Y2_HARDWARE_SERIAL 1
-#endif
-#ifdef Z_HARDWARE_SERIAL
-  #define _HAS_Z_HARDWARE_SERIAL 1
-#endif
-#ifdef Z2_HARDWARE_SERIAL
-  #define _HAS_Z2_HARDWARE_SERIAL 1
-#endif
-#ifdef Z3_HARDWARE_SERIAL
-  #define _HAS_Z3_HARDWARE_SERIAL 1
-#endif
-#ifdef Z4_HARDWARE_SERIAL
-  #define _HAS_Z4_HARDWARE_SERIAL 1
-#endif
-#ifdef E0_HARDWARE_SERIAL
-  #define _HAS_E0_HARDWARE_SERIAL 1
-#endif
-#ifdef E1_HARDWARE_SERIAL
-  #define _HAS_E1_HARDWARE_SERIAL 1
-#endif
-#ifdef E2_HARDWARE_SERIAL
-  #define _HAS_E2_HARDWARE_SERIAL 1
-#endif
-#ifdef E3_HARDWARE_SERIAL
-  #define _HAS_E3_HARDWARE_SERIAL 1
-#endif
-#ifdef E4_HARDWARE_SERIAL
-  #define _HAS_E4_HARDWARE_SERIAL 1
-#endif
-#ifdef E5_HARDWARE_SERIAL
-  #define _HAS_E5_HARDWARE_SERIAL 1
-#endif
-#ifdef E6_HARDWARE_SERIAL
-  #define _HAS_E6_HARDWARE_SERIAL 1
-#endif
-#ifdef E7_HARDWARE_SERIAL
-  #define _HAS_E7_HARDWARE_SERIAL 1
-#endif
-
-
 //
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
 //
@@ -2163,7 +2110,9 @@
 #endif
 
 // Add commands that need sub-codes to this list
-#define USE_GCODE_SUBCODES ANY(G38_PROBE_TARGET, CNC_COORDINATE_SYSTEMS, POWER_LOSS_RECOVERY)
+#if ANY(G38_PROBE_TARGET, CNC_COORDINATE_SYSTEMS, POWER_LOSS_RECOVERY)
+  #define USE_GCODE_SUBCODES
+#endif
 
 // Parking Extruder
 #if ENABLED(PARKING_EXTRUDER)
