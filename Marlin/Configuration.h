@@ -705,7 +705,7 @@
   #endif
 
   // Distance between bed and nozzle Z home position
-  #define DELTA_HEIGHT 320.00             // (mm) Get this value from G33 auto calibrate
+  #define DELTA_HEIGHT 278.00             // (mm) Get this value from G33 auto calibrate
 
   #define DELTA_ENDSTOP_ADJ { 0.0, 0.0, 0.0 } // Get these values from G33 auto calibrate
 
@@ -1142,7 +1142,7 @@
 #define Z_CLEARANCE_MULTI_PROBE    5 // Z Clearance between multiple probes
 #define Z_AFTER_PROBING            5 // Z position after probing is done
 
-#define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
+#define Z_PROBE_LOW_POINT          -5 // Farthest distance below the trigger-point to go before stopping
 
 // For M851 give a range for adjusting the Z probe offset
 #define Z_PROBE_OFFSET_RANGE_MIN -40
@@ -1361,7 +1361,7 @@
  * Turn on with the command 'M111 S32'.
  * NOTE: Requires a lot of PROGMEM!
  */
-//#define DEBUG_LEVELING_FEATURE
+#define DEBUG_LEVELING_FEATURE
 
 #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL)
   // Gradually reduce leveling correction until a set height is reached,
