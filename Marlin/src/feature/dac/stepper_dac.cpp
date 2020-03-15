@@ -25,6 +25,7 @@
  */
 
 #include "../../inc/MarlinConfig.h"
+#include "../../MarlinCore.h"
 
 #if ENABLED(DAC_STEPPER_CURRENT)
 
@@ -74,8 +75,8 @@ void dac_current_raw(uint8_t channel, uint16_t val) {
   mcp4728_simpleCommand(UPDATE);
 }
 
-static float dac_perc(int8_t n) { return 100.0 * mcp4728_getValue(dac_order[n]) * RECIPROCAL(DAC_STEPPER_MAX); }
-static float dac_amps(int8_t n) { return mcp4728_getDrvPct(dac_order[n]) * (DAC_STEPPER_MAX) * 0.125 * RECIPROCAL(DAC_STEPPER_SENSE); }
+// static float dac_perc(int8_t n) { return 100.0 * mcp4728_getValue(dac_order[n]) * RECIPROCAL(DAC_STEPPER_MAX); }
+// static float dac_amps(int8_t n) { return mcp4728_getDrvPct(dac_order[n]) * (DAC_STEPPER_MAX) * 0.125 * RECIPROCAL(DAC_STEPPER_SENSE); }
 
 uint8_t dac_current_get_percent(const AxisEnum axis) { return mcp4728_getDrvPct(dac_order[axis]); }
 void dac_current_set_percents(xyze_uint8_t &pct) {
@@ -86,14 +87,12 @@ void dac_current_set_percents(xyze_uint8_t &pct) {
 void dac_print_values() {
   if (!dac_present) return;
 
-  SERIAL_ECHO_MSG("Stepper current values in % (Amps):");
-  SERIAL_ECHO_START();
-  SERIAL_ECHOLNPAIR_P(
-    SP_X_LBL, dac_perc(X_AXIS), PSTR(" ("), dac_amps(X_AXIS), PSTR(")")
-    SP_Y_LBL, dac_perc(Y_AXIS), PSTR(" ("), dac_amps(Y_AXIS), PSTR(")")
-    SP_Z_LBL, dac_perc(Z_AXIS), PSTR(" ("), dac_amps(Z_AXIS), PSTR(")")
-    SP_E_LBL, dac_perc(E_AXIS), PSTR(" ("), dac_amps(E_AXIS), PSTR(")")
-  );
+  // SERIAL_ECHO_MSG("Stepper current values in % (Amps):");
+  // SERIAL_ECHO_START();
+  // SERIAL_ECHOLNPAIR(X_LBL, dac_perc(X_AXIS), " (", dac_amps(X_AXIS), ")", "");
+  // SERIAL_ECHOLNPAIR(Y_LBL, dac_perc(Y_AXIS), " (", dac_amps(Y_AXIS), ")", "");
+  // SERIAL_ECHOLNPAIR(Z_LBL, dac_perc(Z_AXIS), " (", dac_amps(Z_AXIS), ")", "");
+  // SERIAL_ECHOLNPAIR(E_LBL, dac_perc(E_AXIS), " (", dac_amps(E_AXIS), ")", "");
 }
 
 void dac_commit_eeprom() {
