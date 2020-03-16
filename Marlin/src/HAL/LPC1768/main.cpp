@@ -31,10 +31,6 @@
 #include <CDCSerial.h>
 #include <usb/mscuser.h>
 
-extern "C" {
-  #include <debug_frmwrk.h>
-}
-
 #include "../../sd/cardreader.h"
 #include "../../inc/MarlinConfig.h"
 #include "../../core/millis_t.h"
