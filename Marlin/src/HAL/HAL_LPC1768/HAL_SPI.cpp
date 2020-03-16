@@ -98,9 +98,7 @@
 
   // Hardware SPI
 
-  #include <lpc17xx_pinsel.h>
-  #include <lpc17xx_ssp.h>
-  #include <lpc17xx_clkpwr.h>
+  #include <chip.h>
 
   // decide which HW SPI device to use
   #ifndef LPC_HW_SPI_DEV

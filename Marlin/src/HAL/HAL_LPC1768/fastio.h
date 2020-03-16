@@ -37,8 +37,8 @@
 
 #define PWM_PIN(P)            true // all pins are PWM capable
 
-#define LPC_PIN(pin)          LPC176x::gpio_pin(pin)
-#define LPC_GPIO(port)        LPC176x::gpio_port(port)
+// #define LPC_PIN(pin)          LPC176x::gpio_pin(pin)
+// #define LPC_GPIO(port)        LPC176x::gpio_port(port)
 
 #define SET_DIR_INPUT(IO)     LPC176x::gpio_set_input(IO)
 #define SET_DIR_OUTPUT(IO)    LPC176x::gpio_set_output(IO)
