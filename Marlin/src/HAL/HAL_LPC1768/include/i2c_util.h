@@ -41,9 +41,7 @@
   #error "Master I2C device not defined!"
 #endif
 
-#include <lpc17xx_i2c.h>
-#include <lpc17xx_pinsel.h>
-#include <lpc17xx_libcfg_default.h>
+#include <chip.h>
 
 #ifdef __cplusplus
   extern "C" {

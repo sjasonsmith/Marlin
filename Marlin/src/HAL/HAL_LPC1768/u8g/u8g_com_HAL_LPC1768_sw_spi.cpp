@@ -66,7 +66,7 @@
 
 #include <Arduino.h>
 #include <algorithm>
-#include <LPC17xx.h>
+#include <chip.h>
 #include <gpio.h>
 
 #include <U8glib.h>
