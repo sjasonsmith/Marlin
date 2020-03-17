@@ -38,7 +38,7 @@
 
 #define LPC_PORT_OFFSET         (0x0020)
 #define LPC_PIN(pin)            (1UL << pin)
-#define u8g_LPC_GPIO(port)          ((volatile LPC_GPIO_TypeDef *)(LPC_GPIO0_BASE + LPC_PORT_OFFSET * port))
+#define u8g_LPC_GPIO(port)          ((volatile LPC_GPIO_T *)(LPC_GPIO0_BASE + LPC_PORT_OFFSET * port))
 
 #define INPUT 0
 #define OUTPUT 1
@@ -63,15 +63,15 @@ void pinMode_LCD(uint8_t pin, uint8_t mode) {
   //                            PINSEL_PINMODE_NORMAL };
   // switch (mode) {
   //   case INPUT:
-  //     u8g_LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR &= ~LPC_PIN(LPC1768_PIN_PIN(pin));
+  //     u8g_LPC_GPIO(LPC1768_PIN_PORT(pin))->DIR &= ~LPC_PIN(LPC1768_PIN_PIN(pin));
   //     PINSEL_ConfigPin(&config);
   //     break;
   //   case OUTPUT:
-  //     u8g_LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR |=  LPC_PIN(LPC1768_PIN_PIN(pin));
+  //     u8g_LPC_GPIO(LPC1768_PIN_PORT(pin))->DIR |=  LPC_PIN(LPC1768_PIN_PIN(pin));
   //     PINSEL_ConfigPin(&config);
   //     break;
   //   case INPUT_PULLUP:
-  //     u8g_LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR &= ~LPC_PIN(LPC1768_PIN_PIN(pin));
+  //     u8g_LPC_GPIO(LPC1768_PIN_PORT(pin))->DIR &= ~LPC_PIN(LPC1768_PIN_PIN(pin));
   //     config.Pinmode = PINSEL_PINMODE_PULLUP;
   //     PINSEL_ConfigPin(&config);
   //     break;
@@ -91,15 +91,15 @@ void u8g_SetPinLevel(uint8_t  pin, uint8_t  pin_status) {
   #define LPC1768_PIN_PORT(pin) ((uint8_t)((pin >> 5) & 0b111))
   #define LPC1768_PIN_PIN(pin) ((uint8_t)(pin & 0b11111))
   if (pin_status)
-    u8g_LPC_GPIO(LPC1768_PIN_PORT(pin))->FIOSET = LPC_PIN(LPC1768_PIN_PIN(pin));
+    u8g_LPC_GPIO(LPC1768_PIN_PORT(pin))->SET = LPC_PIN(LPC1768_PIN_PIN(pin));
   else
-    u8g_LPC_GPIO(LPC1768_PIN_PORT(pin))->FIOCLR = LPC_PIN(LPC1768_PIN_PIN(pin));
+    u8g_LPC_GPIO(LPC1768_PIN_PORT(pin))->CLR = LPC_PIN(LPC1768_PIN_PIN(pin));
 }
 
 uint8_t u8g_GetPinLevel(uint8_t pin) {
   #define LPC1768_PIN_PORT(pin) ((uint8_t)((pin >> 5) & 0b111))
   #define LPC1768_PIN_PIN(pin) ((uint8_t)(pin & 0b11111))
-  return (uint32_t)u8g_LPC_GPIO(LPC1768_PIN_PORT(pin))->FIOPIN & LPC_PIN(LPC1768_PIN_PIN(pin)) ? 1 : 0;
+  return (uint32_t)u8g_LPC_GPIO(LPC1768_PIN_PORT(pin))->PIN & LPC_PIN(LPC1768_PIN_PIN(pin)) ? 1 : 0;
 }
 
 #ifdef __cplusplus
