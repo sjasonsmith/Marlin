@@ -39,26 +39,26 @@ extern int millis();
 // These two routines are exact copies of the lpc17xx_i2c.c routines.  Couldn't link to
 // to the lpc17xx_i2c.c routines so had to copy them into this file & rename them.
 
-static uint32_t _I2C_Start(LPC_I2C_TypeDef *I2Cx) {
+static uint32_t _I2C_Start(LPC_I2C_T *I2Cx) {
   // Reset STA, STO, SI
-  I2Cx->I2CONCLR = I2C_I2CONCLR_SIC|I2C_I2CONCLR_STOC|I2C_I2CONCLR_STAC;
+  I2Cx->CONCLR = I2C_I2CONCLR_SIC|I2C_I2CONCLR_STOC|I2C_I2CONCLR_STAC;
 
   // Enter to Master Transmitter mode
-  I2Cx->I2CONSET = I2C_I2CONSET_STA;
+  I2Cx->CONSET = I2C_I2CONSET_STA;
 
   // Wait for complete
-  while (!(I2Cx->I2CONSET & I2C_I2CONSET_SI));
-  I2Cx->I2CONCLR = I2C_I2CONCLR_STAC;
-  return (I2Cx->I2STAT & I2C_STAT_CODE_BITMASK);
+  while (!(I2Cx->CONSET & I2C_I2CONSET_SI));
+  I2Cx->CONCLR = I2C_I2CONCLR_STAC;
+  return (I2Cx->STAT & I2C_STAT_CODE_BITMASK);
 }
 
-static void _I2C_Stop (LPC_I2C_TypeDef *I2Cx) {
+static void _I2C_Stop (LPC_I2C_T *I2Cx) {
   /* Make sure start bit is not active */
-  if (I2Cx->I2CONSET & I2C_I2CONSET_STA)
-    I2Cx->I2CONCLR = I2C_I2CONCLR_STAC;
+  if (I2Cx->CONSET & I2C_I2CONSET_STA)
+    I2Cx->CONCLR = I2C_I2CONCLR_STAC;
 
-  I2Cx->I2CONSET = I2C_I2CONSET_STO|I2C_I2CONSET_AA;
-  I2Cx->I2CONCLR = I2C_I2CONCLR_SIC;
+  I2Cx->CONSET = I2C_I2CONSET_STO|I2C_I2CONSET_AA;
+  I2Cx->CONCLR = I2C_I2CONCLR_SIC;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ static void _I2C_Stop (LPC_I2C_TypeDef *I2Cx) {
 
 I2C_M_SETUP_Type transferMCfg;
 
-#define I2C_status (LPC_I2C1->I2STAT & I2C_STAT_CODE_BITMASK)
+#define I2C_status (LPC_I2C1->STAT & I2C_STAT_CODE_BITMASK)
 
 // Send slave address and write bit
 uint8_t u8g_i2c_start(const uint8_t sla) {
@@ -84,10 +84,10 @@ uint8_t u8g_i2c_start(const uint8_t sla) {
         && (I2C_status != I2C_I2STAT_M_TX_DAT_ACK)
         && (I2C_status != I2C_I2STAT_M_TX_DAT_NACK));  //wait for start to be asserted
 
-    LPC_I2C1->I2CONCLR = I2C_I2CONCLR_STAC; // clear start state before tansmitting slave address
-    LPC_I2C1->I2DAT = I2CDEV_S_ADDR & I2C_I2DAT_BITMASK; // transmit slave address & write bit
-    LPC_I2C1->I2CONSET = I2C_I2CONSET_AA;
-    LPC_I2C1->I2CONCLR = I2C_I2CONCLR_SIC;
+    LPC_I2C1->CONCLR = I2C_I2CONCLR_STAC; // clear start state before tansmitting slave address
+    LPC_I2C1->DAT = I2CDEV_S_ADDR & I2C_I2DAT_BITMASK; // transmit slave address & write bit
+    LPC_I2C1->CONSET = I2C_I2CONSET_AA;
+    LPC_I2C1->CONCLR = I2C_I2CONCLR_SIC;
     while ((I2C_status != I2C_I2STAT_M_TX_SLAW_ACK)
         && (I2C_status != I2C_I2STAT_M_TX_SLAW_NACK)
         && (I2C_status != I2C_I2STAT_M_TX_DAT_ACK)
@@ -103,9 +103,9 @@ void u8g_i2c_init(const uint8_t clock_option) {
 
 uint8_t u8g_i2c_send_byte(uint8_t data) {
   #define I2C_TIMEOUT 3
-  LPC_I2C1->I2DAT = data & I2C_I2DAT_BITMASK; // transmit data
-  LPC_I2C1->I2CONSET = I2C_I2CONSET_AA;
-  LPC_I2C1->I2CONCLR = I2C_I2CONCLR_SIC;
+  LPC_I2C1->DAT = data & I2C_I2DAT_BITMASK; // transmit data
+  LPC_I2C1->CONSET = I2C_I2CONSET_AA;
+  LPC_I2C1->CONCLR = I2C_I2CONCLR_SIC;
   const millis_t timeout = millis() + I2C_TIMEOUT;
   while ((I2C_status != I2C_I2STAT_M_TX_DAT_ACK) && (I2C_status != I2C_I2STAT_M_TX_DAT_NACK) && PENDING(millis(), timeout));  // wait for xmit to finish
   // had hangs with SH1106 so added time out - have seen temporary screen corruption when this happens
