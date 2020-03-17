@@ -62,8 +62,6 @@ static void _I2C_Stop(LPC_I2C_T *I2Cx) {
   I2Cx->CONCLR = I2C_I2CONCLR_SIC;
 }
 
-I2C_M_SETUP_Type transferMCfg;
-
 #define I2C_status (LPC_I2C1->STAT & I2C_STAT_CODE_BITMASK)
 
 uint8_t digipot_mcp4451_start(uint8_t sla) {  // send slave address and write bit
