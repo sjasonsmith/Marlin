@@ -51,7 +51,7 @@
 // Defines
 // ------------------------
 
-#define _HAL_TIMER(T) _CAT(LPC_TIM, T)
+#define _HAL_TIMER(T) _CAT(LPC_TIMER, T)
 #define _HAL_TIMER_IRQ(T) TIMER##T##_IRQn
 #define __HAL_TIMER_ISR(T) extern "C" void TIMER##T##_IRQHandler()
 #define _HAL_TIMER_ISR(T)  __HAL_TIMER_ISR(T)
@@ -99,15 +99,15 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {
   switch (timer_num) {
-    case 0: STEP_TIMER->MR0 = compare; break; // Stepper Timer Match Register 0
-    case 1: TEMP_TIMER->MR0 = compare; break; //    Temp Timer Match Register 0
+    case 0: STEP_TIMER->MR[0] = compare; break; // Stepper Timer Match Register 0
+    case 1: TEMP_TIMER->MR[0] = compare; break; //    Temp Timer Match Register 0
   }
 }
 
 FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: return STEP_TIMER->MR0; // Stepper Timer Match Register 0
-    case 1: return TEMP_TIMER->MR0; //    Temp Timer Match Register 0
+    case 0: return STEP_TIMER->MR[0]; // Stepper Timer Match Register 0
+    case 1: return TEMP_TIMER->MR[0]; //    Temp Timer Match Register 0
   }
   return 0;
 }
