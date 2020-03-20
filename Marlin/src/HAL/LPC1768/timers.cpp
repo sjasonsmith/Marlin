@@ -30,30 +30,31 @@
 
 #include "../../inc/MarlinConfig.h"
 #include "timers.h"
+#include <chip.h>
 
 void HAL_timer_init() {
-  SBI(LPC_SC->PCONP, SBIT_TIMER0);  // Power ON Timer 0
-  LPC_TIM0->PR = (HAL_TIMER_RATE) / (STEPPER_TIMER_RATE) - 1; // Use prescaler to set frequency if needed
+  SBI(LPC_SYSCTL->PCONP, SBIT_TIMER0);  // Power ON Timer 0
+  LPC_TIMER0->PR = (HAL_TIMER_RATE) / (STEPPER_TIMER_RATE) - 1; // Use prescaler to set frequency if needed
 
-  SBI(LPC_SC->PCONP, SBIT_TIMER1);  // Power ON Timer 1
-  LPC_TIM1->PR = (HAL_TIMER_RATE) / 1000000 - 1;
+  SBI(LPC_SYSCTL->PCONP, SBIT_TIMER1);  // Power ON Timer 1
+  LPC_TIMER1->PR = (HAL_TIMER_RATE) / 1000000 - 1;
 }
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   switch (timer_num) {
     case 0:
-      LPC_TIM0->MCR = _BV(SBIT_MR0I) | _BV(SBIT_MR0R); // Match on MR0, reset on MR0, interrupts when NVIC enables them
-      LPC_TIM0->MR0 = uint32_t(STEPPER_TIMER_RATE) / frequency; // Match value (period) to set frequency
-      LPC_TIM0->TCR = _BV(SBIT_CNTEN); // Counter Enable
+      LPC_TIMER0->MCR = _BV(SBIT_MR0I) | _BV(SBIT_MR0R); // Match on MR0, reset on MR0, interrupts when NVIC enables them
+      LPC_TIMER0->MR[0] = uint32_t(STEPPER_TIMER_RATE) / frequency; // Match value (period) to set frequency
+      LPC_TIMER0->TCR = _BV(SBIT_CNTEN); // Counter Enable
 
       NVIC_SetPriority(TIMER0_IRQn, NVIC_EncodePriority(0, 1, 0));
       NVIC_EnableIRQ(TIMER0_IRQn);
       break;
 
     case 1:
-      LPC_TIM1->MCR = _BV(SBIT_MR0I) | _BV(SBIT_MR0R); // Match on MR0, reset on MR0, interrupts when NVIC enables them
-      LPC_TIM1->MR0 = uint32_t(TEMP_TIMER_RATE) / frequency;
-      LPC_TIM1->TCR = _BV(SBIT_CNTEN); // Counter Enable
+      LPC_TIMER1->MCR = _BV(SBIT_MR0I) | _BV(SBIT_MR0R); // Match on MR0, reset on MR0, interrupts when NVIC enables them
+      LPC_TIMER1->MR[0] = uint32_t(TEMP_TIMER_RATE) / frequency;
+      LPC_TIMER1->TCR = _BV(SBIT_CNTEN); // Counter Enable
 
       NVIC_SetPriority(TIMER1_IRQn, NVIC_EncodePriority(0, 2, 0));
       NVIC_EnableIRQ(TIMER1_IRQn);

@@ -32,7 +32,7 @@
 #endif
 
 #if SERIAL_PORT == 1 || SERIAL_PORT_2 == 1 || DGUS_SERIAL_PORT == 1
-  MarlinSerial MSerial1((LPC_UART_TypeDef *) LPC_UART1);
+  MarlinSerial MSerial1(LPC_UART1);
   extern "C" void UART1_IRQHandler() {
     MSerial1.IRQHandler();
   }
