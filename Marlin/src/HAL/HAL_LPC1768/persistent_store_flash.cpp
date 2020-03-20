@@ -63,14 +63,14 @@ static int current_slot = 0;
 
 bool PersistentStore::access_start() {
   uint32_t first_nblank_loc, first_nblank_val;
-  IAP_STATUS_CODE status;
+  uint8_t status;
 
   // discover which slot we are currently using.
   __disable_irq();
   status = BlankCheckSector(EEPROM_SECTOR, EEPROM_SECTOR, &first_nblank_loc, &first_nblank_val);
   __enable_irq();
 
-  if (status == CMD_SUCCESS) {
+  if (status == IAP_CMD_SUCCESS) {
     // sector is blank so nothing stored yet
     for (int i = 0; i < EEPROM_SIZE; i++) ram_eeprom[i] = EEPROM_ERASE;
     current_slot = EEPROM_SLOTS;
@@ -89,11 +89,11 @@ bool PersistentStore::access_start() {
 
 bool PersistentStore::access_finish() {
   if (eeprom_dirty) {
-    IAP_STATUS_CODE status;
+    uint8_t status;
     if (--current_slot < 0) {
       // all slots have been used, erase everything and start again
       __disable_irq();
-      status = EraseSector(EEPROM_SECTOR, EEPROM_SECTOR);
+      status = Chip_IAP_EraseSector(EEPROM_SECTOR, EEPROM_SECTOR);
       __enable_irq();
 
       current_slot = EEPROM_SLOTS - 1;
@@ -103,7 +103,7 @@ bool PersistentStore::access_finish() {
     status = CopyRAM2Flash(SLOT_ADDRESS(EEPROM_SECTOR, current_slot), ram_eeprom, IAP_WRITE_4096);
     __enable_irq();
 
-    if (status != CMD_SUCCESS) return false;
+    if (status != IAP_CMD_SUCCESS) return false;
     eeprom_dirty = false;
   }
   return true;

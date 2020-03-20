@@ -26,7 +26,7 @@
 
 #if ENABLED(USE_WATCHDOG)
 
-#include <lpc17xx_wdt.h>
+#include <chip.h>
 #include "watchdog.h"
 
 void watchdog_init() {
@@ -51,21 +51,23 @@ void watchdog_init() {
     NVIC_SetPriority(WDT_IRQn, 0); // Use highest priority, so we detect all kinds of lockups
     NVIC_EnableIRQ(WDT_IRQn);
   #else
-    WDT_Init(WDT_CLKSRC_IRC, WDT_MODE_RESET);
+    Chip_WWDT_SetOption(LPC_WWDT, WWDT_WDMOD_WDRESET);
+    Chip_WWDT_Init(LPC_WWDT);
   #endif
-  WDT_Start(WDT_TIMEOUT);
+  Chip_WWDT_SetTimeOut(LPC_WWDT, WDT_TIMEOUT);
+  Chip_WWDT_Start(LPC_WWDT);
 }
 
 void HAL_watchdog_refresh() {
-  WDT_Feed();
+  Chip_WWDT_Feed(LPC_WWDT);
   #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
     TOGGLE(LED_PIN);  // heartbeat indicator
   #endif
 }
 
 // Timeout state
-bool watchdog_timed_out() { return TEST(WDT_ReadTimeOutFlag(), 0); }
-void watchdog_clear_timeout_flag() { WDT_ClrTimeOutFlag(); }
+bool watchdog_timed_out() { return 0 != (Chip_WWDT_GetStatus(LPC_WWDT) & WWDT_WDMOD_WDTOF); }
+void watchdog_clear_timeout_flag() { Chip_WWDT_ClearStatusFlag(LPC_WWDT, WWDT_WDMOD_WDTOF); }
 
 #endif // USE_WATCHDOG
 #endif // TARGET_LPC1768

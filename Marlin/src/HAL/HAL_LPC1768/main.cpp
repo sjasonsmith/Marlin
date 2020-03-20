@@ -102,7 +102,7 @@ void HAL_init() {
     * bits 7:4 (CLKOUTDIV) = set to 0 for divider setting of /1
     * bits 3:0 (CLKOUTSEL) = set to 1 to select main crystal oscillator as CLKOUT source
     */
-    LPC_SC->CLKOUTCFG = (0<<8)|(0<<4)|(1<<0);
+    LPC_SYSCTL->CLKOUTCFG = (0<<8)|(0<<4)|(1<<0);
     // set P1.27 pin to function 01 (CLKOUT)
     PINSEL_CFG_Type PinCfg;
     PinCfg.Portnum = 1;
@@ -112,7 +112,7 @@ void HAL_init() {
     PinCfg.Pinmode = 2;    // no pull-up/pull-down
     PINSEL_ConfigPin(&PinCfg);
     // now set CLKOUT_EN bit
-    LPC_SC->CLKOUTCFG |= (1<<8);
+    LPC_SYSCTL->CLKOUTCFG |= (1<<8);
   #endif
 
   USB_Init();                               // USB Initialization
