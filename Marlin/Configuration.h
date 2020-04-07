@@ -136,7 +136,7 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#define BAUDRATE 115200
+#define BAUDRATE 250000
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
@@ -599,7 +599,7 @@
  * *** IT IS HIGHLY RECOMMENDED TO LEAVE THIS OPTION ENABLED! ***
  */
 #define PREVENT_COLD_EXTRUSION
-#define EXTRUDE_MINTEMP 170
+#define EXTRUDE_MINTEMP 160
 
 /**
  * Prevent a single extrusion longer than EXTRUDE_MAXLENGTH.
@@ -684,7 +684,7 @@
 
   #if ENABLED(ANYCUBIC_KOSSEL_PLUS)
     // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
-    #define DELTA_PRINTABLE_RADIUS 116.0  // (mm)
+    #define DELTA_PRINTABLE_RADIUS 115.0  // (mm)
     // Center-to-center distance of the holes in the diagonal push rods.
     #define DELTA_DIAGONAL_ROD 267        // (mm)
       // Horizontal offset from middle of printer to smooth rod center.
@@ -694,7 +694,7 @@
     // Horizontal offset of the universal joints on the carriages.
     #define DELTA_CARRIAGE_OFFSET 20.6    // (mm)
     // Horizontal distance bridged by diagonal push rods when effector is centered.
-    #define DELTA_RADIUS 132.74          // (mm) Get this value from G33 auto calibrate
+    #define DELTA_RADIUS 132.64          // (mm) Get this value from G33 auto calibrate
   #else
     // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
     #define DELTA_PRINTABLE_RADIUS 90.0   // (mm)
@@ -705,14 +705,14 @@
   #endif
 
   // Distance between bed and nozzle Z home position
-  #define DELTA_HEIGHT 276.55             // (mm) Get this value from G33 auto calibrate
+  #define DELTA_HEIGHT 277.59             // (mm) Get this value from G33 auto calibrate
 
-  #define DELTA_ENDSTOP_ADJ { 0.0, -3.02, -1.08 } // Get these values from G33 auto calibrate
+  #define DELTA_ENDSTOP_ADJ { 0.0, -2.12, -0.86 } // Get these values from G33 auto calibrate
 
   // Trim adjustments for individual towers
   // tower angle corrections for X and Y tower / rotate XYZ so Z tower angle = 0
   // measured in degrees anticlockwise looking from above the printer
-  #define DELTA_TOWER_ANGLE_TRIM { -0.38, 0.20, 0.18 } // Get these values from G33 auto calibrate
+  #define DELTA_TOWER_ANGLE_TRIM { -0.17, 0.39, -0.22 } // Get these values from G33 auto calibrate
 
   // Delta radius and diagonal rod adjustments (mm)
   //#define DELTA_RADIUS_TRIM_TOWER { 0.0, 0.0, 0.0 }
@@ -1091,7 +1091,7 @@
  * Specify a Probe position as { X, Y, Z }
  */
 #if ANYCUBIC_PROBE_VERSION == 2
-  #define NOZZLE_TO_PROBE_OFFSET { 0, 0, -16.3 }
+  #define NOZZLE_TO_PROBE_OFFSET { 0, 0, -16.15 }
 #elif ANYCUBIC_PROBE_VERSION == 1
   #define NOZZLE_TO_PROBE_OFFSET { 0, 0, -19.0 }
 #else
