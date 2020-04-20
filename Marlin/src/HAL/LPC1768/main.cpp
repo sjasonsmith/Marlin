@@ -96,23 +96,10 @@ void HAL_init() {
   #endif
 
   #ifdef LPC1768_ENABLE_CLKOUT_12M
-   /**
-    * CLKOUTCFG register
-    * bit 8 (CLKOUT_EN) = enables CLKOUT signal. Disabled for now to prevent glitch when enabling GPIO.
-    * bits 7:4 (CLKOUTDIV) = set to 0 for divider setting of /1
-    * bits 3:0 (CLKOUTSEL) = set to 1 to select main crystal oscillator as CLKOUT source
-    */
-    LPC_SYSCTL->CLKOUTCFG = (0<<8)|(0<<4)|(1<<0);
-    // set P1.27 pin to function 01 (CLKOUT)
-    PINSEL_CFG_Type PinCfg;
-    PinCfg.Portnum = 1;
-    PinCfg.Pinnum = 27;
-    PinCfg.Funcnum = 1;    // function 01 (CLKOUT)
-    PinCfg.OpenDrain = 0;  // not open drain
-    PinCfg.Pinmode = 2;    // no pull-up/pull-down
-    PINSEL_ConfigPin(&PinCfg);
-    // now set CLKOUT_EN bit
-    LPC_SYSCTL->CLKOUTCFG |= (1<<8);
+    Chip_Clock_DisableCLKOUT();
+    Chip_IOCON_PinMux(LPC_IOCON, LPC176x::pin_port(P1_27), LPC176x::pin_bit(P1_27), 0, FUNC1);
+    Chip_Clock_SetCLKOUTSource(SYSCTL_CLKOUTSRC_MAINOSC, 1);
+    Chip_Clock_EnableCLKOUT();
   #endif
 
   USB_Init();                               // USB Initialization
