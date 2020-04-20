@@ -42,7 +42,7 @@
 //
 #define X_DIAG_PIN         P1_29   // X-STOP
 #define Y_DIAG_PIN         P1_28   // Y-STOP
-#define Z_DIAG_PIN         P1_27   // Z-STOP
+//#define Z_DIAG_PIN         P1_27   // Z-STOP
 #define E0_DIAG_PIN        P1_26   // E0DET
 #define E1_DIAG_PIN        P1_25   // E1DET
 
@@ -79,14 +79,14 @@
     #define Z_MIN_PIN      P1_00   // PWRDET
   #endif
 #else
-  #define Z_STOP_PIN       P1_27   // Z-STOP
+  #define Z_STOP_PIN       P0_10   // Z-STOP
 #endif
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN  P0_10
+  //#define Z_MIN_PROBE_PIN  P0_10
 #endif
 
 //
