@@ -54,29 +54,29 @@ uint8_t LPC1768_PIN_PIN(const uint8_t pin);
 // I/O functions
 // As defined by Arduino INPUT(0x0), OUTPUT(0x1), INPUT_PULLUP(0x2)
 void pinMode_LCD(uint8_t pin, uint8_t mode) {
-  #define LPC1768_PIN_PORT(pin) ((uint8_t)((pin >> 5) & 0b111))
-  #define LPC1768_PIN_PIN(pin) ((uint8_t)(pin & 0b11111))
-  PINSEL_CFG_Type config = { LPC1768_PIN_PORT(pin),
-                             LPC1768_PIN_PIN(pin),
-                             PINSEL_FUNC_0,
-                             PINSEL_PINMODE_TRISTATE,
-                             PINSEL_PINMODE_NORMAL };
-  switch (mode) {
-    case INPUT:
-      u8g_LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR &= ~LPC_PIN(LPC1768_PIN_PIN(pin));
-      PINSEL_ConfigPin(&config);
-      break;
-    case OUTPUT:
-      u8g_LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR |=  LPC_PIN(LPC1768_PIN_PIN(pin));
-      PINSEL_ConfigPin(&config);
-      break;
-    case INPUT_PULLUP:
-      u8g_LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR &= ~LPC_PIN(LPC1768_PIN_PIN(pin));
-      config.Pinmode = PINSEL_PINMODE_PULLUP;
-      PINSEL_ConfigPin(&config);
-      break;
-    default: break;
-  }
+  // #define LPC1768_PIN_PORT(pin) ((uint8_t)((pin >> 5) & 0b111))
+  // #define LPC1768_PIN_PIN(pin) ((uint8_t)(pin & 0b11111))
+  // PINSEL_CFG_Type config = { LPC1768_PIN_PORT(pin),
+  //                            LPC1768_PIN_PIN(pin),
+  //                            PINSEL_FUNC_0,
+  //                            PINSEL_PINMODE_TRISTATE,
+  //                            PINSEL_PINMODE_NORMAL };
+  // switch (mode) {
+  //   case INPUT:
+  //     u8g_LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR &= ~LPC_PIN(LPC1768_PIN_PIN(pin));
+  //     PINSEL_ConfigPin(&config);
+  //     break;
+  //   case OUTPUT:
+  //     u8g_LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR |=  LPC_PIN(LPC1768_PIN_PIN(pin));
+  //     PINSEL_ConfigPin(&config);
+  //     break;
+  //   case INPUT_PULLUP:
+  //     u8g_LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR &= ~LPC_PIN(LPC1768_PIN_PIN(pin));
+  //     config.Pinmode = PINSEL_PINMODE_PULLUP;
+  //     PINSEL_ConfigPin(&config);
+  //     break;
+  //   default: break;
+  // }
 }
 
 void u8g_SetPinOutput(uint8_t internal_pin_number) {
