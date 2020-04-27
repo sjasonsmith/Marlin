@@ -373,6 +373,13 @@ void GcodeSuite::M43() {
       pin_t pin = GET_PIN_MAP_PIN_M43(i);
       if (VALID_PIN(pin)) report_pin_state_extended(pin, ignore_protection, true);
     }
+
+    SERIAL_ECHOLNPAIR("CPU Clock Divider: ", (Chip_Clock_GetCPUClockDiv()));
+    SERIAL_ECHOLNPAIR("CPU Clock Source: ", Chip_Clock_GetCPUClockSource());
+    SERIAL_ECHOLNPAIR("PLL Source", Chip_Clock_GetMainPLLSource());
+    SERIAL_ECHOLNPAIR("PLL In Rate", Chip_Clock_GetMainPLLInClockRate());
+    SERIAL_ECHOLNPAIR("PLL Out Rate", Chip_Clock_GetMainPLLOutClockRate());
+
   }
 }
 
