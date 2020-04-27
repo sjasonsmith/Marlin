@@ -114,33 +114,25 @@
   #endif
   #if (LPC_HW_SPI_DEV == 0)
     #define LPC_SSPn LPC_SSP0
+    #define SYSCTL_PCLK_SSPn SYSCTL_PCLK_SSP0
   #else
     #define LPC_SSPn LPC_SSP1
+    #define SYSCTL_PCLK_SSPn SYSCTL_PCLK_SSP1
   #endif
 
   void spiBegin() {  // setup SCK, MOSI & MISO pins for SSP0
-    PINSEL_CFG_Type PinCfg;  // data structure to hold init values
-    PinCfg.Funcnum = 2;
-    PinCfg.OpenDrain = 0;
-    PinCfg.Pinmode = 0;
-    PinCfg.Pinnum = LPC176x::pin_bit(SCK_PIN);
-    PinCfg.Portnum = LPC176x::pin_port(SCK_PIN);
-    PINSEL_ConfigPin(&PinCfg);
+    Chip_IOCON_PinMux(LPC_IOCON, LPC176x::pin_port(SCK_PIN), LPC176x::pin_bit(SCK_PIN), 0, FUNC2);
     SET_OUTPUT(SCK_PIN);
 
-    PinCfg.Pinnum = LPC176x::pin_bit(MISO_PIN);
-    PinCfg.Portnum = LPC176x::pin_port(MISO_PIN);
-    PINSEL_ConfigPin(&PinCfg);
+    Chip_IOCON_PinMux(LPC_IOCON, LPC176x::pin_port(MISO_PIN), LPC176x::pin_bit(MISO_PIN), 0, FUNC2);
     SET_INPUT(MISO_PIN);
 
-    PinCfg.Pinnum = LPC176x::pin_bit(MOSI_PIN);
-    PinCfg.Portnum = LPC176x::pin_port(MOSI_PIN);
-    PINSEL_ConfigPin(&PinCfg);
+    Chip_IOCON_PinMux(LPC_IOCON, LPC176x::pin_port(MOSI_PIN), LPC176x::pin_bit(MOSI_PIN), 0, FUNC2);
     SET_OUTPUT(MOSI_PIN);
+
     // divide PCLK by 2 for SSP0
-    CLKPWR_SetPCLKDiv(LPC_HW_SPI_DEV == 0 ? CLKPWR_PCLKSEL_SSP0 : CLKPWR_PCLKSEL_SSP1, CLKPWR_PCLKSEL_CCLK_DIV_2);
+    Chip_Clock_SetPCLKDiv(SYSCTL_PCLK_SSPn, SYSCTL_CLKDIV_2);
     spiInit(0);
-    SSP_Cmd(LPC_SSPn, ENABLE);  // start SSP running
   }
 
   void spiInit(uint8_t spiRate) {
@@ -154,18 +146,17 @@
     Marlin_speed[5] =  250000; //(SCR: 99)  desired:   250,000  actual:   250,000         SPI_SPEED_6
     Marlin_speed[6] =  125000; //(SCR:199)  desired:   125,000  actual:   125,000         Default from HAL.h
     // setup for SPI mode
-    SSP_CFG_Type HW_SPI_init; // data structure to hold init values
-    SSP_ConfigStructInit(&HW_SPI_init);  // set values for SPI mode
-    HW_SPI_init.ClockRate = Marlin_speed[_MIN(spiRate, 6)]; // put in the specified bit rate
-    HW_SPI_init.Mode |= SSP_CR1_SSP_EN;
-    SSP_Init(LPC_SSPn, &HW_SPI_init);  // puts the values into the proper bits in the SSP0 registers
+    Chip_SSP_Init(LPC_SSPn);
+    Chip_SSP_SetBitRate(LPC_SSPn, Marlin_speed[_MIN(spiRate, 6)]);
+    Chip_SSP_Set_Mode(LPC_SSPn, SSP_MASTER_MODE);
+    Chip_SSP_Enable(LPC_SSPn);
   }
 
   static uint8_t doio(uint8_t b) {
     /* send and receive a single byte */
-    SSP_SendData(LPC_SSPn, b & 0x00FF);
-    while (SSP_GetStatus(LPC_SSPn, SSP_STAT_BUSY));  // wait for it to finish
-    return SSP_ReceiveData(LPC_SSPn) & 0x00FF;
+    Chip_SSP_SendFrame(LPC_SSPn, b & 0x00FF);
+    while (Chip_SSP_GetStatus(LPC_SSPn, SSP_STAT_BSY));  // wait for it to finish
+    return Chip_SSP_ReceiveFrame(LPC_SSPn) & 0x00FF;
   }
 
   void spiSend(uint8_t b) { doio(b); }
