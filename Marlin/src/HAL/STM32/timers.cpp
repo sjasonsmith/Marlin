@@ -251,34 +251,8 @@ void SetTimerInterruptPriorities() {
   #endif
 #endif
 
-// Place all timers used into an array, then recursively check for duplicates during compilation.
-// This does not currently account for timers used for PWM, such as for fans.
-// Timers are actually pointers. Convert to integers to simplify constexpr logic.
-static constexpr uintptr_t timers_in_use[] = {
-  uintptr_t(TEMP_TIMER_DEV),  // Override in pins file
-  uintptr_t(STEP_TIMER_DEV),  // Override in pins file
-  #if HAS_TMC_SW_SERIAL
-    uintptr_t(TIMER_SERIAL),  // Set in variant.h, or as a define in platformio.h if not present in variant.h
-  #endif
-  #if ENABLED(SPEAKER)
-    uintptr_t(TIMER_TONE),    // Set in variant.h, or as a define in platformio.h if not present in variant.h
-  #endif
-  #if HAS_SERVOS
-    uintptr_t(TIMER_SERVO),   // Set in variant.h, or as a define in platformio.h if not present in variant.h
-  #endif
-  };
 
-static constexpr bool verify_no_duplicate_timers() {
-  LOOP_L_N(i, COUNT(timers_in_use))
-    LOOP_S_L_N(j, i + 1, COUNT(timers_in_use))
-      if (timers_in_use[i] == timers_in_use[j]) return false;
-  return true;
-}
 
-// If this assertion fails at compile time, review the timers_in_use array. If default_envs is
-// defined properly in platformio.ini, VS Code can evaluate the array when hovering over it,
-// making it easy to identify the conflicting timers.
-static_assert(verify_no_duplicate_timers(), "One or more timer conflict detected");
 
 #undef PinMap_PWM
 #undef HAL_ADC_MODULE_ENABLED
@@ -347,15 +321,91 @@ typedef struct {
 namespace PinHack{
   #include <PeripheralPins.c>
 
-  constexpr auto timer = PinHack::PinMap_PWM[0].peripheral;
+  // constexpr auto timer = PinHack::PinMap_PWM[0].peripheral;
 
-  static constexpr uintptr_t get_timer_for_pin(PinName pin, const HackyPinMap* begin, const HackyPinMap* end) {
-    if (begin == end) return 0;
-    return pin == begin->pin ? begin->peripheral : get_timer_for_pin(pin, begin + 1, end);
+  // static constexpr uintptr_t get_timer_for_pin(PinName pin, const HackyPinMap* begin, const HackyPinMap* end) {
+  //   if (begin == end) return 0;
+  //   return pin == begin->pin ? begin->peripheral : get_timer_for_pin(pin, begin + 1, end);
+  // }
+
+  static constexpr uintptr_t get_timer_for_pin(PinName pin) {
+    for (const auto& pinmap : PinHack::PinMap_PWM)
+      if (pin == pinmap.pin)
+        return pinmap.peripheral;
+    return 0;
   }
 
-  constexpr auto PA_Timer = get_timer_for_pin(PA_3, &PinHack::PinMap_PWM[0], &PinHack::PinMap_PWM[0] + COUNT(PinHack::PinMap_PWM));
+  static constexpr uintptr_t get_timer_for_pin(int pin) {
+    return get_timer_for_pin(PinName(pin));
+  }
 
-  static_assert(PA_Timer != 0, "Pin is not PWM-capable");
+  // constexpr auto PA_Timer = get_timer_for_pin(PA_3, &PinHack::PinMap_PWM[0], &PinHack::PinMap_PWM[0] + COUNT(PinHack::PinMap_PWM));
+
+  // static_assert(PA_Timer != 0, "Pin is not PWM-capable");
 }
+
+
+// Place all timers used into an array, then recursively check for duplicates during compilation.
+// This does not currently account for timers used for PWM, such as for fans.
+// Timers are actually pointers. Convert to integers to simplify constexpr logic.
+static constexpr uintptr_t timers_in_use[] = {
+  uintptr_t(TEMP_TIMER_DEV),  // Override in pins file
+  uintptr_t(STEP_TIMER_DEV),  // Override in pins file
+  #if HAS_TMC_SW_SERIAL
+    uintptr_t(TIMER_SERIAL),  // Set in variant.h, or as a define in platformio.h if not present in variant.h
+  #endif
+  #if ENABLED(SPEAKER)
+    uintptr_t(TIMER_TONE),    // Set in variant.h, or as a define in platformio.h if not present in variant.h
+  #endif
+  #if HAS_SERVOS
+    uintptr_t(TIMER_SERVO),   // Set in variant.h, or as a define in platformio.h if not present in variant.h
+  #endif
+  };
+
+// Fan Timers are handled separately. Conflicts between fans is fine, as many timers have multiple
+// PWM output channels. No conflicts may exist with the timers in timers_in_use.
+static constexpr uintptr_t fan_timers_in_use[] = {
+  #if DISABLED(FAN_SOFT_PWM)
+    #if HAS_FAN0
+      PinHack::get_timer_for_pin(FAN0_PIN),
+    #endif
+    #if HAS_FAN1
+      PinHack::get_timer_for_pin(FAN1_PIN),
+    #endif
+    #if HAS_FAN2
+      PinHack::get_timer_for_pin(FAN2_PIN),
+    #endif    
+    #if HAS_FAN3
+      PinHack::get_timer_for_pin(FAN3_PIN),
+    #endif    
+    #if HAS_FAN4
+      PinHack::get_timer_for_pin(FAN4_PIN),
+    #endif    
+    #if HAS_FAN5
+      PinHack::get_timer_for_pin(FAN5_PIN),
+    #endif    
+    #if HAS_FAN6
+      PinHack::get_timer_for_pin(FAN6_PIN),
+    #endif    
+    #if HAS_FAN7
+      PinHack::get_timer_for_pin(FAN7_PIN),
+    #endif    
+  #endif
+};
+
+static constexpr bool verify_no_duplicate_timers() {
+  LOOP_L_N(i, COUNT(timers_in_use)) {
+    LOOP_S_L_N(j, i + 1, COUNT(timers_in_use))
+      if (timers_in_use[i] == timers_in_use[j]) return false;
+    LOOP_L_N(j, COUNT(fan_timers_in_use))
+      if (timers_in_use[i] == fan_timers_in_use[j]) return false;
+  }
+  return true;
+}
+
+// If this assertion fails at compile time, review the timers_in_use array. If default_envs is
+// defined properly in platformio.ini, VS Code can evaluate the array when hovering over it,
+// making it easy to identify the conflicting timers.
+static_assert(verify_no_duplicate_timers(), "One or more timer conflict detected");
+
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
