@@ -280,4 +280,82 @@ static constexpr bool verify_no_duplicate_timers() {
 // making it easy to identify the conflicting timers.
 static_assert(verify_no_duplicate_timers(), "One or more timer conflict detected");
 
+#undef PinMap_PWM
+#undef HAL_ADC_MODULE_ENABLED
+#undef HAL_DAC_MODULE_ENABLED
+#undef HAL_I2C_MODULE_ENABLED
+#undef HAL_I2C_MODULE_ENABLED
+#undef HAL_UART_MODULE_ENABLED
+#undef HAL_SPI_MODULE_ENABLED
+#undef HAL_CAN_MODULE_ENABLED
+#undef HAL_QSPI_MODULE_ENABLED
+#undef HAL_PCD_MODULE_ENABLED
+
+typedef struct {
+  PinName pin;
+  uintptr_t peripheral;
+  int function;
+} HackyPinMap;
+
+#define PinMap HackyPinMap
+#undef TIM1
+#define TIM1 TIM1_BASE
+#undef TIM2
+#define TIM2 TIM2_BASE
+#undef TIM3
+#define TIM3 TIM3_BASE
+#undef TIM4
+#define TIM4 TIM4_BASE
+#undef TIM5
+#define TIM5 TIM5_BASE
+#undef TIM6
+#define TIM6 TIM6_BASE
+#undef TIM7
+#define TIM7 TIM7_BASE
+#undef TIM8
+#define TIM8 TIM8_BASE
+#undef TIM9
+#define TIM9 TIM9_BASE
+#undef TIM10
+#define TIM10 TIM10_BASE
+#undef TIM11
+#define TIM11 TIM11_BASE
+#undef TIM12
+#define TIM12 TIM12_BASE
+#undef TIM13
+#define TIM13 TIM13_BASE
+#undef TIM14
+#define TIM14 TIM14_BASE
+#undef TIM15
+#define TIM15 TIM15_BASE
+#undef TIM16
+#define TIM16 TIM16_BASE
+#undef TIM17
+#define TIM17 TIM17_BASE
+#undef TIM18
+#define TIM18 TIM18_BASE
+#undef TIM19
+#define TIM19 TIM19_BASE
+#undef TIM20
+#define TIM20 TIM20_BASE
+#undef STM_PIN_DATA_EXT
+#define STM_PIN_DATA_EXT(...)
+
+#undef WEAK
+#define WEAK constexpr
+
+namespace PinHack{
+  #include <PeripheralPins.c>
+
+  constexpr auto timer = PinHack::PinMap_PWM[0].peripheral;
+
+  static constexpr uintptr_t get_timer_for_pin(PinName pin, const HackyPinMap* begin, const HackyPinMap* end) {
+    if (begin == end) return 0;
+    return pin == begin->pin ? begin->peripheral : get_timer_for_pin(pin, begin + 1, end);
+  }
+
+  constexpr auto PA_Timer = get_timer_for_pin(PA_3, &PinHack::PinMap_PWM[0], &PinHack::PinMap_PWM[0] + COUNT(PinHack::PinMap_PWM));
+
+  static_assert(PA_Timer != 0, "Pin is not PWM-capable");
+}
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
