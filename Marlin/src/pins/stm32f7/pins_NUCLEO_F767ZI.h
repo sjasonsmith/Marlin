@@ -82,8 +82,8 @@ _*                 ￣￣￣                                      _CN10
  *                                                      AVDD | · · | PF13 (BTN_EN1)
  *                 _CN9_                                AGND | · · | PE9  (BTN_EN2)
  *   (TEMP_0) PA3 | · · | PD7                            GND | · · | PE11 (BTN_ENC)
- * (TEMP_BED) PC0 | · · | PD6                            PB1 | · · | PF14
- *            PC3 | · · | PD5                            PC2 | · · | PE13
+ * (TEMP_BED) PC0 | · · | PD6                            PB1 | · · | PF14 (X_MAX)
+ *            PC3 | · · | PD5                            PC2 | · · | PE13 (X_MIN)
  *            PF3 | · · | PD4                            PF4 | · · | PF15
  *            PF5 | · · | PD3                   (E_STEP) PB6 | · · | PG14 (E_EN)
  *           PF10 | · · | GND                    (E_DIR) PB2 | · · | PG9  (E_CS)
@@ -93,14 +93,14 @@ _*                 ￣￣￣                                      _CN10
  *   (Y_STEP) PF1 | · · | PE6 (Y_EN)           (Z_STEP) PD11 | · · | PE10 (Z_EN)
  *    (Y_DIR) PF0 | · · | PE3 (Y_CS)             (Z_DIR) PE2 | · · | PE12 (Z_CS)
  *            GND | · · | PF8                            GND | · · | PE14
- *    (Z_MAX) PD0 | · · | PF7 (X_MIN)                    PA0 | · · | PE15
- *    (Z_MIN) PD1 | · · | PF9 (X_MAX)                    PB0 | · · | PB10 (FAN)
+ *    (Z_MAX) PD0 | · · | PF7                            PA0 | · · | PE15
+ *    (Z_MIN) PD1 | · · | PF9                            PB0 | · · | PB10 (FAN)
  *    (Y_MAX) PG0 | · · | PG1 (Y_MIN)                    PE0 | · · | PB11 (FAN1)
  *                 ￣￣￣                                     ￣￣￣￣
  */
 
-#define X_MIN_PIN                           PF7
-#define X_MAX_PIN                           PF9
+#define X_MIN_PIN                           PE13
+#define X_MAX_PIN                           PF14
 #define Y_MIN_PIN                           PG1
 #define Y_MAX_PIN                           PG0
 #define Z_MIN_PIN                           PD1
