@@ -63,6 +63,17 @@
   #define START_FLASH_ADDR  0x00000000
   #define END_FLASH_ADDR    0x00080000
 
+#elif defined(NUCLEO_F446)
+
+  // For STM32F446
+  //  SRAM  (0x20000000 - 0x20030000) (128kb)
+  //  FLASH (0x08000000 - 0x08080000) (512kb)
+  //
+  #define START_SRAM_ADDR   0x20000000
+  #define END_SRAM_ADDR     0x20020000
+  #define START_FLASH_ADDR  0x08000000
+  #define END_FLASH_ADDR    0x08080000
+
 #elif defined(STM32F4) || defined(STM32F4xx)
 
   // For STM32F407VET
