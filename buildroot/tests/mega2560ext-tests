@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+#
+# Build tests for mega2560ext
+#
+
+# exit on first failure
+set -e
+
+# Build examples
+restore_configs
+use_example_configs AliExpress/UM2pExt
+exec_test $1 $2 "Example: AliExpress/UM2pExt"
+restore_configs
+use_example_configs BQ/Hephestos_2
+exec_test $1 $2 "Example: BQ/Hephestos_2"
+restore_configs
+use_example_configs Einstart-S
+exec_test $1 $2 "Example: Einstart-S"
+restore_configs
+use_example_configs FlashForge/CreatorPro
+exec_test $1 $2 "Example: FlashForge/CreatorPro"
+restore_configs
+use_example_configs FlashForge/Creator\ 2X
+exec_test $1 $2 "Example: FlashForge/Creator\ 2X"
+restore_configs
+use_example_configs MBot/Cube
+exec_test $1 $2 "Example: MBot/Cube"
+restore_configs
+use_example_configs Qidi/Qidi\ 1
+exec_test $1 $2 "Example: Qidi/Qidi\ 1"
+restore_configs
+use_example_configs Wanhao/Duplicator\ 4S
+exec_test $1 $2 "Example: Wanhao/Duplicator\ 4S"
+restore_configs
+use_example_configs Wanhao/Duplicator\ 6
+exec_test $1 $2 "Example: Wanhao/Duplicator\ 6"
+restore_configs
+use_example_configs Weistek/wt150
+exec_test $1 $2 "Example: Weistek/wt150"
+
+# cleanup
+restore_configs

@@ -1,59 +1,222 @@
 #!/usr/bin/env bash
 #
-# Build tests for AVR ATmega1280
+# Build tests for mega1280
 #
 
 # exit on first failure
 set -e
 
-#
-# Build with the default configurations
-#
-#restore_configs
-#exec_test $1 $2 "Default Configuration"
-
-#
-# Test MESH_BED_LEVELING feature, with LCD
-#
+# Build examples
 restore_configs
-opt_set LCD_LANGUAGE an
-opt_enable SPINDLE_FEATURE ULTIMAKERCONTROLLER LCD_BED_LEVELING \
-           EEPROM_SETTINGS EEPROM_BOOT_SILENT EEPROM_AUTO_INIT \
-           SENSORLESS_BACKOFF_MM HOMING_BACKOFF_POST_MM HOME_Y_BEFORE_X CODEPENDENT_XY_HOMING \
-           MESH_BED_LEVELING ENABLE_LEVELING_FADE_HEIGHT MESH_G28_REST_ORIGIN \
-           G26_MESH_VALIDATION MESH_EDIT_MENU GCODE_QUOTED_STRINGS \
-           EXTERNAL_CLOSED_LOOP_CONTROLLER POWER_MONITOR_CURRENT POWER_MONITOR_VOLTAGE
-opt_set POWER_MONITOR_CURRENT_PIN 14
-opt_set POWER_MONITOR_VOLTAGE_PIN 15
-opt_set CLOSED_LOOP_ENABLE_PIN 44
-opt_set CLOSED_LOOP_MOVE_COMPLETE_PIN 45
-exec_test $1 $2 "Spindle, MESH_BED_LEVELING, closed loop, Power Monitor, and LCD"
-
-#
-# Test DUAL_X_CARRIAGE
-#
+use_example_configs AliExpress/CL-260
+exec_test $1 $2 "Example: AliExpress/CL-260"
 restore_configs
-opt_set MOTHERBOARD BOARD_TT_OSCAR
-opt_set LCD_LANGUAGE pt
-opt_set EXTRUDERS 2
-opt_set TEMP_SENSOR_1 1
-opt_enable USE_XMAX_PLUG DUAL_X_CARRIAGE REPRAPWORLD_KEYPAD
-opt_set REPRAPWORLD_KEYPAD_MOVE_STEP 10.0
-exec_test $1 $2 "TT Oscar | DUAL_X_CARRIAGE"
-
-#
-# Delta Config (generic) + Probeless
-#
+use_example_configs Artillery/Genius
+exec_test $1 $2 "Example: Artillery/Genius"
+restore_configs
+use_example_configs Artillery/Sidewinder\ X1
+exec_test $1 $2 "Example: Artillery/Sidewinder\ X1"
+restore_configs
+use_example_configs Artillery/Sidewinder\ X1_0.9_degree_BMG_E3D_V6
+exec_test $1 $2 "Example: Artillery/Sidewinder\ X1_0.9_degree_BMG_E3D_V6"
+restore_configs
+use_example_configs BIBO/TouchX/cyclops
+exec_test $1 $2 "Example: BIBO/TouchX/cyclops"
+restore_configs
+use_example_configs BIBO/TouchX/default
+exec_test $1 $2 "Example: BIBO/TouchX/default"
+restore_configs
+use_example_configs BQ/Hephestos
+exec_test $1 $2 "Example: BQ/Hephestos"
+restore_configs
+use_example_configs BQ/WITBOX
+exec_test $1 $2 "Example: BQ/WITBOX"
+restore_configs
+use_example_configs CTC/i3\ 2560\ Rev\ A/no\ probe
+exec_test $1 $2 "Example: CTC/i3\ 2560\ Rev\ A/no\ probe"
+restore_configs
+use_example_configs Cartesio
+exec_test $1 $2 "Example: Cartesio"
+restore_configs
+use_example_configs Creality/CR-20
+exec_test $1 $2 "Example: Creality/CR-20"
+restore_configs
+use_example_configs Creality/CR-20\ Pro
+exec_test $1 $2 "Example: Creality/CR-20\ Pro"
+restore_configs
+use_example_configs EXP3D/Imprimante\ multifonction
+exec_test $1 $2 "Example: EXP3D/Imprimante\ multifonction"
+restore_configs
+use_example_configs Einstart-S
+exec_test $1 $2 "Example: Einstart-S"
+restore_configs
+use_example_configs FYSETC/F6_13
+exec_test $1 $2 "Example: FYSETC/F6_13"
+restore_configs
+use_example_configs Felix/DUAL
+exec_test $1 $2 "Example: Felix/DUAL"
+restore_configs
+use_example_configs Felix/Single
+exec_test $1 $2 "Example: Felix/Single"
+restore_configs
+use_example_configs FlashForge/CreatorPro
+exec_test $1 $2 "Example: FlashForge/CreatorPro"
+restore_configs
+use_example_configs FlashForge/Creator\ 2X
+exec_test $1 $2 "Example: FlashForge/Creator\ 2X"
+restore_configs
+use_example_configs FlyingBear/P905H
+exec_test $1 $2 "Example: FlyingBear/P905H"
+restore_configs
+use_example_configs FolgerTech/i3-2020
+exec_test $1 $2 "Example: FolgerTech/i3-2020"
+restore_configs
+use_example_configs Geeetech/GT2560
+exec_test $1 $2 "Example: Geeetech/GT2560"
+restore_configs
+use_example_configs Geeetech/I3_Pro_X-GT2560
+exec_test $1 $2 "Example: Geeetech/I3_Pro_X-GT2560"
+restore_configs
+use_example_configs Geeetech/Me_creator
+exec_test $1 $2 "Example: Geeetech/Me_creator"
+restore_configs
+use_example_configs Geeetech/PI3A\ PRO
+exec_test $1 $2 "Example: Geeetech/PI3A\ PRO"
+restore_configs
+use_example_configs Geeetech/Prusa\ i3\ Pro\ B/bltouch
+exec_test $1 $2 "Example: Geeetech/Prusa\ i3\ Pro\ B/bltouch"
+restore_configs
+use_example_configs Geeetech/Prusa\ i3\ Pro\ B/noprobe
+exec_test $1 $2 "Example: Geeetech/Prusa\ i3\ Pro\ B/noprobe"
+restore_configs
+use_example_configs Geeetech/Prusa\ i3\ Pro\ C
+exec_test $1 $2 "Example: Geeetech/Prusa\ i3\ Pro\ C"
+restore_configs
+use_example_configs Geeetech/Prusa\ i3\ Pro\ W
+exec_test $1 $2 "Example: Geeetech/Prusa\ i3\ Pro\ W"
+restore_configs
+use_example_configs HMS434
+exec_test $1 $2 "Example: HMS434"
+restore_configs
+use_example_configs Infitary/i3-M508
+exec_test $1 $2 "Example: Infitary/i3-M508"
+restore_configs
+use_example_configs JGAurora/A3
+exec_test $1 $2 "Example: JGAurora/A3"
+restore_configs
+use_example_configs JGAurora/A5
+exec_test $1 $2 "Example: JGAurora/A5"
+restore_configs
+use_example_configs JGAurora/Magic
+exec_test $1 $2 "Example: JGAurora/Magic"
+restore_configs
+use_example_configs MBot/Cube
+exec_test $1 $2 "Example: MBot/Cube"
+restore_configs
+use_example_configs MakerFarm/Pegasus_12
+exec_test $1 $2 "Example: MakerFarm/Pegasus_12"
+restore_configs
+use_example_configs Modix/Big60
+exec_test $1 $2 "Example: Modix/Big60"
+restore_configs
+use_example_configs Qidi/Qidi\ 1
+exec_test $1 $2 "Example: Qidi/Qidi\ 1"
+restore_configs
+use_example_configs Renkforce/RF100
+exec_test $1 $2 "Example: Renkforce/RF100"
+restore_configs
+use_example_configs Renkforce/RF100XL
+exec_test $1 $2 "Example: Renkforce/RF100XL"
+restore_configs
+use_example_configs Renkforce/RF100v2
+exec_test $1 $2 "Example: Renkforce/RF100v2"
+restore_configs
+use_example_configs RigidBot
+exec_test $1 $2 "Example: RigidBot"
+restore_configs
+use_example_configs Robo3D/R1+
+exec_test $1 $2 "Example: Robo3D/R1+"
+restore_configs
+use_example_configs SCARA/MP_SCARA
+exec_test $1 $2 "Example: SCARA/MP_SCARA"
+restore_configs
+use_example_configs SCARA/Morgan
+exec_test $1 $2 "Example: SCARA/Morgan"
+restore_configs
+use_example_configs Sovol/SV-01
+exec_test $1 $2 "Example: Sovol/SV-01"
+restore_configs
+use_example_configs Tevo/Michelangelo
+exec_test $1 $2 "Example: Tevo/Michelangelo"
+restore_configs
+use_example_configs Tevo/Tarantula\ Pro
+exec_test $1 $2 "Example: Tevo/Tarantula\ Pro"
+restore_configs
+use_example_configs Tevo/Tornado/V2\ \(MKS\ GEN-L\)
+exec_test $1 $2 "Example: Tevo/Tornado/V2\ \(MKS\ GEN-L\)"
+restore_configs
+use_example_configs Velleman/K8200
+exec_test $1 $2 "Example: Velleman/K8200"
+restore_configs
+use_example_configs Velleman/K8400/Dual-head
+exec_test $1 $2 "Example: Velleman/K8400/Dual-head"
+restore_configs
+use_example_configs Velleman/K8400/Single-head
+exec_test $1 $2 "Example: Velleman/K8400/Single-head"
+restore_configs
+use_example_configs WASP/PowerWASP
+exec_test $1 $2 "Example: WASP/PowerWASP"
+restore_configs
+use_example_configs Wanhao/Duplicator\ 4S
+exec_test $1 $2 "Example: Wanhao/Duplicator\ 4S"
+restore_configs
+use_example_configs Weistek/wt150
+exec_test $1 $2 "Example: Weistek/wt150"
+restore_configs
+use_example_configs adafruit/ST7565
+exec_test $1 $2 "Example: adafruit/ST7565"
+restore_configs
+use_example_configs delta/FLSUN/auto_calibrate
+exec_test $1 $2 "Example: delta/FLSUN/auto_calibrate"
+restore_configs
+use_example_configs delta/FLSUN/kossel
+exec_test $1 $2 "Example: delta/FLSUN/kossel"
+restore_configs
+use_example_configs delta/FLSUN/kossel_mini
+exec_test $1 $2 "Example: delta/FLSUN/kossel_mini"
+restore_configs
+use_example_configs delta/Geeetech/G2
+exec_test $1 $2 "Example: delta/Geeetech/G2"
+restore_configs
+use_example_configs delta/Geeetech/G2Pro
+exec_test $1 $2 "Example: delta/Geeetech/G2Pro"
+restore_configs
+use_example_configs delta/Geeetech/G2S
+exec_test $1 $2 "Example: delta/Geeetech/G2S"
+restore_configs
+use_example_configs delta/Geeetech/G2SPro
+exec_test $1 $2 "Example: delta/Geeetech/G2SPro"
+restore_configs
+use_example_configs delta/Hatchbox_Alpha
+exec_test $1 $2 "Example: delta/Hatchbox_Alpha"
+restore_configs
+use_example_configs delta/Tevo\ Little\ Monster
+exec_test $1 $2 "Example: delta/Tevo\ Little\ Monster"
+restore_configs
 use_example_configs delta/generic
-opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_AUTO_CALIBRATION DELTA_CALIBRATION_MENU
-exec_test $1 $2 "RAMPS | DELTA | RRD LCD | DELTA_AUTO_CALIBRATION | DELTA_CALIBRATION_MENU"
+exec_test $1 $2 "Example: delta/generic"
+restore_configs
+use_example_configs delta/kossel_clear
+exec_test $1 $2 "Example: delta/kossel_clear"
+restore_configs
+use_example_configs delta/kossel_mini
+exec_test $1 $2 "Example: delta/kossel_mini"
+restore_configs
+use_example_configs delta/kossel_xl
+exec_test $1 $2 "Example: delta/kossel_xl"
+restore_configs
+use_example_configs gCreate/gMax1.5+
+exec_test $1 $2 "Example: gCreate/gMax1.5+"
 
-#
-# Delta Config (generic) + ABL bilinear + BLTOUCH
-use_example_configs delta/generic
-opt_set LCD_LANGUAGE cz
-opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_CALIBRATION_MENU AUTO_BED_LEVELING_BILINEAR BLTOUCH
-exec_test $1 $2 "DELTA | RRD LCD | ABL Bilinear | BLTOUCH"
-
-# clean up
+# cleanup
 restore_configs

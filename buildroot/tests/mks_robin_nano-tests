@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+#
+# Build tests for mks_robin_nano
+#
+
+# exit on first failure
+set -e
+
+# Build examples
+restore_configs
+use_example_configs Tevo/Nereus
+exec_test $1 $2 "Example: Tevo/Nereus"
+
+# clean up
+restore_configs

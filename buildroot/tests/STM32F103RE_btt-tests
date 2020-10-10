@@ -1,21 +1,15 @@
 #!/usr/bin/env bash
 #
-# Build tests for STM32F103RE BigTreeTech (SKR E3 DIP v1.0)
+# Build tests for STM32F103RE_btt
 #
 
 # exit on first failure
 set -e
 
-#
-# Build with the default configurations
-#
+# Build examples
 restore_configs
-opt_set MOTHERBOARD BOARD_BTT_SKR_E3_DIP
-opt_set SERIAL_PORT 1
-opt_set SERIAL_PORT_2 -1
-opt_set X_DRIVER_TYPE TMC2209
-opt_set Y_DRIVER_TYPE TMC2130
-exec_test $1 $2 "BigTreeTech SKR E3 DIP v1.0 - Basic Config with mixed TMC Drivers"
+use_example_configs Creality/Ender-3/BigTreeTech\ SKR\ E3-DIP\ V1.1
+exec_test $1 $2 "Example: Creality/Ender-3/BigTreeTech\ SKR\ E3-DIP\ V1.1"
 
-# clean up
+# cleanup
 restore_configs

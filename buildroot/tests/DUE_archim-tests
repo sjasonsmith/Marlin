@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for mks_robin_stm32
+# Build tests for DUE_archim
 #
 
 # exit on first failure
@@ -8,8 +8,8 @@ set -e
 
 # Build examples
 restore_configs
-use_example_configs Mks/Robin
-exec_test $1 $2 "Example: Mks/Robin"
+use_example_configs UltiMachine/Archim2
+exec_test $1 $2 "Example: UltiMachine/Archim2"
 
 # cleanup
 restore_configs

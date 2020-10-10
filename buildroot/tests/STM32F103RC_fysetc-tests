@@ -1,16 +1,27 @@
 #!/usr/bin/env bash
 #
-# Build tests for STM32F103RC FYSETC
+# Build tests for STM32F103RC_fysetc
 #
 
 # exit on first failure
 set -e
 
-#
-# Build with the default configurations
-#
-use_example_configs "Creality/Ender-3/FYSETC Cheetah 1.2/base"
-exec_test $1 $2 "Cheetah 1.2 Configuration"
+# Build examples
+restore_configs
+use_example_configs Creality/Ender-3/FYSETC\ Cheetah/BLTouch
+exec_test $1 $2 "Example: Creality/Ender-3/FYSETC\ Cheetah/BLTouch"
+restore_configs
+use_example_configs Creality/Ender-3/FYSETC\ Cheetah/base
+exec_test $1 $2 "Example: Creality/Ender-3/FYSETC\ Cheetah/base"
+restore_configs
+use_example_configs Creality/Ender-3/FYSETC\ Cheetah\ 1.2/BLTouch
+exec_test $1 $2 "Example: Creality/Ender-3/FYSETC\ Cheetah\ 1.2/BLTouch"
+restore_configs
+use_example_configs Creality/Ender-3/FYSETC\ Cheetah\ 1.2/base
+exec_test $1 $2 "Example: Creality/Ender-3/FYSETC\ Cheetah\ 1.2/base"
+restore_configs
+use_example_configs FYSETC/AIO_II
+exec_test $1 $2 "Example: FYSETC/AIO_II"
 
-# clean up
+# cleanup
 restore_configs

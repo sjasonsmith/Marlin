@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+#
+# Build tests for melzi_optimized
+#
+
+# exit on first failure
+set -e
+
+# Build examples
+restore_configs
+use_example_configs AnyCubic/Mega\ Zero
+exec_test $1 $2 "Example: AnyCubic/Mega\ Zero"
+restore_configs
+use_example_configs Creality/CR-10/CrealityV1
+exec_test $1 $2 "Example: Creality/CR-10/CrealityV1"
+restore_configs
+use_example_configs Creality/CR-10\ Mini/CrealityV1
+exec_test $1 $2 "Example: Creality/CR-10\ Mini/CrealityV1"
+restore_configs
+use_example_configs Creality/Ender-2
+exec_test $1 $2 "Example: Creality/Ender-2"
+restore_configs
+use_example_configs Creality/Ender-3/CrealityV1
+exec_test $1 $2 "Example: Creality/Ender-3/CrealityV1"
+restore_configs
+use_example_configs Creality/Ender-3\ Pro/CrealityV1
+exec_test $1 $2 "Example: Creality/Ender-3\ Pro/CrealityV1"
+restore_configs
+use_example_configs Creality/Ender-5/Creality
+exec_test $1 $2 "Example: Creality/Ender-5/Creality"
+restore_configs
+use_example_configs Creality/Ender-5\ Pro/Creality
+exec_test $1 $2 "Example: Creality/Ender-5\ Pro/Creality"
+
+# cleanup
+restore_configs

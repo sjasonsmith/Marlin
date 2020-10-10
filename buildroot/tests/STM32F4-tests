@@ -1,16 +1,15 @@
 #!/usr/bin/env bash
 #
-# Build tests for STM32F4 disco_f407vg
+# Build tests for STM32F4
 #
 
 # exit on first failure
 set -e
 
-#
-# Build with the default configurations
-#
+# Build examples
+restore_configs
 use_example_configs STM32/STM32F4
-exec_test $1 $2 "STM32F4 Default Configuration"
+exec_test $1 $2 "Example: STM32/STM32F4"
 
-# clean up
+# cleanup
 restore_configs

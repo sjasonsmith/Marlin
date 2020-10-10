@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 #
-# Build tests for STM32F103ZE JGAurora A5S A1
+# Build tests for jgaurora_a5s_a1
 #
 
 # exit on first failure
 set -e
 
-#
-# Build with the default configurations
-#
+# Build examples
+restore_configs
+use_example_configs JGAurora/A1
+exec_test $1 $2 "Example: JGAurora/A1"
+restore_configs
 use_example_configs JGAurora/A5S
-exec_test $1 $2 "JGAurora/A5S Configuration"
+exec_test $1 $2 "Example: JGAurora/A5S"
 
-# clean up
+# cleanup
 restore_configs

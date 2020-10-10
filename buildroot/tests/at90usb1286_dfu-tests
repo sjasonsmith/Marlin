@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 #
-# Build tests for AT90USB1286 ARMED
+# Build tests for at90usb1286_dfu
 #
 
 # exit on first failure
 set -e
 
-#
-# Build with the default configurations
-#
+# Build examples
 restore_configs
-opt_set MOTHERBOARD BOARD_PRINTRBOARD
-exec_test $1 $2 "Default Configuration"
+use_example_configs Printrbot/Simple\ Metal\ RevD
+exec_test $1 $2 "Example: Printrbot/Simple\ Metal\ RevD"
+restore_configs
+use_example_configs makibox
+exec_test $1 $2 "Example: makibox"
 
-# clean up
+# cleanup
 restore_configs

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for DUE
+# Build tests for DUE_debug
 #
 
 # exit on first failure

@@ -6,17 +6,25 @@
 # exit on first failure
 set -e
 
-#
-# Build with the default configurations
-#
+# Build examples
 restore_configs
-opt_set MOTHERBOARD BOARD_STM32F103RE
-opt_set EXTRUDERS 2
-opt_set SERIAL_PORT -1
-opt_enable EEPROM_SETTINGS EEPROM_CHITCHAT REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT \
-           PAREN_COMMENTS GCODE_MOTION_MODES SINGLENOZZLE TOOLCHANGE_FILAMENT_SWAP TOOLCHANGE_PARK \
-           BAUD_RATE_GCODE GCODE_MACROS NOZZLE_PARK_FEATURE NOZZLE_CLEAN_FEATURE
-exec_test $1 $2 "STM32F1R EEPROM_SETTINGS EEPROM_CHITCHAT REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT PAREN_COMMENTS GCODE_MOTION_MODES"
+use_example_configs Geeetech/A30
+exec_test $1 $2 "Example: Geeetech/A30"
+restore_configs
+use_example_configs Geeetech/D200
+exec_test $1 $2 "Example: Geeetech/D200"
+restore_configs
+use_example_configs Geeetech/E180
+exec_test $1 $2 "Example: Geeetech/E180"
+restore_configs
+use_example_configs Geeetech/M201
+exec_test $1 $2 "Example: Geeetech/M201"
+restore_configs
+use_example_configs STM32/STM32F103RE
+exec_test $1 $2 "Example: STM32/STM32F103RE"
+restore_configs
+use_example_configs delta/Geeetech/Rostock\ 301
+exec_test $1 $2 "Example: delta/Geeetech/Rostock\ 301"
 
 # cleanup
 restore_configs

@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 #
-# Build tests for MKS Robin mini
-# (STM32F1 genericSTM32F103VE)
+# Build tests for mks_robin_mini
 #
 
 # exit on first failure
 set -e
 
-use_example_configs Mks/Robin
-opt_set MOTHERBOARD BOARD_MKS_ROBIN_MINI
-opt_set EXTRUDERS 1
-opt_set TEMP_SENSOR_1 0
-exec_test $1 $2 "MKS Robin mini"
+# Build examples
+restore_configs
+use_example_configs Kingroon/KP3
+exec_test $1 $2 "Example: Kingroon/KP3"
+restore_configs
+use_example_configs delta/FLSUN/QQ-S
+exec_test $1 $2 "Example: delta/FLSUN/QQ-S"
 
 # cleanup
 restore_configs

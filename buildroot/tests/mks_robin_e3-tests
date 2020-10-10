@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+#
+# Build tests for mks_robin_e3
+#
+
+# exit on first failure
+set -e
+
+# Build examples
+restore_configs
+use_example_configs Creality/Ender-3/MKS\ Robin\ E3\ 1.0
+exec_test $1 $2 "Example: Creality/Ender-3/MKS\ Robin\ E3\ 1.0"
+
+# cleanup
+restore_configs

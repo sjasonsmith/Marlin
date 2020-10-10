@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for STM32F103RC_btt_USB
+# Build tests for STM32F103RC_btt_512K
 #
 
 # exit on first failure

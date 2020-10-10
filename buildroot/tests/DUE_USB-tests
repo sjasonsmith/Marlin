@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for DUE
+# Build tests for DUE_USB
 #
 
 # exit on first failure
@@ -11,8 +11,8 @@ restore_configs
 use_example_configs MakerParts
 exec_test $1 $2 "Example: MakerParts"
 restore_configs
-use_example_configs UltiMachine/Archim1
-exec_test $1 $2 "Example: UltiMachine/Archim1"
+use_example_configs Printrbot/PrintrboardG2
+exec_test $1 $2 "Example: Printrbot/PrintrboardG2"
 
 # cleanup
 restore_configs

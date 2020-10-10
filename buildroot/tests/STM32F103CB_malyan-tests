@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 #
-# Build tests for STM32F103CB Malyan M200
+# Build tests for STM32F103CB_malyan
 #
 
 # exit on first failure
 set -e
 
+# Build examples
+restore_configs
 use_example_configs Malyan/M200
-exec_test $1 $2 "Malyan M200"
+exec_test $1 $2 "Example: Malyan/M200"
 
 # cleanup
 restore_configs

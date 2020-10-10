@@ -1,17 +1,66 @@
 #!/usr/bin/env bash
 #
-# Build tests for AVR ATmega 1284p
+# Build tests for sanguino1284p
 #
 
 # exit on first failure
 set -e
 
-#
-# Build with the default configurations
-#
+# Build examples
 restore_configs
-opt_set MOTHERBOARD BOARD_SANGUINOLOLU_12
-exec_test $1 $2 "Default Configuration"
+use_example_configs Anet/A2
+exec_test $1 $2 "Example: Anet/A2"
+restore_configs
+use_example_configs Anet/A2plus
+exec_test $1 $2 "Example: Anet/A2plus"
+restore_configs
+use_example_configs Anet/A6
+exec_test $1 $2 "Example: Anet/A6"
+restore_configs
+use_example_configs Anet/A8
+exec_test $1 $2 "Example: Anet/A8"
+restore_configs
+use_example_configs Anet/A8plus
+exec_test $1 $2 "Example: Anet/A8plus"
+restore_configs
+use_example_configs Anet/E10
+exec_test $1 $2 "Example: Anet/E10"
+restore_configs
+use_example_configs Anet/E16
+exec_test $1 $2 "Example: Anet/E16"
+restore_configs
+use_example_configs Geeetech/Me_ducer
+exec_test $1 $2 "Example: Geeetech/Me_ducer"
+restore_configs
+use_example_configs Malyan/M150
+exec_test $1 $2 "Example: Malyan/M150"
+restore_configs
+use_example_configs RepRapPro/Huxley
+exec_test $1 $2 "Example: RepRapPro/Huxley"
+restore_configs
+use_example_configs Sanguinololu
+exec_test $1 $2 "Example: Sanguinololu"
+restore_configs
+use_example_configs TinyBoy2
+exec_test $1 $2 "Example: TinyBoy2"
+restore_configs
+use_example_configs Tronxy/X1
+exec_test $1 $2 "Example: Tronxy/X1"
+restore_configs
+use_example_configs Tronxy/X3A
+exec_test $1 $2 "Example: Tronxy/X3A"
+restore_configs
+use_example_configs Tronxy/X5S
+exec_test $1 $2 "Example: Tronxy/X5S"
+restore_configs
+use_example_configs Tronxy/XY100
+exec_test $1 $2 "Example: Tronxy/XY100"
+restore_configs
+use_example_configs Wanhao/Duplicator\ i3\ 2.1
+exec_test $1 $2 "Example: Wanhao/Duplicator\ i3\ 2.1"
+restore_configs
+use_example_configs Zonestar/P802M
+exec_test $1 $2 "Example: Zonestar/P802M"
 
-# clean up
+# cleanup
 restore_configs
