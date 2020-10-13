@@ -10,7 +10,7 @@ notifications:
 
 env:
   # Base Environments
-  - TEST_PLATFORM="DUE"
+  # - TEST_PLATFORM="DUE"
   - TEST_PLATFORM="esp32"
   - TEST_PLATFORM="linux_native"
   - TEST_PLATFORM="mega2560"
@@ -63,8 +63,8 @@ env:
   - TEST_PLATFORM="LPC1769"
 
   # Non-working environment tests
-  #- TEST_PLATFORM="at90usb1286_cdc"
-  #- TEST_PLATFORM="at90usb1286_dfu"
+  - TEST_PLATFORM="at90usb1286_cdc"
+  - TEST_PLATFORM="at90usb1286_dfu"
   #- TEST_PLATFORM="STM32F4"
   #- TEST_PLATFORM="STM32F7"
 
