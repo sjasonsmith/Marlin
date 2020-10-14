@@ -9,64 +9,56 @@ notifications:
   email: false
 
 env:
-  # Base Environments
-  # - TEST_PLATFORM="DUE"
-  - TEST_PLATFORM="esp32"
-  - TEST_PLATFORM="linux_native"
+  # Example test environments
   - TEST_PLATFORM="mega2560"
-  - TEST_PLATFORM="teensy31"
-  - TEST_PLATFORM="teensy35"
-  - TEST_PLATFORM="teensy41"
-  - TEST_PLATFORM="SAMD51_grandcentral_m4"
-
-  # Extended AVR Environments
-  - TEST_PLATFORM="FYSETC_F6_13"
   - TEST_PLATFORM="mega1280"
   - TEST_PLATFORM="rambo"
+  - TEST_PLATFORM="STM32F103VE_longer"
+  - TEST_PLATFORM="mega2560ext"
   - TEST_PLATFORM="sanguino1284p"
-  - TEST_PLATFORM="sanguino644p"
-
-  # Extended STM32 Environments
+  - TEST_PLATFORM="melzi"
+  - TEST_PLATFORM="melzi_optimized"
+  - TEST_PLATFORM="melzi_optiboot"
+  - TEST_PLATFORM="ARMED"
+  - TEST_PLATFORM="LPC1769"
+  - TEST_PLATFORM="LPC1768"
   - TEST_PLATFORM="STM32F103RC_btt"
+  - TEST_PLATFORM="STM32F103RC_btt_512K"
   - TEST_PLATFORM="STM32F103RC_btt_USB"
+  - TEST_PLATFORM="STM32F103RC_btt_512K_USB"
+  - TEST_PLATFORM="STM32F103RC_meeb"
   - TEST_PLATFORM="STM32F103RE_btt"
   - TEST_PLATFORM="STM32F103RE_btt_USB"
-  - TEST_PLATFORM="STM32F103RE"
+  - TEST_PLATFORM="STM32F103RET6_creality"
   - TEST_PLATFORM="STM32F103RC_fysetc"
-  - TEST_PLATFORM="STM32F103RC_meeb"
+  - TEST_PLATFORM="mks_robin_e3"
+  - TEST_PLATFORM="trigorilla_pro"
+  - TEST_PLATFORM="mks_robin_nano35"
+  - TEST_PLATFORM="mks_robin_mini"
+  - TEST_PLATFORM="STM32F103RE"
+  - TEST_PLATFORM="at90usb1286_cdc"
+  - TEST_PLATFORM="malyan_M300"
+  - TEST_PLATFORM="FYSETC_S6"
+  - TEST_PLATFORM="sanguino644p"
   - TEST_PLATFORM="jgaurora_a5s_a1"
-  - TEST_PLATFORM="STM32F103VE_longer"
-  - TEST_PLATFORM="STM32F407VE_black"
-  - TEST_PLATFORM="STM32F401VE_STEVAL"
-  - TEST_PLATFORM="BIGTREE_BTT002"
-  - TEST_PLATFORM="BIGTREE_SKR_PRO"
-  - TEST_PLATFORM="BIGTREE_GTR_V1_0"
+  - TEST_PLATFORM="DUE"
+  - TEST_PLATFORM="DUE_USB"
+  - TEST_PLATFORM="DUE_debug"
+  - TEST_PLATFORM="at90usb1286_dfu"
+  - TEST_PLATFORM="STM32F103CB_malyan"
   - TEST_PLATFORM="mks_robin"
   - TEST_PLATFORM="mks_robin_stm32"
-  - TEST_PLATFORM="ARMED"
-  - TEST_PLATFORM="FYSETC_S6"
-  - TEST_PLATFORM="STM32F070CB_malyan"
-  - TEST_PLATFORM="STM32F070RB_malyan"
-  - TEST_PLATFORM="malyan_M300"
-  - TEST_PLATFORM="mks_robin_lite"
-  - TEST_PLATFORM="FLYF407ZG"
-  - TEST_PLATFORM="rumba32"
+  - TEST_PLATFORM="mks_robin_lite3"
   - TEST_PLATFORM="mks_robin_pro"
-  - TEST_PLATFORM="STM32F103RET6_creality"
-  - TEST_PLATFORM="LERDGEX"
-  - TEST_PLATFORM="mks_robin_nano35"
-  - TEST_PLATFORM="mks_robin_e3"
-  - TEST_PLATFORM="mks_robin_mini"
+  - TEST_PLATFORM="BIGTREE_BTT002"
+  - TEST_PLATFORM="STM32F407VE_black"
+  - TEST_PLATFORM="STM32F4"
+  - TEST_PLATFORM="STM32F7"
+  - TEST_PLATFORM="chitu_f103"
+  - TEST_PLATFORM="chitu_v5_gpio_init"
+  - TEST_PLATFORM="DUE_archim"
+  - TEST_PLATFORM="DUE_archim_debug"
 
-  # Put lengthy tests last
-  - TEST_PLATFORM="LPC1768"
-  - TEST_PLATFORM="LPC1769"
-
-  # Non-working environment tests
-  - TEST_PLATFORM="at90usb1286_cdc"
-  - TEST_PLATFORM="at90usb1286_dfu"
-  #- TEST_PLATFORM="STM32F4"
-  #- TEST_PLATFORM="STM32F7"
 
 before_install:
   #
@@ -74,11 +66,13 @@ before_install:
   - git fetch origin --tags
   #
   # Publish the buildroot script folder
-  - dos2unix ${TRAVIS_BUILD_DIR}/buildroot/bin/*
+  #- dos2unix ${TRAVIS_BUILD_DIR}/buildroot/bin/*
   - chmod +x ${TRAVIS_BUILD_DIR}/buildroot/bin/*
-  - dos2unix ${TRAVIS_BUILD_DIR}/buildroot/share/tests/*
-  - chmod +x ${TRAVIS_BUILD_DIR}/buildroot/share/tests/*
+  #- dos2unix ${TRAVIS_BUILD_DIR}/buildroot/share/tests/*
+  - chmod +x ${TRAVIS_BUILD_DIR}/buildroot/tests/run_tests
   - export PATH="${TRAVIS_BUILD_DIR}/buildroot/bin/:${TRAVIS_BUILD_DIR}/buildroot/share/tests/:${PATH}"
+
+
 
 install:
   #- pip install -U platformio
@@ -98,3 +92,4 @@ before_script:
 script:
   - echo ${PATH}
   - run_tests ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+
