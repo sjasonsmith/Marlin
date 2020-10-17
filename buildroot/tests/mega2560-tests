@@ -220,9 +220,13 @@ exec_test $1 $2 "Example: Renkforce/RF100v2"
 restore_configs
 use_example_configs RepRapWorld/Megatronics
 exec_test $1 $2 "Example: RepRapWorld/Megatronics"
-restore_configs
-use_example_configs RigidBot
-exec_test $1 $2 "Example: RigidBot"
+
+### Broken due to missing entrypoint
+# restore_configs
+# use_example_configs RigidBot
+# exec_test $1 $2 "Example: RigidBot"
+
+
 restore_configs
 use_example_configs Robo3D/R1+
 exec_test $1 $2 "Example: Robo3D/R1+"
