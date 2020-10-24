@@ -35,6 +35,7 @@ env:
   - TEST_PLATFORM="trigorilla_pro"
   - TEST_PLATFORM="mks_robin_nano35"
   - TEST_PLATFORM="mks_robin_mini"
+  - TEST_PLATFORM="flsun_hispeed"
   - TEST_PLATFORM="STM32F103RE"
   - TEST_PLATFORM="at90usb1286_cdc"
   - TEST_PLATFORM="malyan_M300"

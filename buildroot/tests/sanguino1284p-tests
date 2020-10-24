@@ -23,6 +23,9 @@ restore_configs
 use_example_configs Anet/A8plus
 exec_test $1 $2 "Example: Anet/A8plus"
 restore_configs
+use_example_configs Anet/A9
+exec_test $1 $2 "Example: Anet/A9"
+restore_configs
 use_example_configs Anet/E10
 exec_test $1 $2 "Example: Anet/E10"
 restore_configs

@@ -8,6 +8,9 @@ set -e
 
 # Build examples
 restore_configs
+use_example_configs AnyCubic/Mega\ Zero/BigTreeTech\ SKR\ Mini\ MZ\ V1.0
+exec_test $1 $2 "Example: AnyCubic/Mega\ Zero/BigTreeTech\ SKR\ Mini\ MZ\ V1.0"
+restore_configs
 use_example_configs Creality/CR-10/BigTreeTech\ SKR\ Mini\ E3\ 2.0
 exec_test $1 $2 "Example: Creality/CR-10/BigTreeTech\ SKR\ Mini\ E3\ 2.0"
 restore_configs

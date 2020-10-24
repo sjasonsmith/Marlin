@@ -11,17 +11,20 @@ restore_configs
 use_example_configs Creality/Ender-3/CrealityV427
 exec_test $1 $2 "Example: Creality/Ender-3/CrealityV427"
 restore_configs
+use_example_configs Creality/Ender-3\ Pro/CrealityV422
+exec_test $1 $2 "Example: Creality/Ender-3\ Pro/CrealityV422"
+restore_configs
 use_example_configs Creality/Ender-3\ Pro/CrealityV427
 exec_test $1 $2 "Example: Creality/Ender-3\ Pro/CrealityV427"
-restore_configs
-use_example_configs Creality/Ender-3\ Pro\ V1.5
-exec_test $1 $2 "Example: Creality/Ender-3\ Pro\ V1.5"
 restore_configs
 use_example_configs Creality/Ender-3\ V2
 exec_test $1 $2 "Example: Creality/Ender-3\ V2"
 restore_configs
 use_example_configs Creality/Ender-5/CrealityV427
 exec_test $1 $2 "Example: Creality/Ender-5/CrealityV427"
+restore_configs
+use_example_configs Creality/Ender-5\ Pro/CrealityV422
+exec_test $1 $2 "Example: Creality/Ender-5\ Pro/CrealityV422"
 restore_configs
 use_example_configs Creality/Ender-5\ Pro/CrealityV427
 exec_test $1 $2 "Example: Creality/Ender-5\ Pro/CrealityV427"

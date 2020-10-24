@@ -113,8 +113,8 @@ restore_configs
 use_example_configs MBot/Cube
 exec_test $1 $2 "Example: MBot/Cube"
 restore_configs
-use_example_configs MakerFarm/Pegasus_12
-exec_test $1 $2 "Example: MakerFarm/Pegasus_12"
+use_example_configs MakerFarm/Pegasus\ 12
+exec_test $1 $2 "Example: MakerFarm/Pegasus\ 12"
 restore_configs
 use_example_configs Modix/Big60
 exec_test $1 $2 "Example: Modix/Big60"
