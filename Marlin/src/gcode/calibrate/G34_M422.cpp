@@ -92,7 +92,8 @@ void GcodeSuite::G34() {
         }
       #endif
 
-    if (parser.seen('R')) z_stepper_align.reset_to_default();
+    if (parser.seen('R') || !z_stepper_align.store_xy_pos)
+      z_stepper_align.reset_to_default();
 
     const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
 
@@ -431,8 +432,10 @@ void GcodeSuite::M422() {
     z_stepper_align.reset_to_default();
     return;
   }
-
+  
   if (!parser.seen_any()) {
+    if (!z_stepper_align.store_xy_pos)
+      z_stepper_align.reset_to_default();
     LOOP_L_N(i, NUM_Z_STEPPER_DRIVERS)
       SERIAL_ECHOLNPAIR_P(PSTR("M422 S"), int(i + 1), SP_X_STR, z_stepper_align.xy[i].x, SP_Y_STR, z_stepper_align.xy[i].y);
     #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
@@ -509,6 +512,7 @@ void GcodeSuite::M422() {
   }
 
   pos_dest[position_index] = pos;
+  z_stepper_align.store_xy_pos = true;
 }
 
 #endif // Z_STEPPER_AUTO_ALIGN

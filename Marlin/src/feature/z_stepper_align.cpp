@@ -34,13 +34,24 @@
 ZStepperAlign z_stepper_align;
 
 xy_pos_t ZStepperAlign::xy[NUM_Z_STEPPER_DRIVERS];
+bool ZStepperAlign::store_xy_pos = false;
 
 #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
   xy_pos_t ZStepperAlign::stepper_xy[NUM_Z_STEPPER_DRIVERS];
 #endif
 
+bool ZStepperAlign::are_probe_points_valid()
+{
+  for (const auto &point : xy)
+  {
+    if (isnan(point.x) || isnan(point.y)) return false;
+  }
+  return true;
+}
+
 void ZStepperAlign::reset_to_default() {
   #ifdef Z_STEPPER_ALIGN_XY
+    store_xy_pos = true;
 
     constexpr xy_pos_t xy_init[] = Z_STEPPER_ALIGN_XY;
     static_assert(COUNT(xy_init) == NUM_Z_STEPPER_DRIVERS,

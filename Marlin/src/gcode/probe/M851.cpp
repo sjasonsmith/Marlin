@@ -28,6 +28,11 @@
 #include "../../feature/bedlevel/bedlevel.h"
 #include "../../module/probe.h"
 
+#if ENABLED(Z_STEPPER_AUTO_ALIGN)
+  #include "../../feature/z_stepper_align.h"
+#endif
+
+
 extern const char SP_Y_STR[], SP_Z_STR[];
 
 /**
@@ -93,7 +98,12 @@ void GcodeSuite::M851() {
   }
 
   // Save the new offsets
-  if (ok) probe.offset = offs;
+  if (ok) {
+    probe.offset = offs;
+    #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+      if (!z_stepper_align.store_xy_pos) z_stepper_align.reset_to_default();
+    #endif
+  }
 }
 
 #endif // HAS_BED_PROBE

@@ -564,9 +564,9 @@ void MarlinSettings::postprocess() {
                                   int eeprom_index = EEPROM_OFFSET
   #define EEPROM_FINISH()         persistentStore.access_finish()
   #define EEPROM_SKIP(VAR)        (eeprom_index += sizeof(VAR))
-  #define EEPROM_WRITE(VAR)       do{ persistentStore.write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc);              }while(0)
-  #define EEPROM_READ(VAR)        do{ persistentStore.read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc, !validating);  }while(0)
-  #define EEPROM_READ_ALWAYS(VAR) do{ persistentStore.read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc);               }while(0)
+  #define EEPROM_WRITE(VAR)       do{ persistentStore.write_data(eeprom_index, (uint8_t*)&(VAR), sizeof(VAR), &working_crc);              }while(0)
+  #define EEPROM_READ(VAR)        do{ persistentStore.read_data(eeprom_index, (uint8_t*)&(VAR), sizeof(VAR), &working_crc, !validating);  }while(0)
+  #define EEPROM_READ_ALWAYS(VAR) do{ persistentStore.read_data(eeprom_index, (uint8_t*)&(VAR), sizeof(VAR), &working_crc);               }while(0)
   #define EEPROM_ASSERT(TST,ERR)  do{ if (!(TST)) { SERIAL_ERROR_MSG(ERR); eeprom_error = true; } }while(0)
 
   #if ENABLED(DEBUG_EEPROM_READWRITE)
@@ -858,7 +858,7 @@ void MarlinSettings::postprocess() {
     }
 
     #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-      EEPROM_WRITE(z_stepper_align.xy);
+      EEPROM_WRITE(z_stepper_align.store_xy_pos ? z_stepper_align.xy : invalid_align_xy);
       #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
         EEPROM_WRITE(z_stepper_align.stepper_xy);
       #endif
@@ -1755,6 +1755,8 @@ void MarlinSettings::postprocess() {
 
       #if ENABLED(Z_STEPPER_AUTO_ALIGN)
         EEPROM_READ(z_stepper_align.xy);
+        z_stepper_align.store_xy_pos = z_stepper_align.are_probe_points_valid();
+        if (!z_stepper_align.are_probe_points_valid()) z_stepper_align.reset_to_default();
         #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
           EEPROM_READ(z_stepper_align.stepper_xy);
         #endif

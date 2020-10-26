@@ -27,15 +27,20 @@
 
 #include "../inc/MarlinConfig.h"
 
+constexpr xy_pos_t invalid_align_xy[NUM_Z_STEPPER_DRIVERS] = {{NAN, NAN}, {NAN, NAN}};
+
 class ZStepperAlign {
   public:
+    // Values are only stored if explicitly declared in header or set with M422.
     static xy_pos_t xy[NUM_Z_STEPPER_DRIVERS];
+    static bool store_xy_pos;
 
     #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
       static xy_pos_t stepper_xy[NUM_Z_STEPPER_DRIVERS];
     #endif
 
-  static void reset_to_default();
+    static void reset_to_default();
+    static bool are_probe_points_valid();
 };
 
 extern ZStepperAlign z_stepper_align;
