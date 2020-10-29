@@ -58,6 +58,15 @@
   #define NEO_WHITE 0, 0, 0, 255
 #endif
 
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && HAS_SERVOS
+  #include "../../HAL/STM32/Servo.h"
+  #define PAUSE_SERVO_OUTPUT() libServo::pause_all_servos()
+  #define RESUME_SERVO_OUTPUT() libServo::resume_all_servos()
+#else
+  #define PAUSE_SERVO_OUTPUT()
+  #define RESUME_SERVO_OUTPUT()
+#endif
+
 // ------------------------
 // Function prototypes
 // ------------------------
@@ -105,6 +114,7 @@ public:
   }
 
   static inline void show() {
+    PAUSE_SERVO_OUTPUT();
     adaneo1.show();
     #if PIN_EXISTS(NEOPIXEL2)
       #if CONJOINED_NEOPIXEL
@@ -115,6 +125,7 @@ public:
         adaneo1.setPin(NEOPIXEL_PIN);
       #endif
     #endif
+    RESUME_SERVO_OUTPUT();
   }
 
   #if 0
