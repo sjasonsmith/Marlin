@@ -82,6 +82,8 @@
   #include "../STM32/Servo.h"
 #elif defined(ARDUINO_ARCH_ESP32)
   #include "../ESP32/Servo.h"
+#elif defined(__PLAT_NATIVE_SIM__)
+  #include "../NATIVE_SIM/Servo.h"
 #else
   #include <stdint.h>
 

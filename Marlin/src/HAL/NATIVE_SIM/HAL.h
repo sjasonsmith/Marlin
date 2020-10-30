@@ -58,7 +58,7 @@ uint8_t _getc();
 #include "watchdog.h"
 #include "serial.h"
 
-#define SHARED_SERVOS HAS_SERVOS
+#define HAL_SERVO_LIB libServo
 
 extern HalSerial usb_serial;
 #define MYSERIAL0 usb_serial

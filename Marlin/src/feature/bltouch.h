@@ -103,7 +103,10 @@ public:
 
 private:
   FORCE_INLINE static bool _deploy_query_alarm() { return command(BLTOUCH_DEPLOY, BLTOUCH_DEPLOY_DELAY); }
-  FORCE_INLINE static bool _stow_query_alarm()   { return command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY) == STOW_ALARM; }
+  FORCE_INLINE static bool _stow_query_alarm()   {
+      command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY);
+      return false;
+    }
 
   static void clear();
   static bool command(const BLTCommand cmd, const millis_t &ms);
