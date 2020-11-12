@@ -31,6 +31,7 @@
 #include <cstring>
 #include <stdarg.h>
 #include <stdio.h>
+#include <inttypes.h>
 
 /**
  * Generic RingBuffer
@@ -230,6 +231,12 @@ public:
     else if (nbase == HEX) printf("%8X", value);
     else printf("%lu" , value);
   }
+  void print(uint64_t value, int nbase = 0) {
+    if (nbase == BIN) print_bin(value, 64);
+    else if (nbase == OCT) printf("%" PRIo64 , value);
+    else if (nbase == HEX) printf("%16" PRIX64, value);
+    else printf("%lu" , value);
+  }
   void print(float value, int round = 6)  { printf("%f" , value); }
   void print(double value, int round = 6) { printf("%f" , value); }
 
@@ -240,6 +247,7 @@ public:
   void println(unsigned int value, int nbase = 0) { print(value, nbase); println(); }
   void println(long value, int nbase = 0) { print(value, nbase); println(); }
   void println(unsigned long value, int nbase = 0) { print(value, nbase); println(); }
+  void println(uint64_t value, int nbase = 0) { print(value, nbase); println(); }
   void println(float value, int round = 6) { printf("%f\n" , value); }
   void println(double value, int round = 6) { printf("%f\n" , value); }
   void println() { print('\n'); }

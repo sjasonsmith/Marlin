@@ -46,6 +46,7 @@ void serial_echopair_PGM(PGM_P const s_P, float v)         { serialprintPGM(s_P)
 void serial_echopair_PGM(PGM_P const s_P, double v)        { serialprintPGM(s_P); SERIAL_DECIMAL(v); }
 void serial_echopair_PGM(PGM_P const s_P, unsigned int v)  { serialprintPGM(s_P); SERIAL_ECHO(v); }
 void serial_echopair_PGM(PGM_P const s_P, unsigned long v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(PGM_P const s_P, uint64_t v)      { serialprintPGM(s_P); SERIAL_ECHO(v); }
 
 void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
 
