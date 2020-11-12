@@ -188,7 +188,7 @@ struct SerialMonitor : public UiWindow {
     size.y = size.y - 25; //todo: there must be a better way to fill 2 items on a line
     if (ImGui::BeginChild(child_id, size, true, child_flags)) {
       for (auto line : line_buffer) {
-        if (line.count > 1) ImGui::TextWrapped("[%z] %s", line.count, (char *)line.text.c_str());
+        if (line.count > 1) ImGui::TextWrapped("[%" PRIu32 "] %s", uint32_t(line.count), line.text.c_str());
         else  ImGui::TextWrapped("%s", (char *)line.text.c_str());
       }
       ImGui::TextWrapped("%s", (char *)working_buffer.c_str());

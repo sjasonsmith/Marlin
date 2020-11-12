@@ -41,6 +41,8 @@ void marlin_main() {
     SERIAL_FLUSHTX();
   #endif
 
+  pthread_setname_np(pthread_self(), "marlin_main");
+
   //kernel.setFrequency(F_CPU);
   HAL_timer_init();
   kernel.threads[0].timer_enabled = true;
@@ -48,7 +50,7 @@ void marlin_main() {
   while(!main_finished) {
     try {
       kernel.execute_loop();
-    } catch (std::runtime_error& e) {
+    } catch (const std::runtime_error& e) {
       // stack unrolled by exception in order to exit cleanly
       // todo: use a custom exception
       printf("Exception: %s\n", e.what());
