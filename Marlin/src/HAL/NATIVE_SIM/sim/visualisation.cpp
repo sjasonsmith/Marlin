@@ -20,7 +20,7 @@
 
 
 
-constexpr uint32_t steps_per_unit[] = DEFAULT_AXIS_STEPS_PER_UNIT;
+constexpr float steps_per_unit[] = DEFAULT_AXIS_STEPS_PER_UNIT;
 
 Visualisation::Visualisation() :
   x_axis(X_ENABLE_PIN, X_DIR_PIN, X_STEP_PIN, X_MIN_PIN, X_MAX_PIN, INVERT_X_DIR),
@@ -286,7 +286,7 @@ void Visualisation::gpio_event_handler(GpioEvent& event) {
   y_axis.interrupt(event);
   z_axis.interrupt(event);
   extruder0.interrupt(event);
-  set_head_position(glm::vec4{x_axis.position / (float)steps_per_unit[0], z_axis.position / (float)steps_per_unit[2], y_axis.position / (float)steps_per_unit[1] * -1.0f, extruder0.position  / (float)steps_per_unit[3]});
+  set_head_position(glm::vec4{x_axis.position / steps_per_unit[0], z_axis.position / steps_per_unit[2], y_axis.position / steps_per_unit[1] * -1.0f, extruder0.position  / steps_per_unit[3]});
 }
 
 using millisec = std::chrono::duration<float, std::milli>;
