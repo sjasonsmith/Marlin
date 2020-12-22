@@ -83,6 +83,8 @@
 #define E0_ENABLE_PIN                         43
 #define E0_CS_PIN                             10
 
+#define X_SERIAL_RX_PIN 14
+#define X_SERIAL_TX_PIN 14
 //
 // Temperature Sensors
 //

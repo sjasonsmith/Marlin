@@ -46,6 +46,7 @@
 #define Y_MAX_PIN                           PD8
 #define Z_MIN_PIN                           PD9
 #define Z_MAX_PIN                           PD10
+#define SERVO0_PIN PB13
 
 //
 // Steppers
