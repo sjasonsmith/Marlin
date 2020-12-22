@@ -307,6 +307,119 @@ static constexpr bool verify_no_timer_conflicts() {
 // when hovering over it, making it easy to identify the conflicting timers.
 static_assert(verify_no_timer_conflicts(), "One or more timer conflict detected");
 
+static constexpr int pins_used_by_runtime_pwm[] = {
+  #if ENABLED(CASELIGHT_USES_BRIGHTNESS) && DISABLED(CASE_LIGHT_USE_NEOPIXEL)
+    CASE_LIGHT_PIN,
+  #endif
+  #if ENABLED(USE_CONTROLLER_FAN)
+    CONTROLLER_FAN_PIN, // Does not currently support FAN_SOFT_PWM
+  #endif
+  #if ENABLED(SPINDLE_LASER_PWM)
+    SPINDLE_LASER_PWM_PIN,
+  #endif
+  #if EITHER(RGB_LED, RGBW_LED)
+    RGB_LED_R_PIN, RGB_LED_G_PIN, RGB_LED_B_PIN,
+    #if ENABLED(RGBW_LED)
+      RGB_LED_W_PIN,
+    #endif
+  #endif
+  #if PIN_EXISTS(LED)
+    LED_PIN,
+  #endif
+  #if DISABLED(FAN_SOFT_PWM)
+    #if HAS_FAN0
+      FAN_PIN,
+    #endif
+    #if HAS_FAN1
+      FAN1_PIN,
+    #endif
+    #if HAS_FAN2
+      FAN2_PIN,
+    #endif
+    #if HAS_FAN3
+      FAN3_PIN,
+    #endif
+    #if HAS_FAN4
+      FAN4_PIN,
+    #endif
+    #if HAS_FAN5
+      FAN5_PIN,
+    #endif
+    #if HAS_FAN6
+      FAN6_PIN,
+    #endif
+    #if HAS_FAN7
+      FAN7_PIN,
+    #endif
+  #endif
+  #if HAS_MOTOR_CURRENT_PWM
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)
+      MOTOR_CURRENT_PWM_X_PIN,
+    #endif
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
+      MOTOR_CURRENT_PWM_Y_PIN,
+    #endif
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+      MOTOR_CURRENT_PWM_XY_PIN,
+    #endif
+    break;
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+      MOTOR_CURRENT_PWM_Z_PIN,
+    #endif
+    break;
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+      MOTOR_CURRENT_PWM_E_PIN,
+    #endif
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_E0)
+      MOTOR_CURRENT_PWM_E0_PIN,
+    #endif
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_E1)
+      MOTOR_CURRENT_PWM_E1_PIN,
+    #endif
+  #endif
+  #if ENABLED(BARICUDA)
+    #if HAS_HEATER_1
+      HEATER_1_PIN,
+    #endif
+    #if HAS_HEATER_2
+      HEATER_2_PIN,
+    #endif
+  #endif
+  #if ENABLED(USE_CONTROLLER_FAN)
+    CONTROLLER_FAN_PIN,
+  #endif
+
+  // I don't think any AUTO fans use SOFT_PWM
+  #if HAS_AUTO_FAN_0
+    E0_AUTO_FAN_PIN,
+  #endif
+  #if HAS_AUTO_FAN_1
+    E1_AUTO_FAN_PIN,
+  #endif
+  #if HAS_AUTO_FAN_2
+    E2_AUTO_FAN_PIN,
+  #endif
+  #if HAS_AUTO_FAN_3
+    E3_AUTO_FAN_PIN,
+  #endif
+  #if HAS_AUTO_FAN_4
+    E4_AUTO_FAN_PIN,
+  #endif
+  #if HAS_AUTO_FAN_5
+    E5_AUTO_FAN_PIN,
+  #endif
+  #if HAS_AUTO_FAN_6
+    E6_AUTO_FAN_PIN,
+  #endif
+  #if HAS_AUTO_FAN_7
+    E7_AUTO_FAN_PIN,
+  #endif
+  #if HAS_AUTO_CHAMBER_FAN
+    CHAMBER_AUTO_FAN_PIN,
+  #endif
+};
+
+
 // ------------------------
 // Private Variables
 // ------------------------
