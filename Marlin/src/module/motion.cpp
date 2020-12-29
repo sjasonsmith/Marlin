@@ -94,15 +94,18 @@ bool relative_mode; // = false;
  *   Used by 'line_to_current_position' to do a move after changing it.
  *   Used by 'sync_plan_position' to update 'planner.position'.
  */
-xyze_pos_t current_position = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
-
-/**
- * Cartesian Destination
- *   The destination for a move, filled in by G-code movement commands,
- *   and expected by functions like 'prepare_line_to_destination'.
- *   G-codes can set destination using 'get_destination_from_command'
- */
-xyze_pos_t destination; // {0}
+CartesianPosition position;
+// xyze_pos_t current,     // High-level current tool position
+//                   destination; // Destination for a move
+// static xyze_pos_t rw_current_position = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
+// const xyze_pos_t &current_position = rw_current_position;
+// /**
+//  * Cartesian Destination
+//  *   The destination for a move, filled in by G-code movement commands,
+//  *   and expected by functions like 'prepare_line_to_destination'.
+//  *   G-codes can set destination using 'get_destination_from_command'
+//  */
+// xyze_pos_t destination; // {0}
 
 // G60/G61 Position Save and Return
 #if SAVED_POSITIONS
@@ -483,7 +486,7 @@ void do_blocking_move_to_y(const float &ry, const feedRate_t &fr_mm_s/*=0.0*/) {
   do_blocking_move_to(current_position.x, ry, current_position.z, fr_mm_s);
 }
 void do_blocking_move_to_z(const float &rz, const feedRate_t &fr_mm_s/*=0.0*/) {
-  do_blocking_move_to_xy_z(current_position, rz, fr_mm_s);
+  do_blocking_move_to_xy_z(position.get_current(), rz, fr_mm_s);
 }
 
 void do_blocking_move_to_xy(const float &rx, const float &ry, const feedRate_t &fr_mm_s/*=0.0*/) {

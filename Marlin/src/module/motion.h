@@ -39,8 +39,22 @@ constexpr float fslop = 0.0001;
 
 extern bool relative_mode;
 
-extern xyze_pos_t current_position,  // High-level current tool position
-                  destination;       // Destination for a move
+class CartesianPosition {
+  static xyze_pos_t current,     // High-level current tool position
+                    destination; // Destination for a move
+
+public:
+  static const xyze_pos_t& get_destination() { return destination; }
+  static xyze_pos_t& get_rw_destination() { return destination; }
+
+  static const xyze_pos_t& get_current() { return current; }
+  static const xy_pos_t& get_current_xy() { return current; }
+
+  // Could be any position type, such as xy_pos_t, etc.
+  template <typename T>
+  static void override_current(const T &pos) { current = pos; }
+};
+extern CartesianPosition position;
 
 // G60/G61 Position Save and Return
 #if SAVED_POSITIONS
