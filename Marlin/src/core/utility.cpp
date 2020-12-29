@@ -124,7 +124,7 @@ void safe_delay(millis_t ms) {
         #if ABL_PLANAR
           SERIAL_ECHOPGM("ABL Adjustment X");
           LOOP_XYZ(a) {
-            const float v = planner.get_axis_position_mm(AxisEnum(a)) - current_position[a];
+            const float v = planner.get_axis_position_mm(AxisEnum(a)) - position.get_current()[a];
             SERIAL_CHAR(' ', XYZ_CHAR(a));
             if (v > 0) SERIAL_CHAR('+');
             SERIAL_DECIMAL(v);
@@ -132,15 +132,15 @@ void safe_delay(millis_t ms) {
         #else
           #if ENABLED(AUTO_BED_LEVELING_UBL)
             SERIAL_ECHOPGM("UBL Adjustment Z");
-            const float rz = ubl.get_z_correction(current_position);
+            const float rz = ubl.get_z_correction(position.get_current());
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
             SERIAL_ECHOPGM("ABL Adjustment Z");
-            const float rz = bilinear_z_offset(current_position);
+            const float rz = bilinear_z_offset(position.get_current());
           #endif
           SERIAL_ECHO(ftostr43sign(rz, '+'));
           #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
             if (planner.z_fade_height) {
-              SERIAL_ECHOPAIR(" (", ftostr43sign(rz * planner.fade_scaling_factor_for_z(current_position.z), '+'));
+              SERIAL_ECHOPAIR(" (", ftostr43sign(rz * planner.fade_scaling_factor_for_z(position.get_current().z), '+'));
               SERIAL_CHAR(')');
             }
           #endif

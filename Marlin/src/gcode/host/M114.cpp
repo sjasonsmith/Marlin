@@ -68,13 +68,12 @@
     #if HAS_LEVELING
       // Current position with leveling applied
       SERIAL_ECHOPGM("Leveled:");
-      planner.apply_leveling(leveled);
+      leveled = planner.apply_leveling(leveled);
       report_xyz(leveled);
 
       // Test planner un-leveling. This should match the Raw result.
       SERIAL_ECHOPGM("UnLevel:");
-      xyze_pos_t unleveled = leveled;
-      planner.unapply_leveling(unleveled);
+      xyze_pos_t unleveled = planner.unapply_leveling(leveled);
       report_xyz(unleveled);
     #endif
 

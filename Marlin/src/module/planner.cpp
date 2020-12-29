@@ -1470,9 +1470,10 @@ void Planner::check_axes_activity() {
    * rx, ry, rz - Cartesian positions in mm
    *              Leveled XYZ on completion
    */
-  void Planner::apply_leveling(xyz_pos_t &raw) {
-    if (!leveling_active) return;
+  xyz_pos_t Planner::apply_leveling(const xyz_pos_t &raw_arg) {
+    if (!leveling_active) return raw;
 
+    xyz_pos_t raw = raw_arg;
     #if ABL_PLANAR
 
       xy_pos_t d = raw - level_fulcrum;
@@ -1502,12 +1503,12 @@ void Planner::check_axes_activity() {
       );
 
     #endif
+    return raw;
   }
 
-  void Planner::unapply_leveling(xyz_pos_t &raw) {
-
+  xyz_pos_t Planner::unapply_leveling(const xyz_pos_t &raw_arg) {
+    xyz_pos_t raw = raw_arg;
     if (leveling_active) {
-
       #if ABL_PLANAR
 
         matrix_3x3 inverse = matrix_3x3::transpose(bed_level_matrix);
@@ -1540,6 +1541,7 @@ void Planner::check_axes_activity() {
 
       #endif
     }
+    return raw;
   }
 
 #endif // HAS_LEVELING

@@ -46,7 +46,8 @@ void GcodeSuite::G42() {
     }
 
     // Move to current_position, as modified by I, J, P parameters
-    destination = current_position;
+    auto &destination = position.get_rw_destination();
+    destination = position.get_current();
 
     if (hasI) destination.x = _GET_MESH_X(ix);
     if (hasJ) destination.y = _GET_MESH_Y(iy);

@@ -58,7 +58,7 @@ void GcodeSuite::G92() {
       case 9: {
         LOOP_XYZE(i) {
           if (parser.seenval(axis_codes[i])) {
-            current_position[i] = parser.value_axis_units((AxisEnum)i);
+            rw_current_position[i] = parser.value_axis_units((AxisEnum)i);
             if (i == E_AXIS) sync_E = true; else sync_XYZ = true;
           }
         }
@@ -73,11 +73,11 @@ void GcodeSuite::G92() {
           if (!NEAR_ZERO(d)) {
             #if IS_SCARA || !HAS_POSITION_SHIFT
               if (i == E_AXIS) sync_E = true; else sync_XYZ = true;
-              current_position[i] = v;        // Without workspaces revert to Marlin 1.0 behavior
+              rw_current_position[i] = v;        // Without workspaces revert to Marlin 1.0 behavior
             #elif HAS_POSITION_SHIFT
               if (i == E_AXIS) {
                 sync_E = true;
-                current_position.e = v;       // When using coordinate spaces, only E is set directly
+                rw_current_position.e = v;       // When using coordinate spaces, only E is set directly
               }
               else {
                 position_shift[i] += d;       // Other axes simply offset the coordinate space

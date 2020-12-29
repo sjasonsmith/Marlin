@@ -245,7 +245,7 @@ void plan_arc(
     apply_motion_limits(raw);
 
     #if HAS_LEVELING && !PLANNER_LEVELING
-      planner.apply_leveling(raw);
+      raw = planner.apply_leveling(raw);
     #endif
 
     if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0
@@ -262,7 +262,7 @@ void plan_arc(
   apply_motion_limits(raw);
 
   #if HAS_LEVELING && !PLANNER_LEVELING
-    planner.apply_leveling(raw);
+    raw = planner.apply_leveling(raw);
   #endif
 
   planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0

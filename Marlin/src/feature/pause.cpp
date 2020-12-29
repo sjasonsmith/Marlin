@@ -424,7 +424,7 @@ bool pause_print(const float &retract, const xyz_pos_t &park_point, const float 
   print_job_timer.pause();
 
   // Save current position
-  resume_position = current_position;
+  resume_position = position.get_current();
 
   // Wait for buffered blocks to complete
   planner.synchronize();
@@ -648,7 +648,11 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
 
   // Now all extrusion positions are resumed and ready to be confirmed
   // Set extruder to saved position
-  planner.set_e_position_mm((destination.e = current_position.e = resume_position.e));
+  position.get_rw_destination().e = resume_position.e;
+  auto new_current = position.get_current();
+  new_current.e = resume_position.e;
+  position.override_current(new_current);
+  planner.set_e_position_mm(resume_position.e);
 
   // Write PLR now to update the z axis value
   TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));

@@ -76,8 +76,8 @@ void GcodeSuite::M48() {
 
   // Test at the current position by default, overridden by X and Y
   const xy_pos_t test_position = {
-    parser.linearval('X', current_position.x + probe.offset_xy.x),  // If no X use the probe's current X position
-    parser.linearval('Y', current_position.y + probe.offset_xy.y)   // If no Y, ditto
+    parser.linearval('X', position.get_current().x + probe.offset_xy.x),  // If no X use the probe's current X position
+    parser.linearval('Y', position.get_current().y + probe.offset_xy.y)   // If no Y, ditto
   };
 
   if (!probe.can_reach(test_position)) {

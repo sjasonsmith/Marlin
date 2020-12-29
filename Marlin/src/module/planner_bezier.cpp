@@ -190,8 +190,7 @@ void cubic_b_spline(
     bez_target = new_bez;
 
     #if HAS_LEVELING && !PLANNER_LEVELING
-      xyze_pos_t pos = bez_target;
-      planner.apply_leveling(pos);
+      xyze_pos_t pos = planner.apply_leveling(bez_target);
     #else
       const xyze_pos_t &pos = bez_target;
     #endif

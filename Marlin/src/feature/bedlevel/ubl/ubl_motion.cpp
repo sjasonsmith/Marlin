@@ -324,6 +324,9 @@
    */
 
   bool _O2 unified_bed_leveling::line_to_destination_segmented(const feedRate_t &scaled_fr_mm_s) {
+    const auto &current_position = position.get_current();
+    const auto &destination = position.get_destination();
+
     SERIAL_ECHOLN("line_to_destination_segmented");
     if (!position_is_reachable(destination))  // fail if moving outside reachable boundary
       return true;                            // did not move, so current_position still accurate

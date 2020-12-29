@@ -592,16 +592,16 @@ class Planner {
        * Apply leveling to transform a cartesian position
        * as it will be given to the planner and steppers.
        */
-      static void apply_leveling(xyz_pos_t &raw);
-      static void unapply_leveling(xyz_pos_t &raw);
+      static xyz_pos_t apply_leveling(const xyz_pos_t &raw_arg);
+      static xyz_pos_t unapply_leveling(const xyz_pos_t &raw_arg);
       FORCE_INLINE static void force_unapply_leveling(xyz_pos_t &raw) {
         leveling_active = true;
         unapply_leveling(raw);
         leveling_active = false;
       }
     #else
-      FORCE_INLINE static void apply_leveling(xyz_pos_t&) {}
-      FORCE_INLINE static void unapply_leveling(xyz_pos_t&) {}
+      FORCE_INLINE static xyz_pos_t apply_leveling(xyz_pos_t& raw_arg) { return raw_arg; }
+      FORCE_INLINE static xyz_pos_t unapply_leveling(xyz_pos_t& raw_arg) { return raw_arg; }
     #endif
 
     #if ENABLED(FWRETRACT)
@@ -614,13 +614,13 @@ class Planner {
     #if HAS_POSITION_MODIFIERS
       FORCE_INLINE static void apply_modifiers(xyze_pos_t &pos, bool leveling=ENABLED(PLANNER_LEVELING)) {
         TERN_(SKEW_CORRECTION, skew(pos));
-        if (leveling) apply_leveling(pos);
+        if (leveling) pos = apply_leveling(pos);
         TERN_(FWRETRACT, apply_retract(pos));
       }
 
       FORCE_INLINE static void unapply_modifiers(xyze_pos_t &pos, bool leveling=ENABLED(PLANNER_LEVELING)) {
         TERN_(FWRETRACT, unapply_retract(pos));
-        if (leveling) unapply_leveling(pos);
+        if (leveling) pos = unapply_leveling(pos);
         TERN_(SKEW_CORRECTION, unskew(pos));
       }
     #endif // HAS_POSITION_MODIFIERS

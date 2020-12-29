@@ -74,18 +74,18 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
     #endif
 
     if (planner.leveling_active) {      // leveling from on to off
-      if (DEBUGGING(LEVELING)) DEBUG_POS("Leveling ON", current_position);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("Leveling ON", position.get_current());
       // change unleveled current_position to physical current_position without moving steppers.
-      planner.apply_leveling(current_position);
+      position.override_current(planner.apply_leveling(position.get_current()));
       planner.leveling_active = false;  // disable only AFTER calling apply_leveling
-      if (DEBUGGING(LEVELING)) DEBUG_POS("...Now OFF", current_position);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("...Now OFF", position.get_current());
     }
     else {                              // leveling from off to on
-      if (DEBUGGING(LEVELING)) DEBUG_POS("Leveling OFF", current_position);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("Leveling OFF", position.get_current());
       planner.leveling_active = true;   // enable BEFORE calling unapply_leveling, otherwise ignored
       // change physical current_position to unleveled current_position without moving steppers.
-      planner.unapply_leveling(current_position);
-      if (DEBUGGING(LEVELING)) DEBUG_POS("...Now ON", current_position);
+      position.override_current(planner.unapply_leveling(position.get_current()));
+      if (DEBUGGING(LEVELING)) DEBUG_POS("...Now ON", position.get_current());
     }
 
     sync_plan_position();
@@ -108,9 +108,9 @@ TemporaryBedLevelingState::TemporaryBedLevelingState(const bool enable) : saved(
     planner.set_z_fade_height(zfh);
 
     if (leveling_was_active) {
-      const xyz_pos_t oldpos = current_position;
+      const xyz_pos_t oldpos = position.get_current();
       set_bed_leveling_enabled(true);
-      if (do_report && oldpos != current_position)
+      if (do_report && oldpos != position.get_current())
         report_current_position();
     }
   }

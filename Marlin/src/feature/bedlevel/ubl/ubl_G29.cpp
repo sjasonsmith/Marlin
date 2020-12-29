@@ -823,7 +823,7 @@
         idle();
         gcode.reset_stepper_timeout(); // Keep steppers powered
         if (encoder_diff) {
-          do_blocking_move_to_z(current_position.z + float(encoder_diff) * multiplier);
+          do_blocking_move_to_z(position.get_current().z + float(encoder_diff) * multiplier);
           encoder_diff = 0;
         }
       }
@@ -832,7 +832,7 @@
     float unified_bed_leveling::measure_point_with_encoder() {
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       move_z_with_encoder(0.01f);
-      return current_position.z;
+      return position.get_current().z;
     }
 
     static void echo_and_take_a_measurement() { SERIAL_ECHOLNPGM(" and take a measurement."); }
@@ -851,7 +851,7 @@
       echo_and_take_a_measurement();
 
       const float z1 = measure_point_with_encoder();
-      do_blocking_move_to_z(current_position.z + SIZE_OF_LITTLE_RAISE);
+      do_blocking_move_to_z(position.get_current().z + SIZE_OF_LITTLE_RAISE);
       planner.synchronize();
 
       SERIAL_ECHOPGM("Remove shim");
@@ -859,7 +859,7 @@
       echo_and_take_a_measurement();
 
       const float z2 = measure_point_with_encoder();
-      do_blocking_move_to_z(current_position.z + Z_CLEARANCE_BETWEEN_PROBES);
+      do_blocking_move_to_z(position.get_current().z + Z_CLEARANCE_BETWEEN_PROBES);
 
       const float thickness = ABS(z1 - z2);
 
@@ -877,7 +877,7 @@
       ui.capture();
 
       save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
-      do_blocking_move_to_xy_z(current_position, z_clearance);
+      do_blocking_move_to_xy_z(position.get_current(), z_clearance);
 
       ui.return_to_status();
 
@@ -919,7 +919,7 @@
           return restore_ubl_active_state_and_leave();
         }
 
-        z_values[lpos.x][lpos.y] = current_position.z - thick;
+        z_values[lpos.x][lpos.y] = position.get_current().z - thick;
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location, z_values[lpos.x][lpos.y]));
 
         if (g29_verbose_level > 2)
@@ -1111,9 +1111,9 @@
     }
 
     xy_seen.x = parser.seenval('X');
-    float sx = xy_seen.x ? parser.value_float() : current_position.x;
+    float sx = xy_seen.x ? parser.value_float() : position.get_current().x;
     xy_seen.y = parser.seenval('Y');
-    float sy = xy_seen.y ? parser.value_float() : current_position.y;
+    float sy = xy_seen.y ? parser.value_float() : position.get_current().y;
 
     if (xy_seen.x != xy_seen.y) {
       SERIAL_ECHOLNPGM("Both X & Y locations must be specified.\n");
@@ -1278,7 +1278,7 @@
 
         // Reachable. Check if it's the best_so_far location to the nozzle.
 
-        const xy_pos_t diff = current_position - mpos;
+        const xy_pos_t diff = position.get_current() - mpos;
         const float distance = (ref - mpos).magnitude() + diff.magnitude() * 0.1f;
 
         // factor in the distance from the current location for the normal case

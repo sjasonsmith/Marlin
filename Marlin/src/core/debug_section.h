@@ -44,6 +44,6 @@ private:
       serialprintPGM(the_msg);
     }
     SERIAL_CHAR(' ');
-    print_xyz(current_position);
+    print_xyz(position.get_current());
   }
 };
