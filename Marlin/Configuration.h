@@ -701,14 +701,14 @@
   #endif
 
   // Distance between bed and nozzle Z home position
-  #define DELTA_HEIGHT 291.34             // (mm) Get this value from G33 auto calibrate
+  #define DELTA_HEIGHT 291.32             // (mm) Get this value from G33 auto calibrate
 
-  #define DELTA_ENDSTOP_ADJ { -0.32, -1.38, 0.0 } // Get these values from G33 auto calibrate
+  #define DELTA_ENDSTOP_ADJ { -0.25, -1.46, 0.0 } // Get these values from G33 auto calibrate
 
   // Trim adjustments for individual towers
   // tower angle corrections for X and Y tower / rotate XYZ so Z tower angle = 0
   // measured in degrees anticlockwise looking from above the printer
-  #define DELTA_TOWER_ANGLE_TRIM { -0.06, +0.11, -0.05 } // Get these values from G33 auto calibrate
+  #define DELTA_TOWER_ANGLE_TRIM { -0.06, +0.14, -0.09 } // Get these values from G33 auto calibrate
 
   // Delta radius and diagonal rod adjustments (mm)
   //#define DELTA_RADIUS_TRIM_TOWER { 0.0, 0.0, 0.0 }
@@ -1444,8 +1444,8 @@
   #define AUTO_BED_LEVELING_3POINT
 #else
 //#define AUTO_BED_LEVELING_LINEAR
-  #define AUTO_BED_LEVELING_BILINEAR
-//#define AUTO_BED_LEVELING_UBL
+  // #define AUTO_BED_LEVELING_BILINEAR
+#define AUTO_BED_LEVELING_UBL
 //#define MESH_BED_LEVELING
 #endif
 
@@ -1993,7 +1993,7 @@
 // This option overrides the default number of encoder pulses needed to
 // produce one step. Should be increased for high-resolution encoders.
 //
-#define ENCODER_PULSES_PER_STEP 3
+#define ENCODER_PULSES_PER_STEP 4
 
 //
 // Use this option to override the number of step signals required to

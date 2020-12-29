@@ -2777,6 +2777,8 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
     , const float &inv_duration
   #endif
 ) {
+  SERIAL_ECHOLNPAIR("Planner::buffer_line dest x=", rx, ",", ry, ",", rz, ",", e);
+
   xyze_pos_t machine = { rx, ry, rz, e };
   TERN_(HAS_POSITION_MODIFIERS, apply_modifiers(machine));
 

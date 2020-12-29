@@ -1015,11 +1015,15 @@
 
         SET_SOFT_ENDSTOP_LOOSE(true);
 
+        float last_z = 0.0;
         do {
           idle();
           new_z = lcd_mesh_edit();
-          TERN_(UBL_MESH_EDIT_MOVES_Z, do_blocking_move_to_z(h_offset + new_z)); // Move the nozzle as the point is edited
-          SERIAL_FLUSH();                                   // Prevent host M105 buffer overrun.
+          if (new_z != last_z) {
+            last_z = new_z;
+            TERN_(UBL_MESH_EDIT_MOVES_Z, do_blocking_move_to_z(h_offset + new_z)); // Move the nozzle as the point is edited
+            SERIAL_FLUSH();                                   // Prevent host M105 buffer overrun.
+          }
         } while (!ui.button_pressed());
 
         SET_SOFT_ENDSTOP_LOOSE(false);

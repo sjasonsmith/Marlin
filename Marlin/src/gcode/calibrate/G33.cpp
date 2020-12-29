@@ -446,22 +446,22 @@ void GcodeSuite::G33() {
       }
     }
   }
-
+SERIAL_ECHOLNPGM("G33 1");
   // Report settings
   PGM_P const checkingac = PSTR("Checking... AC");
   serialprintPGM(checkingac);
   if (verbose_level == 0) SERIAL_ECHOPGM(" (DRY-RUN)");
   SERIAL_EOL();
   ui.set_status_P(checkingac);
-
+SERIAL_ECHOLNPGM("G33 2");
   print_calibration_settings(_endstop_results, _angle_results);
-
+SERIAL_ECHOLNPGM("G33 3");
   ac_setup(!_0p_calibration && !_1p_calibration);
-
+SERIAL_ECHOLNPGM("G33 4");
   if (!_0p_calibration) ac_home();
 
   do { // start iterations
-
+SERIAL_ECHOLNPGM("G33 5");
     float z_at_pt[NPP + 1] = { 0.0f };
 
     test_precision = zero_std_dev_old != 999.0f ? (zero_std_dev + zero_std_dev_old) / 2.0f : zero_std_dev;
@@ -469,6 +469,7 @@ void GcodeSuite::G33() {
 
     // Probe the points
     zero_std_dev_old = zero_std_dev;
+SERIAL_ECHOLNPGM("G33 5");
     if (!probe_calibration_points(z_at_pt, probe_points, towers_set, stow_after_each)) {
       SERIAL_ECHOLNPGM("Correct delta settings with M665 and M666");
       return ac_cleanup(TERN_(HAS_MULTI_HOTEND, old_tool_index));

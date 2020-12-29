@@ -43,7 +43,8 @@ static int16_t ubl_storage_slot = 0,
                ubl_height_amount = 1;
 
 static uint8_t n_edit_pts = 1;
-static int8_t x_plot = 0, y_plot = 0; // May be negative during move
+static int8_t x_plot = TERN0(DELTA, (GRID_MAX_POINTS_X / 2));
+static int8_t y_plot = TERN0(DELTA, (GRID_MAX_POINTS_Y / 2)); // May be negative during move
 
 #if HAS_HEATED_BED
   static int16_t custom_bed_temp = 50;
@@ -415,15 +416,21 @@ void _lcd_ubl_map_edit_cmd() {
 void ubl_map_move_to_xy() {
 
   #if ENABLED(DELTA)
+  // TODO JASON
     if (current_position.z > delta_clip_start_height) { // Make sure the delta has fully free motion
+      SERIAL_ECHOLN(">>>ubl_map_move_to_xy - Move below clipping height");
       destination = current_position;
       destination.z = delta_clip_start_height;
       prepare_internal_fast_move_to_destination(homing_feedrate(Z_AXIS)); // Set current_position from destination
     }
   #endif
 
+  auto xpos = ubl.mesh_index_to_xpos(x_plot);
+  auto ypos = ubl.mesh_index_to_ypos(y_plot);
+  SERIAL_ECHOLNPAIR(">>>ubl_map_move_to_xy moving to actual point x=", x_plot, " y=", y_plot);
+
   // Set the nozzle position to the mesh point
-  current_position.set(ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot));
+  current_position.set(xpos, ypos);
 
   // Use the built-in manual move handler
   ui.manual_move.soon(ALL_AXES);
@@ -498,6 +505,7 @@ void ubl_map_screen() {
 
   // Add a move if needed to match the grid point
   if (x != x_plot || y != y_plot) {
+    SERIAL_ECHOLNPAIR("MOVING TO UBL POINT X=", int(x), " Y=", int(y));
     x_plot = x; y_plot = y;   // The move is always posted, so update the grid point now
     ubl_map_move_to_xy();     // Sets up a "manual move"
     ui.refresh(LCDVIEW_CALL_REDRAW_NEXT); // Clean up a half drawn box
@@ -525,6 +533,7 @@ void _ubl_map_screen_homing() {
 void _ubl_goto_map_screen() {
   if (planner.movesplanned()) return;     // The ACTION_ITEM will do nothing
   if (!all_axes_trusted()) {
+    SERIAL_ECHOLN(">>>_ubl_goto_map_screen - Home because not all trusted");
     set_all_unhomed();
     queue.inject_P(G28_STR);
   }

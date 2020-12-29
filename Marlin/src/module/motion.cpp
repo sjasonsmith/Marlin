@@ -350,6 +350,7 @@ void _internal_move_to_destination(const feedRate_t &fr_mm_s/*=0.0f*/
 ) {
   const feedRate_t old_feedrate = feedrate_mm_s;
   if (fr_mm_s) feedrate_mm_s = fr_mm_s;
+  SERIAL_ECHOLNPAIR("_internal_move_to_destination dest.x=", destination.x, "dest.y=", destination.y, "feed=", feedrate_mm_s, "is_fast=", int(is_fast));
 
   const uint16_t old_pct = feedrate_percentage;
   feedrate_percentage = 100;

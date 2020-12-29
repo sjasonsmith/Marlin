@@ -725,7 +725,11 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
         #endif
 
         // Apply a linear offset to a single axis
-        destination = current_position;
+        auto new_dest = current_position;
+        current_position = destination;
+        destination = new_dest;
+
+        // destination = current_position;
         if (axis <= XYZE) destination[axis] += offset;
 
         // Reset for the next move
