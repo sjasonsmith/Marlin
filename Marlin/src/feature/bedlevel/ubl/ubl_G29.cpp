@@ -877,7 +877,7 @@
       ui.capture();
 
       save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
-      do_blocking_move_to_xy_z(motion.current_position(), z_clearance);
+      do_blocking_move_to_z(z_clearance);
 
       ui.return_to_status();
 
