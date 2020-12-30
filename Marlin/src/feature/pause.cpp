@@ -648,7 +648,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
 
   // Now all extrusion positions are resumed and ready to be confirmed
   // Set extruder to saved position
-  planner.set_e_position_mm((destination.e = motion.current_position.e = resume_position.e));
+  planner.set_e_position_mm((motion.destination.e = motion.current_position.e = resume_position.e));
 
   // Write PLR now to update the z axis value
   TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));

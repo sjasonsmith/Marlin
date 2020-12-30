@@ -419,9 +419,9 @@ void ubl_map_move_to_xy() {
   // TODO JASON
     if (motion.current_position.z > delta_clip_start_height) { // Make sure the delta has fully free motion
       SERIAL_ECHOLN(">>>ubl_map_move_to_xy - Move below clipping height");
-      destination = motion.current_position;
-      destination.z = delta_clip_start_height;
-      prepare_internal_fast_move_to_destination(homing_feedrate(Z_AXIS)); // Set motion.current_position from destination
+      motion.destination = motion.current_position;
+      motion.destination.z = delta_clip_start_height;
+      prepare_internal_fast_move_to_destination(homing_feedrate(Z_AXIS)); // Set motion.current_position from motion.destination
     }
   #endif
 

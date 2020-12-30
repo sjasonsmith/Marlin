@@ -726,11 +726,11 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
         // Apply a linear offset to a single axis
         auto new_dest = motion.current_position;
-        motion.current_position = destination;
-        destination = new_dest;
+        motion.current_position = motion.destination;
+        motion.destination = new_dest;
 
-        // destination = motion.current_position;
-        if (axis <= XYZE) destination[axis] += offset;
+        // motion.destination = motion.current_position;
+        if (axis <= XYZE) motion.destination[axis] += offset;
 
         // Reset for the next move
         offset = 0;
@@ -741,7 +741,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
         // previous invocation is being blocked. Modifications to offset shouldn't be made while
         // processing is true or the planner will get out of sync.
         processing = true;
-        prepare_internal_move_to_destination(fr_mm_s);  // will set motion.current_position from destination
+        prepare_internal_move_to_destination(fr_mm_s);  // will set motion.current_position from motion.destination
         processing = false;
 
         TERN_(HAS_MULTI_EXTRUDER, active_extruder = old_extruder);

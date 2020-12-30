@@ -49,13 +49,13 @@ static bool eeprom_dirty = false;
 
 bool PersistentStore::access_start() {
   const uint32_t* source = reinterpret_cast<const uint32_t*>(EEPROM_PAGE0_BASE);
-  uint32_t* destination = reinterpret_cast<uint32_t*>(ram_eeprom);
+  uint32_t* motion.destination = reinterpret_cast<uint32_t*>(ram_eeprom);
 
   static_assert(0 == (MARLIN_EEPROM_SIZE) % 4, "MARLIN_EEPROM_SIZE is corrupted. (Must be a multiple of 4.)"); // Ensure copying as uint32_t is safe
   constexpr size_t eeprom_size_u32 = (MARLIN_EEPROM_SIZE) / 4;
 
-  for (size_t i = 0; i < eeprom_size_u32; ++i, ++destination, ++source)
-    *destination = *source;
+  for (size_t i = 0; i < eeprom_size_u32; ++i, ++motion.destination, ++source)
+    *motion.destination = *source;
 
   eeprom_dirty = false;
   return true;

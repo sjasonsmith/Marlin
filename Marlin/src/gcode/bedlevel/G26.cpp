@@ -215,21 +215,21 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
 
   const bool has_xy_component = dest != motion.current_position; // Check if X or Y is involved in the movement.
 
-  destination = motion.current_position;
+  motion.destination = motion.current_position;
 
   if (z != last_z) {
-    last_z = destination.z = z;
+    last_z = motion.destination.z = z;
     const feedRate_t feed_value = planner.settings.max_feedrate_mm_s[Z_AXIS] * 0.5f; // Use half of the Z_AXIS max feed rate
     prepare_internal_move_to_destination(feed_value);
-    destination = motion.current_position;
+    motion.destination = motion.current_position;
   }
 
   // If X or Y is involved do a 'normal' move. Otherwise retract/recover/hop.
-  destination = dest;
-  destination.e += e_delta;
+  motion.destination = dest;
+  motion.destination.e += e_delta;
   const feedRate_t feed_value = has_xy_component ? feedRate_t(G26_XY_FEEDRATE) : planner.settings.max_feedrate_mm_s[E_AXIS] * 0.666f;
   prepare_internal_move_to_destination(feed_value);
-  destination = motion.current_position;
+  motion.destination = motion.current_position;
 }
 
 FORCE_INLINE void move_to(const xyz_pos_t &where, const float &de) { move_to(where.x, where.y, where.z, de); }
@@ -243,7 +243,7 @@ void retract_filament(const xyz_pos_t &where) {
 
 // TODO: Parameterize the Z lift with a define
 void retract_lift_move(const xyz_pos_t &s) {
-  retract_filament(destination);
+  retract_filament(motion.destination);
   move_to(motion.current_position.x, motion.current_position.y, motion.current_position.z + 0.5f, 0.0);  // Z lift to minimize scraping
   move_to(s.x, s.y, s.z + 0.5f, 0.0);  // Get to the starting point with no extrusion while lifted
 }
@@ -291,7 +291,7 @@ void print_line_from_here_to_there(const xyz_pos_t &s, const xyz_pos_t &e) {
 
   const float e_pos_delta = line_length * g26_e_axis_feedrate * g26_extrusion_multiplier;
 
-  recover_filament(destination);
+  recover_filament(motion.destination);
   move_to(e, e_pos_delta);  // Get to the ending point with an appropriate amount of extrusion
 }
 
@@ -415,13 +415,13 @@ inline bool prime_nozzle() {
       ui.set_status_P(GET_TEXT(MSG_G26_MANUAL_PRIME), 99);
       ui.chirp();
 
-      destination = motion.current_position;
+      motion.destination = motion.current_position;
 
-      recover_filament(destination); // Make sure G26 doesn't think the filament is retracted().
+      recover_filament(motion.destination); // Make sure G26 doesn't think the filament is retracted().
 
       while (!ui.button_pressed()) {
         ui.chirp();
-        destination.e += 0.25;
+        motion.destination.e += 0.25;
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
           Total_Prime += 0.25;
           if (Total_Prime >= EXTRUDE_MAXLENGTH) {
@@ -430,7 +430,7 @@ inline bool prime_nozzle() {
           }
         #endif
         prepare_internal_move_to_destination(fr_slow_e);
-        destination = motion.current_position;
+        motion.destination = motion.current_position;
         planner.synchronize();    // Without this synchronize, the purge is more consistent,
                                   // but because the planner has a buffer, we won't be able
                                   // to stop as quickly. So we put up with the less smooth
@@ -450,11 +450,11 @@ inline bool prime_nozzle() {
       ui.set_status_P(GET_TEXT(MSG_G26_FIXED_LENGTH), 99);
       ui.quick_feedback();
     #endif
-    destination = motion.current_position;
-    destination.e += g26_prime_length;
+    motion.destination = motion.current_position;
+    motion.destination.e += g26_prime_length;
     prepare_internal_move_to_destination(fr_slow_e);
-    destination.e -= g26_prime_length;
-    retract_filament(destination);
+    motion.destination.e -= g26_prime_length;
+    retract_filament(motion.destination);
   }
 
   return G26_OK;
@@ -687,10 +687,10 @@ void GcodeSuite::G26() {
   vertical_mesh_line_flags.reset();
 
   // Move nozzle to the specified height for the first layer
-  destination = motion.current_position;
-  destination.z = g26_layer_height;
-  move_to(destination, 0.0);
-  move_to(destination, g26_ooze_amount);
+  motion.destination = motion.current_position;
+  motion.destination.z = g26_layer_height;
+  move_to(motion.destination, 0.0);
+  move_to(motion.destination, g26_ooze_amount);
 
   TERN_(HAS_LCD_MENU, ui.capture());
 
@@ -779,13 +779,13 @@ void GcodeSuite::G26() {
         s.z = g26_layer_height;
         move_to(s, 0.0);  // Get to the starting point with no extrusion / un-Z lift
 
-        recover_filament(destination);
+        recover_filament(motion.destination);
 
         const feedRate_t old_feedrate = feedrate_mm_s;
         feedrate_mm_s = PLANNER_XY_FEEDRATE() * 0.1f;
         plan_arc(endpoint, arc_offset, false, 0);  // Draw a counter-clockwise arc
         feedrate_mm_s = old_feedrate;
-        destination = motion.current_position;
+        motion.destination = motion.current_position;
 
         if (TERN0(HAS_LCD_MENU, user_canceled())) goto LEAVE; // Check if the user wants to stop the Mesh Validation
 
@@ -842,12 +842,12 @@ void GcodeSuite::G26() {
   LEAVE:
   ui.set_status_P(GET_TEXT(MSG_G26_LEAVING), -1);
 
-  retract_filament(destination);
-  destination.z = Z_CLEARANCE_BETWEEN_PROBES;
-  move_to(destination, 0);                                    // Raise the nozzle
+  retract_filament(motion.destination);
+  motion.destination.z = Z_CLEARANCE_BETWEEN_PROBES;
+  move_to(motion.destination, 0);                                    // Raise the nozzle
 
-  destination = g26_xy_pos;                                   // Move back to the starting XY position
-  move_to(destination, 0);                                    // Move back to the starting position
+  motion.destination = g26_xy_pos;                                   // Move back to the starting XY position
+  move_to(motion.destination, 0);                                    // Move back to the starting position
 
   #if DISABLED(NO_VOLUMETRICS)
     parser.volumetric_enabled = volumetric_was_enabled;

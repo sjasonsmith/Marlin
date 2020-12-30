@@ -44,11 +44,11 @@
      * just do the required Z-Height correction, call the Planner's buffer_line() routine, and leave
      */
     #if HAS_POSITION_MODIFIERS
-      xyze_pos_t start = motion.current_position, end = destination;
+      xyze_pos_t start = motion.current_position, end = motion.destination;
       planner.apply_modifiers(start);
       planner.apply_modifiers(end);
     #else
-      const xyze_pos_t &start = motion.current_position, &end = destination;
+      const xyze_pos_t &start = motion.current_position, &end = motion.destination;
     #endif
 
     const xy_int8_t istart = cell_indexes(start), iend = cell_indexes(end);
@@ -69,7 +69,7 @@
 
           end.z += UBL_Z_RAISE_WHEN_OFF_MESH;
           planner.buffer_segment(end, scaled_fr_mm_s, extruder);
-          motion.current_position = destination;
+          motion.current_position = motion.destination;
           return;
         }
       #endif
@@ -87,7 +87,7 @@
       // Replace NAN corrections with 0.0 to prevent NAN propagation.
       if (!isnan(z0)) end.z += z0;
       planner.buffer_segment(end, scaled_fr_mm_s, extruder);
-      motion.current_position = destination;
+      motion.current_position = motion.destination;
       return;
     }
 
@@ -174,11 +174,11 @@
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
-      // At the final destination? Usually not, but when on a Y Mesh Line it's completed.
+      // At the final motion.destination? Usually not, but when on a Y Mesh Line it's completed.
       if (xy_pos_t(motion.current_position) != xy_pos_t(end))
         goto FINAL_MOVE;
 
-      motion.current_position = destination;
+      motion.current_position = motion.destination;
       return;
     }
 
@@ -224,7 +224,7 @@
       if (xy_pos_t(motion.current_position) != xy_pos_t(end))
         goto FINAL_MOVE;
 
-      motion.current_position = destination;
+      motion.current_position = motion.destination;
       return;
     }
 
@@ -300,7 +300,7 @@
     if (xy_pos_t(motion.current_position) != xy_pos_t(end))
       goto FINAL_MOVE;
 
-    motion.current_position = destination;
+    motion.current_position = motion.destination;
   }
 
 #else // UBL_SEGMENTED
@@ -325,12 +325,12 @@
 
   bool _O2 unified_bed_leveling::line_to_destination_segmented(const feedRate_t &scaled_fr_mm_s) {
     SERIAL_ECHOLN("line_to_destination_segmented");
-    if (!position_is_reachable(destination))  // fail if moving outside reachable boundary
+    if (!position_is_reachable(motion.destination))  // fail if moving outside reachable boundary
       return true;                            // did not move, so motion.current_position still accurate
 
     SERIAL_ECHOLNPAIR("   curr x=", motion.current_position.x, ",", motion.current_position.y, ",", motion.current_position.z, ",", motion.current_position.e);
-    SERIAL_ECHOLNPAIR("   dest x=", destination.x, ",", destination.y, ",", destination.z, ",", destination.e);
-    const xyze_pos_t total = destination - motion.current_position;
+    SERIAL_ECHOLNPAIR("   dest x=", motion.destination.x, ",", motion.destination.y, ",", motion.destination.z, ",", motion.destination.e);
+    const xyze_pos_t total = motion.destination - motion.current_position;
 
     const float cart_xy_mm_2 = HYPOT2(total.x, total.y),
                 cart_xy_mm = SQRT(cart_xy_mm_2);                                     // Total XY distance
@@ -361,7 +361,7 @@
 
     SERIAL_ECHOLNPAIR("cart_xy_mm=", cart_xy_mm, ", scaled_fr_mm_s=", scaled_fr_mm_s, "seconds=", seconds, "segments=", segments);
     // Just do plain segmentation if UBL is inactive or the target is above the fade height
-    if (!planner.leveling_active || !planner.leveling_active_at_z(destination.z)) {
+    if (!planner.leveling_active || !planner.leveling_active_at_z(motion.destination.z)) {
       while (--segments) {
         raw += diff;
         planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, segment_xyz_mm
@@ -370,22 +370,22 @@
           #endif
         );
       }
-      planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, segment_xyz_mm
+      planner.buffer_line(motion.destination, scaled_fr_mm_s, active_extruder, segment_xyz_mm
         #if ENABLED(SCARA_FEEDRATE_SCALING)
           , inv_duration
         #endif
       );
       SERIAL_ECHOLN("<<< 1st return");
-      return false; // Did not set current from destination
+      return false; // Did not set current from motion.destination
     }
 
     // Otherwise perform per-segment leveling
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      const float fade_scaling_factor = planner.fade_scaling_factor_for_z(destination.z);
+      const float fade_scaling_factor = planner.fade_scaling_factor_for_z(motion.destination.z);
     #endif
 
-    // Move to first segment destination
+    // Move to first segment motion.destination
     raw += diff;
 
     for (;;) {  // for each mesh cell encountered during the move
@@ -438,7 +438,7 @@
 
       for (;;) {  // for all segments within this mesh cell
 
-        if (--segments == 0) raw = destination;     // if this is last segment, use destination for exact
+        if (--segments == 0) raw = motion.destination;     // if this is last segment, use motion.destination for exact
 
         const float z_cxcy = (z_cxy0 + z_cxym * cell.y) // interpolated mesh z height along cell.x at cell.y
           #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -454,7 +454,7 @@
 
         if (segments == 0) {                        // done with last segment
           SERIAL_ECHOLN("<<< 2nd return");
-          return false;                           // didn't set current from destination
+          return false;                           // didn't set current from motion.destination
         }
 
         raw += diff;

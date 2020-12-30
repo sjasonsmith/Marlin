@@ -127,8 +127,8 @@ void FWRetract::retract(const bool retracting
   const float base_retract = TERN1(RETRACT_SYNC_MIXING, (MIXING_STEPPERS))
                 * (swapping ? settings.swap_retract_length : settings.retract_length);
 
-  // The current position will be the destination for E and Z moves
-  destination = motion.current_position;
+  // The current position will be the motion.destination for E and Z moves
+  motion.destination = motion.current_position;
 
   #if ENABLED(RETRACT_SYNC_MIXING)
     const uint8_t old_mixing_tool = mixer.get_current_vtool();
@@ -139,7 +139,7 @@ void FWRetract::retract(const bool retracting
   if (retracting) {
     // Retract by moving from a faux E position back to the current E position
     current_retract[active_extruder] = base_retract;
-    prepare_internal_move_to_destination(                 // set current to destination
+    prepare_internal_move_to_destination(                 // set current to motion.destination
       settings.retract_feedrate_mm_s * TERN1(RETRACT_SYNC_MIXING, (MIXING_STEPPERS))
     );
 

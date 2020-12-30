@@ -138,20 +138,20 @@
       constexpr xy_float_t okay_homing_xy = safe_homing_xy;
     #endif
 
-    destination.set(okay_homing_xy, motion.current_position.z);
+    motion.destination.set(okay_homing_xy, motion.current_position.z);
 
-    TERN_(HOMING_Z_WITH_PROBE, destination -= probe.offset_xy);
+    TERN_(HOMING_Z_WITH_PROBE, motion.destination -= probe.offset_xy);
 
-    if (position_is_reachable(destination)) {
+    if (position_is_reachable(motion.destination)) {
 
-      if (DEBUGGING(LEVELING)) DEBUG_POS("home_z_safely", destination);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("home_z_safely", motion.destination);
 
       // Free the active extruder for movement
       TERN_(DUAL_X_CARRIAGE, idex_set_parked(false));
 
       TERN_(SENSORLESS_HOMING, safe_delay(500)); // Short delay needed to settle
 
-      do_blocking_move_to_xy(destination);
+      do_blocking_move_to_xy(motion.destination);
       homeaxis(Z_AXIS);
     }
     else {

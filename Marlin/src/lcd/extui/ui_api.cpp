@@ -195,11 +195,11 @@ namespace ExtUI {
      * called with all zeros.
      */
     void jog(const xyz_float_t &dir) {
-      // The "destination" variable is used as a scratchpad in
+      // The "motion.destination" variable is used as a scratchpad in
       // Marlin by GCODE routines, but should remain untouched
       // during manual jogging, allowing us to reuse the space
       // for our direction vector.
-      destination = dir;
+      motion.destination = dir;
       flags.jogging = !NEAR_ZERO(dir.x) || !NEAR_ZERO(dir.y) || !NEAR_ZERO(dir.z);
     }
 
@@ -208,15 +208,15 @@ namespace ExtUI {
       if (flags.jogging) {
         #define OUT_OF_RANGE(VALUE) (VALUE < -1.0f || VALUE > 1.0f)
 
-        if (OUT_OF_RANGE(destination.x) || OUT_OF_RANGE(destination.y) || OUT_OF_RANGE(destination.z)) {
-          // If destination on any axis is out of range, it
+        if (OUT_OF_RANGE(motion.destination.x) || OUT_OF_RANGE(motion.destination.y) || OUT_OF_RANGE(motion.destination.z)) {
+          // If motion.destination on any axis is out of range, it
           // probably means the UI forgot to stop jogging and
-          // ran GCODE that wrote a position to destination.
+          // ran GCODE that wrote a position to motion.destination.
           // To prevent a disaster, stop jogging.
           flags.jogging = false;
           return;
         }
-        norm_jog = destination;
+        norm_jog = motion.destination;
       }
     }
   #endif
@@ -293,13 +293,13 @@ namespace ExtUI {
   }
 
   float getAxisPosition_mm(const axis_t axis) {
-    return TERN_(JOYSTICK, flags.jogging ? destination[axis] :) motion.current_position[axis];
+    return TERN_(JOYSTICK, flags.jogging ? motion.destination[axis] :) motion.current_position[axis];
   }
 
   float getAxisPosition_mm(const extruder_t extruder) {
     const extruder_t old_tool = getActiveTool();
     setActiveTool(extruder, true);
-    const float epos = TERN_(JOYSTICK, flags.jogging ? destination.e :) motion.current_position.e;
+    const float epos = TERN_(JOYSTICK, flags.jogging ? motion.destination.e :) motion.current_position.e;
     setActiveTool(old_tool, true);
     return epos;
   }

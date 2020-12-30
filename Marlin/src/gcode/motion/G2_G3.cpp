@@ -287,7 +287,7 @@ void plan_arc(
  *    At least one of the IJ/JK/KI parameters is required.
  *    XY/YZ/ZX can be omitted to do a complete circle.
  *    The given XY/YZ/ZX is not error-checked. The arc ends
- *    based on the angle of the destination.
+ *    based on the angle of the motion.destination.
  *    Mixing IJ/JK/KI with R will throw an error.
  *
  *  - R specifies the radius. X or Y (Y or Z / Z or X) is required.
@@ -319,7 +319,7 @@ void GcodeSuite::G2_G3(const bool clockwise) {
     if (parser.seenval('R')) {
       const float r = parser.value_linear_units();
       if (r) {
-        const xy_pos_t p1 = motion.current_position, p2 = destination;
+        const xy_pos_t p1 = motion.current_position, p2 = motion.destination;
         if (p1 != p2) {
           const xy_pos_t d2 = (p2 - p1) * 0.5f;          // XY vector to midpoint of move from current
           const float e = clockwise ^ (r < 0) ? -1 : 1,  // clockwise -1/1, counterclockwise 1/-1
@@ -359,7 +359,7 @@ void GcodeSuite::G2_G3(const bool clockwise) {
       #endif
 
       // Send the arc to the planner
-      plan_arc(destination, arc_offset, clockwise, circles_to_do);
+      plan_arc(motion.destination, arc_offset, clockwise, circles_to_do);
       reset_stepper_timeout();
     }
     else

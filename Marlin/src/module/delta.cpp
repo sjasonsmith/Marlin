@@ -237,7 +237,7 @@ void home_delta() {
 
   // Init the current position of all carriages to 0,0,0
   motion.current_position.reset();
-  destination.reset();
+  motion.destination.reset();
   sync_plan_position();
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
