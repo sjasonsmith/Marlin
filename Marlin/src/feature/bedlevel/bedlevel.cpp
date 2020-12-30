@@ -83,8 +83,8 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
     else {                              // leveling from off to on
       if (DEBUGGING(LEVELING)) DEBUG_POS("Leveling OFF", motion.current_position());
       planner.leveling_active = true;   // enable BEFORE calling unapply_leveling, otherwise ignored
-      // change physical motion.current_position() to unleveled motion.current_position() without moving steppers.
-      planner.unapply_leveling(motion.current_position());
+      // change physical motion.current_position_rw() to unleveled motion.current_position_rw() without moving steppers.
+      planner.unapply_leveling(motion.current_position_rw());
       if (DEBUGGING(LEVELING)) DEBUG_POS("...Now ON", motion.current_position());
     }
 
@@ -229,7 +229,7 @@ void reset_bed_level() {
       do_blocking_move_to_xy(pos);
     #endif
 
-    motion.current_position() = pos;
+    motion.current_position_rw() = pos;
 
     TERN_(LCD_BED_LEVELING, ui.wait_for_move = false);
   }

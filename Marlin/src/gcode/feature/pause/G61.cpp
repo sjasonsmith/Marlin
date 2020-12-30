@@ -53,7 +53,7 @@ void GcodeSuite::G61(void) {
   LOOP_XYZ(i) {
     motion.destination()[i] = parser.seen(XYZ_CHAR(i))
       ? stored_position[slot][i] + parser.value_axis_units((AxisEnum)i)
-      : motion.current_position()[i];
+      : motion.current_position_rw()[i];
     SERIAL_CHAR(' ', XYZ_CHAR(i));
     SERIAL_ECHO_F(motion.destination()[i]);
   }

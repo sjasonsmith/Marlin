@@ -105,7 +105,7 @@ constexpr xy_pos_t lf { (X_MIN_BED) + inset_lfrb[0], (Y_MIN_BED) + inset_lfrb[1]
   }
 
   bool _lcd_level_bed_corners_probe(bool verify=false) {
-    if (verify) do_blocking_move_to_z(motion.current_position().z + LEVEL_CORNERS_Z_HOP); // do clearance if needed
+    if (verify) do_blocking_move_to_z(motion.current_position_rw().z + LEVEL_CORNERS_Z_HOP); // do clearance if needed
     TERN_(BLTOUCH_SLOW_MODE, bltouch.deploy()); // Deploy in LOW SPEED MODE on every probe action
     do_blocking_move_to_z(last_z - LEVEL_CORNERS_PROBE_TOLERANCE, manual_feedrate_mm_s.z); // Move down to lower tolerance
     if (TEST(endstops.trigger_state(), TERN(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_MIN, Z_MIN_PROBE))) { // check if probe triggered
@@ -114,8 +114,8 @@ constexpr xy_pos_t lf { (X_MIN_BED) + inset_lfrb[0], (Y_MIN_BED) + inset_lfrb[1]
       sync_plan_position();
       TERN_(BLTOUCH_SLOW_MODE, bltouch.stow()); // Stow in LOW SPEED MODE on every trigger
       // Triggered outside tolerance range?
-      if (ABS(motion.current_position().z - last_z) > LEVEL_CORNERS_PROBE_TOLERANCE) {
-        last_z = motion.current_position().z; // Above tolerance. Set a new Z for subsequent corners.
+      if (ABS(motion.current_position_rw().z - last_z) > LEVEL_CORNERS_PROBE_TOLERANCE) {
+        last_z = motion.current_position_rw().z; // Above tolerance. Set a new Z for subsequent corners.
         good_points = 0;             // ...and start over
       }
       return true; // probe triggered
@@ -151,19 +151,19 @@ constexpr xy_pos_t lf { (X_MIN_BED) + inset_lfrb[0], (Y_MIN_BED) + inset_lfrb[1]
     good_points = 0;
 
     do {
-      do_blocking_move_to_z(motion.current_position().z + LEVEL_CORNERS_Z_HOP); // clearance
+      do_blocking_move_to_z(motion.current_position_rw().z + LEVEL_CORNERS_Z_HOP); // clearance
       // Select next corner coordinates
       xy_pos_t plf = lf - probe.offset_xy, prb = rb - probe.offset_xy;
       switch (bed_corner) {
-        case 0: motion.current_position()   = plf;   break; // copy xy
-        case 1: motion.current_position().x = prb.x; break;
-        case 2: motion.current_position().y = prb.y; break;
-        case 3: motion.current_position().x = plf.x; break;
+        case 0: motion.current_position_rw()   = plf;   break; // copy xy
+        case 1: motion.current_position_rw().x = prb.x; break;
+        case 2: motion.current_position_rw().y = prb.y; break;
+        case 3: motion.current_position_rw().x = plf.x; break;
         #if ENABLED(LEVEL_CENTER_TOO)
-          case 4: motion.current_position().set(X_CENTER - probe.offset_xy.x, Y_CENTER - probe.offset_xy.y); break;
+          case 4: motion.current_position_rw().set(X_CENTER - probe.offset_xy.x, Y_CENTER - probe.offset_xy.y); break;
         #endif
       }
-      do_blocking_move_to_xy(motion.current_position());           // Goto corner
+      do_blocking_move_to_xy(motion.current_position_rw());           // Goto corner
 
       if (!_lcd_level_bed_corners_probe()) {              // Probe down to tolerance
         if (_lcd_level_bed_corners_raise()) {             // Prompt user to raise bed if needed
@@ -194,12 +194,12 @@ constexpr xy_pos_t lf { (X_MIN_BED) + inset_lfrb[0], (Y_MIN_BED) + inset_lfrb[1]
   static inline void _lcd_goto_next_corner() {
     line_to_z(LEVEL_CORNERS_Z_HOP);
     switch (bed_corner) {
-      case 0: motion.current_position()   = lf;   break; // copy xy
-      case 1: motion.current_position().x = rb.x; break;
-      case 2: motion.current_position().y = rb.y; break;
-      case 3: motion.current_position().x = lf.x; break;
+      case 0: motion.current_position_rw()   = lf;   break; // copy xy
+      case 1: motion.current_position_rw().x = rb.x; break;
+      case 2: motion.current_position_rw().y = rb.y; break;
+      case 3: motion.current_position_rw().x = lf.x; break;
       #if ENABLED(LEVEL_CENTER_TOO)
-        case 4: motion.current_position().set(X_CENTER, Y_CENTER); break;
+        case 4: motion.current_position_rw().set(X_CENTER, Y_CENTER); break;
       #endif
     }
     line_to_current_position(manual_feedrate_mm_s.x);

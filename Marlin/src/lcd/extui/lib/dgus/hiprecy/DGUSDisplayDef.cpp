@@ -424,9 +424,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_Feedrate_Percentage, &feedrate_percentage, ScreenHandler.DGUSLCD_SetValueDirectly<int16_t>, &ScreenHandler.DGUSLCD_SendWordValueToDisplay ),
 
   // Position Data
-  VPHELPER(VP_XPos, &motion.current_position().x, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),
-  VPHELPER(VP_YPos, &motion.current_position().y, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),
-  VPHELPER(VP_ZPos, &motion.current_position().z, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),
+  VPHELPER(VP_XPos, &motion.current_position_rw().x, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),
+  VPHELPER(VP_YPos, &motion.current_position_rw().y, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),
+  VPHELPER(VP_ZPos, &motion.current_position_rw().z, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),
 
   // Print Progress
   VPHELPER(VP_PrintProgress_Percentage, nullptr, nullptr, ScreenHandler.DGUSLCD_SendPrintProgressToDisplay ),

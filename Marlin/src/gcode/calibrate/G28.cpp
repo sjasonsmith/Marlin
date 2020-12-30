@@ -70,7 +70,7 @@
   static void quick_home_xy() {
 
     // Pretend the current position is 0,0
-    motion.current_position().set(0.0, 0.0);
+    motion.current_position_rw().set(0.0, 0.0);
     sync_plan_position();
 
     const int x_axis_home_dir = x_home_dir(active_extruder);
@@ -100,7 +100,7 @@
 
     endstops.validate_homing_move();
 
-    motion.current_position().set(0.0, 0.0);
+    motion.current_position_rw().set(0.0, 0.0);
 
     #if ENABLED(SENSORLESS_HOMING)
       tmc_disable_stallguard(stepperX, stealth_states.x);
@@ -138,7 +138,7 @@
       constexpr xy_float_t okay_homing_xy = safe_homing_xy;
     #endif
 
-    motion.destination().set(okay_homing_xy, motion.current_position().z);
+    motion.destination().set(okay_homing_xy, motion.current_position_rw().z);
 
     TERN_(HOMING_Z_WITH_PROBE, motion.destination() -= probe.offset_xy);
 
@@ -352,7 +352,7 @@ void GcodeSuite::G28() {
         homeaxis(X_AXIS);
 
         // Remember this extruder's position for later tool change
-        inactive_extruder_x = motion.current_position().x;
+        inactive_extruder_x = motion.current_position_rw().x;
 
         // Home the 1st (left) extruder
         active_extruder = 0;
@@ -409,7 +409,7 @@ void GcodeSuite::G28() {
       homeaxis(X_AXIS);
 
       // Remember this extruder's position for later tool change
-      inactive_extruder_x = motion.current_position().x;
+      inactive_extruder_x = motion.current_position_rw().x;
 
       // Home the 1st (left) extruder
       active_extruder = 0;

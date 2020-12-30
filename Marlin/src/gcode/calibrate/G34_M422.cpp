@@ -170,7 +170,7 @@ void GcodeSuite::G34() {
       if (!all_axes_trusted()) home_all_axes();
 
       // Move the Z coordinate realm towards the positive - dirty trick
-      motion.current_position().z += z_probe * 0.5f;
+      motion.current_position_rw().z += z_probe * 0.5f;
       sync_plan_position();
       // Now, the Z origin lies below the build plate. That allows to probe deeper, before run_z_probe throws an error.
       // This hack is un-done at the end of G34 - either by re-homing, or by using the probed heights of the last iteration.
@@ -218,14 +218,14 @@ void GcodeSuite::G34() {
           const uint8_t iprobe = (iteration & 1) ? NUM_Z_STEPPER_DRIVERS - 1 - i : i;
 
           // Safe clearance even on an incline
-          if ((iteration == 0 || i > 0) && z_probe > motion.current_position().z) do_blocking_move_to_z(z_probe);
+          if ((iteration == 0 || i > 0) && z_probe > motion.current_position_rw().z) do_blocking_move_to_z(z_probe);
 
           if (DEBUGGING(LEVELING))
             DEBUG_ECHOLNPAIR_P(PSTR("Probing X"), z_stepper_align.xy[iprobe].x, SP_Y_STR, z_stepper_align.xy[iprobe].y);
 
           // Probe a Z height for each stepper.
           // Probing sanity check is disabled, as it would trigger even in normal cases because
-          // motion.current_position().z has been manually altered in the "dirty trick" above.
+          // motion.current_position_rw().z has been manually altered in the "dirty trick" above.
           const float z_probed_height = probe.probe_at_point(z_stepper_align.xy[iprobe], raise_after, 0, true, false);
           if (isnan(z_probed_height)) {
             SERIAL_ECHOLNPGM("Probing failed");
@@ -386,7 +386,7 @@ void GcodeSuite::G34() {
           #endif
 
           // Do a move to correct part of the misalignment for the current stepper
-          do_blocking_move_to_z(amplification * z_align_move + motion.current_position().z);
+          do_blocking_move_to_z(amplification * z_align_move + motion.current_position_rw().z);
         } // for (zstepper)
 
         // Back to normal stepper operations
@@ -424,7 +424,7 @@ void GcodeSuite::G34() {
         // Use the probed height from the last iteration to determine the Z height.
         // z_measured_min is used, because all steppers are aligned to z_measured_min.
         // Ideally, this would be equal to the 'z_probe * 0.5f' which was added earlier.
-        motion.current_position().z -= z_measured_min - (float)Z_CLEARANCE_BETWEEN_PROBES;
+        motion.current_position_rw().z -= z_measured_min - (float)Z_CLEARANCE_BETWEEN_PROBES;
         sync_plan_position();
       #endif
 

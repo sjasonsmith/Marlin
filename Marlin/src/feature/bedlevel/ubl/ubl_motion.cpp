@@ -69,7 +69,7 @@
 
           end.z += UBL_Z_RAISE_WHEN_OFF_MESH;
           planner.buffer_segment(end, scaled_fr_mm_s, extruder);
-          motion.current_position() = motion.destination();
+          motion.current_position_rw() = motion.destination();
           return;
         }
       #endif
@@ -87,7 +87,7 @@
       // Replace NAN corrections with 0.0 to prevent NAN propagation.
       if (!isnan(z0)) end.z += z0;
       planner.buffer_segment(end, scaled_fr_mm_s, extruder);
-      motion.current_position() = motion.destination();
+      motion.current_position_rw() = motion.destination();
       return;
     }
 
@@ -178,7 +178,7 @@
       if (xy_pos_t(motion.current_position()) != xy_pos_t(end))
         goto FINAL_MOVE;
 
-      motion.current_position() = motion.destination();
+      motion.current_position_rw() = motion.destination();
       return;
     }
 
@@ -224,7 +224,7 @@
       if (xy_pos_t(motion.current_position()) != xy_pos_t(end))
         goto FINAL_MOVE;
 
-      motion.current_position() = motion.destination();
+      motion.current_position_rw() = motion.destination();
       return;
     }
 
@@ -300,7 +300,7 @@
     if (xy_pos_t(motion.current_position()) != xy_pos_t(end))
       goto FINAL_MOVE;
 
-    motion.current_position() = motion.destination();
+    motion.current_position_rw() = motion.destination();
   }
 
 #else // UBL_SEGMENTED

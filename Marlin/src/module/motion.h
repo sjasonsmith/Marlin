@@ -203,8 +203,8 @@ inline float home_bump_mm(const AxisEnum axis) {
     bool enabled() { return false; }
     void get_manual_axis_limits(const AxisEnum axis, float &amin, float &amax) {
       // No limits
-      amin = motion.current_position()[axis] - 1000;
-      amax = motion.current_position()[axis] + 1000;
+      amin = motion.current_position_rw()[axis] - 1000;
+      amax = motion.current_position_rw()[axis] + 1000;
     }
   } soft_endstops_t;
   extern soft_endstops_t soft_endstop;
@@ -224,7 +224,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis);
 /**
  * sync_plan_position
  *
- * Set the planner/stepper positions directly from motion.current_position() with
+ * Set the planner/stepper positions directly from motion.current_position_rw() with
  * no kinematic translation. Used for homing axes and cartesian/core syncing.
  */
 void sync_plan_position();

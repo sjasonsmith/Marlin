@@ -417,11 +417,11 @@ void ubl_map_move_to_xy() {
 
   #if ENABLED(DELTA)
   // TODO JASON
-    if (motion.current_position().z > delta_clip_start_height) { // Make sure the delta has fully free motion
+    if (motion.current_position_rw().z > delta_clip_start_height) { // Make sure the delta has fully free motion
       SERIAL_ECHOLN(">>>ubl_map_move_to_xy - Move below clipping height");
-      motion.destination() = motion.current_position();
+      motion.destination() = motion.current_position_rw();
       motion.destination().z = delta_clip_start_height;
-      prepare_internal_fast_move_to_destination(homing_feedrate(Z_AXIS)); // Set motion.current_position() from motion.destination()
+      prepare_internal_fast_move_to_destination(homing_feedrate(Z_AXIS)); // Set motion.current_position_rw() from motion.destination()
     }
   #endif
 
@@ -430,7 +430,7 @@ void ubl_map_move_to_xy() {
   SERIAL_ECHOLNPAIR(">>>ubl_map_move_to_xy moving to actual point x=", x_plot, " y=", y_plot);
 
   // Set the nozzle position to the mesh point
-  motion.current_position().set(xpos, ypos);
+  motion.current_position_rw().set(xpos, ypos);
 
   // Use the built-in manual move handler
   ui.manual_move.soon(ALL_AXES);

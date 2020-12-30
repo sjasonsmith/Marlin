@@ -1033,7 +1033,7 @@ void GUI_RefreshPage() {
           z_high_count = 0;
           memset((char *)gCfgItems.move_z_coordinate, ' ', sizeof(gCfgItems.move_z_coordinate));
           GUI_DispStringAt((const char *)gCfgItems.move_z_coordinate, 380, TITLE_YPOS);
-          sprintf_P((char *)gCfgItems.move_z_coordinate, PSTR("Z: %.3f"), motion.current_position()[Z_AXIS]);
+          sprintf_P((char *)gCfgItems.move_z_coordinate, PSTR("Z: %.3f"), motion.current_position_rw()[Z_AXIS]);
           GUI_DispStringAt((const char *)gCfgItems.move_z_coordinate, 380, TITLE_YPOS);
         }
       }

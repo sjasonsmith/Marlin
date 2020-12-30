@@ -626,9 +626,9 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
       #endif
 
       const float olde = motion.current_position().e;
-      motion.current_position().e += EXTRUDER_RUNOUT_EXTRUDE;
+      motion.current_position_rw().e += EXTRUDER_RUNOUT_EXTRUDE;
       line_to_current_position(MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED));
-      motion.current_position().e = olde;
+      motion.current_position_rw().e = olde;
       planner.set_e_position_mm(olde);
       planner.synchronize();
 
@@ -1138,9 +1138,9 @@ void setup() {
     SETUP_RUN(touch.init());
   #endif
 
-  TERN_(HAS_M206_COMMAND, motion.current_position() += home_offset); // Init current position based on home_offset
+  TERN_(HAS_M206_COMMAND, motion.current_position_rw() += home_offset); // Init current position based on home_offset
 
-  sync_plan_position();               // Vital to init stepper/planner equivalent for motion.current_position()
+  sync_plan_position();               // Vital to init stepper/planner equivalent for motion.current_position_rw()
 
   SETUP_RUN(thermalManager.init());   // Initialize temperature loop
 

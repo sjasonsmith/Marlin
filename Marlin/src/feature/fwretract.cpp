@@ -160,7 +160,7 @@ void FWRetract::retract(const bool retracting
 
     const float extra_recover = swapping ? settings.swap_retract_recover_extra : settings.retract_recover_extra;
     if (extra_recover) {
-      motion.current_position().e -= extra_recover;          // Adjust the current E position by the extra amount to recover
+      motion.current_position_rw().e -= extra_recover;          // Adjust the current E position by the extra amount to recover
       sync_plan_position_e();                             // Sync the planner position so the extra amount is recovered
     }
 

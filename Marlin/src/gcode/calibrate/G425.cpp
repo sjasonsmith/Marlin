@@ -105,7 +105,7 @@ struct measurements_t {
 #endif
 
 inline void calibration_move() {
-  do_blocking_move_to(motion.current_position(), MMM_TO_MMS(CALIBRATION_FEEDRATE_TRAVEL));
+  do_blocking_move_to(motion.current_position_rw(), MMM_TO_MMS(CALIBRATION_FEEDRATE_TRAVEL));
 }
 
 /**
@@ -116,11 +116,11 @@ inline void calibration_move() {
  */
 inline void park_above_object(measurements_t &m, const float uncertainty) {
   // Move to safe distance above calibration object
-  motion.current_position().z = m.obj_center.z + dimensions.z / 2 + uncertainty;
+  motion.current_position_rw().z = m.obj_center.z + dimensions.z / 2 + uncertainty;
   calibration_move();
 
   // Move to center of calibration object in XY
-  motion.current_position() = xy_pos_t(m.obj_center);
+  motion.current_position_rw() = xy_pos_t(m.obj_center);
   calibration_move();
 }
 
@@ -171,7 +171,7 @@ float measuring_movement(const AxisEnum axis, const int dir, const bool stop_sta
   const feedRate_t mms = fast ? MMM_TO_MMS(CALIBRATION_FEEDRATE_FAST) : MMM_TO_MMS(CALIBRATION_FEEDRATE_SLOW);
   const float limit    = fast ? 50 : 5;
 
-  motion.destination() = motion.current_position();
+  motion.destination() = motion.current_position_rw();
   for (float travel = 0; travel < limit; travel += step) {
     motion.destination()[axis] += dir * step;
     do_blocking_move_to(motion.destination(), mms);
@@ -195,7 +195,7 @@ inline float measure(const AxisEnum axis, const int dir, const bool stop_state, 
   const bool fast = uncertainty == CALIBRATION_MEASUREMENT_UNKNOWN;
 
   // Save position
-  motion.destination() = motion.current_position();
+  motion.destination() = motion.current_position_rw();
   const float start_pos = motion.destination()[axis];
   const float measured_pos = measuring_movement(axis, dir, stop_state, fast);
   // Measure backlash
@@ -248,7 +248,7 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
   if (probe_top_at_edge) {
     #if AXIS_CAN_CALIBRATE(Z)
       // Probe top nearest the side we are probing
-      motion.current_position()[axis] = m.obj_center[axis] + (-dir) * (dimensions[axis] / 2 - m.nozzle_outer_dimension[axis]);
+      motion.current_position_rw()[axis] = m.obj_center[axis] + (-dir) * (dimensions[axis] / 2 - m.nozzle_outer_dimension[axis]);
       calibration_move();
       m.obj_side[TOP] = measure(Z_AXIS, -1, true, &m.backlash[TOP], uncertainty);
       m.obj_center.z = m.obj_side[TOP] - dimensions.z / 2;
@@ -257,11 +257,11 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
 
   if ((AXIS_CAN_CALIBRATE(X) && axis == X_AXIS) || (AXIS_CAN_CALIBRATE(Y) && axis == Y_AXIS)) {
     // Move to safe distance to the side of the calibration object
-    motion.current_position()[axis] = m.obj_center[axis] + (-dir) * (dimensions[axis] / 2 + m.nozzle_outer_dimension[axis] / 2 + uncertainty);
+    motion.current_position_rw()[axis] = m.obj_center[axis] + (-dir) * (dimensions[axis] / 2 + m.nozzle_outer_dimension[axis] / 2 + uncertainty);
     calibration_move();
 
     // Plunge below the side of the calibration object and measure
-    motion.current_position().z = m.obj_side[TOP] - (CALIBRATION_NOZZLE_TIP_HEIGHT) * 0.7f;
+    motion.current_position_rw().z = m.obj_side[TOP] - (CALIBRATION_NOZZLE_TIP_HEIGHT) * 0.7f;
     calibration_move();
     const float measurement = measure(axis, dir, true, &m.backlash[side], uncertainty);
     m.obj_center[axis] = measurement + dir * (dimensions[axis] / 2 + m.nozzle_outer_dimension[axis] / 2);
@@ -460,14 +460,14 @@ inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
       TEMPORARY_BACKLASH_CORRECTION(all_on);
       TEMPORARY_BACKLASH_SMOOTHING(0.0f);
       const xyz_float_t move = { AXIS_CAN_CALIBRATE(X) * 3, AXIS_CAN_CALIBRATE(Y) * 3, AXIS_CAN_CALIBRATE(Z) * 3 };
-      motion.current_position() += move; calibration_move();
-      motion.current_position() -= move; calibration_move();
+      motion.current_position_rw() += move; calibration_move();
+      motion.current_position_rw() -= move; calibration_move();
     }
   #endif
 }
 
 inline void update_measurements(measurements_t &m, const AxisEnum axis) {
-  motion.current_position()[axis] += m.pos_error[axis];
+  motion.current_position_rw()[axis] += m.pos_error[axis];
   m.obj_center[axis] = true_center[axis];
   m.pos_error[axis] = 0;
 }
@@ -563,7 +563,7 @@ inline void calibrate_all() {
   // Do a slow and precise calibration of the toolheads
   calibrate_all_toolheads(m, CALIBRATION_MEASUREMENT_UNCERTAIN);
 
-  motion.current_position().x = X_CENTER;
+  motion.current_position_rw().x = X_CENTER;
   calibration_move();         // Park nozzle away from calibration object
 }
 

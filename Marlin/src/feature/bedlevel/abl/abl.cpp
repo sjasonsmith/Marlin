@@ -367,7 +367,7 @@ float bilinear_z_offset(const xy_pos_t &raw) {
 
     // Start and end in the same cell? No split needed.
     if (c1 == c2) {
-      motion.current_position() = motion.destination();
+      motion.current_position_rw() = motion.destination();
       line_to_current_position(scaled_fr_mm_s);
       return;
     }
@@ -400,7 +400,7 @@ float bilinear_z_offset(const xy_pos_t &raw) {
     else {
       // Must already have been split on these border(s)
       // This should be a rare case.
-      motion.current_position() = motion.destination();
+      motion.current_position_rw() = motion.destination();
       line_to_current_position(scaled_fr_mm_s);
       return;
     }

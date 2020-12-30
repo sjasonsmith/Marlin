@@ -150,7 +150,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
 
   // Move down to the bed to stow the probe
   inline void run_stow_moves_script() {
-    const xyz_pos_t oldpos = motion.current_position();
+    const xyz_pos_t oldpos = motion.current_position_rw();
     endstops.enable_z_probe(false);
     do_blocking_move_to_z(TOUCH_MI_RETRACT_Z, homing_feedrate(Z_AXIS));
     do_blocking_move_to(oldpos, homing_feedrate(Z_AXIS));
@@ -363,7 +363,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 bool Probe::set_deployed(const bool deploy) {
 
   if (DEBUGGING(LEVELING)) {
-    DEBUG_POS("Probe::set_deployed", motion.current_position());
+    DEBUG_POS("Probe::set_deployed", motion.current_position_rw());
     DEBUG_ECHOLNPAIR("deploy: ", deploy);
   }
 
@@ -396,7 +396,7 @@ bool Probe::set_deployed(const bool deploy) {
     }
   #endif
 
-  const xy_pos_t old_xy = motion.current_position();
+  const xy_pos_t old_xy = motion.current_position_rw();
 
   #if ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST)
 
@@ -442,7 +442,7 @@ bool Probe::set_deployed(const bool deploy) {
  * @brief Move down until the probe triggers or the low limit is reached
  *
  * @details Used by run_z_probe to get each bed Z height measurement.
- *          Sets motion.current_position().z to the height where the probe triggered
+ *          Sets motion.current_position_rw().z to the height where the probe triggered
  *          (according to the Z stepper count). The float Z is propagated
  *          back to the planner.position to preempt any rounding error.
  *
@@ -550,7 +550,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
  * @brief Probe at the current XY (possibly more than once) to find the bed Z.
  *
  * @details Used by probe_at_point to get the bed Z height at the current XY.
- *          Leaves motion.current_position().z at the height where the probe triggered.
+ *          Leaves motion.current_position_rw().z at the height where the probe triggered.
  *
  * @return The Z position of the bed at the current XY or NAN on error.
  */
@@ -563,7 +563,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
     // Do a first probe at the fast speed
     const bool probe_fail = probe_down_to_z(z_probe_low_point, fr_mm_s),            // No probe trigger?
-               early_fail = (scheck && motion.current_position().z > -offset.z + clearance); // Probe triggered too high?
+               early_fail = (scheck && motion.current_position_rw().z > -offset.z + clearance); // Probe triggered too high?
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING) && (probe_fail || early_fail)) {
         DEBUG_PRINT_P(plbl);
@@ -592,22 +592,22 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     if (try_to_probe(PSTR("FAST"), z_probe_low_point, z_probe_fast_mm_s,
                      sanity_check, Z_CLEARANCE_BETWEEN_PROBES) ) return NAN;
 
-    const float first_probe_z = motion.current_position().z;
+    const float first_probe_z = motion.current_position_rw().z;
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("1st Probe Z:", first_probe_z);
 
     // Raise to give the probe clearance
-    do_blocking_move_to_z(motion.current_position().z + Z_CLEARANCE_MULTI_PROBE, z_probe_fast_mm_s);
+    do_blocking_move_to_z(motion.current_position_rw().z + Z_CLEARANCE_MULTI_PROBE, z_probe_fast_mm_s);
 
   #elif Z_PROBE_SPEED_FAST != Z_PROBE_SPEED_SLOW
 
     // If the nozzle is well over the travel height then
     // move down quickly before doing the slow probe
     const float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0 + (offset.z < 0 ? -offset.z : 0);
-    if (motion.current_position().z > z) {
+    if (motion.current_position_rw().z > z) {
       // Probe down fast. If the probe never triggered, raise for probe clearance
       if (!probe_down_to_z(z, z_probe_fast_mm_s))
-        do_blocking_move_to_z(motion.current_position().z + Z_CLEARANCE_BETWEEN_PROBES, z_probe_fast_mm_s);
+        do_blocking_move_to_z(motion.current_position_rw().z + Z_CLEARANCE_BETWEEN_PROBES, z_probe_fast_mm_s);
     }
   #endif
 
@@ -635,7 +635,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
       TERN_(MEASURE_BACKLASH_WHEN_PROBING, backlash.measure_with_probe());
 
-      const float z = motion.current_position().z;
+      const float z = motion.current_position_rw().z;
 
       #if EXTRA_PROBING > 0
         // Insert Z measurement into probes[]. Keep it sorted ascending.
@@ -686,7 +686,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
   #elif TOTAL_PROBING == 2
 
-    const float z2 = motion.current_position().z;
+    const float z2 = motion.current_position_rw().z;
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("2nd Probe Z:", z2, " Discrepancy:", first_probe_z - z2);
 
@@ -696,7 +696,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   #else
 
     // Return the single probe result
-    const float measured_z = motion.current_position().z;
+    const float measured_z = motion.current_position_rw().z;
 
   #endif
 
@@ -722,7 +722,7 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
       ", ", int(verbose_level),
       ", ", probe_relative ? "probe" : "nozzle", "_relative)"
     );
-    DEBUG_POS("", motion.current_position());
+    DEBUG_POS("", motion.current_position_rw());
   }
 
   #if BOTH(BLTOUCH, BLTOUCH_HS_MODE)
@@ -730,7 +730,7 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   #endif
 
   // On delta keep Z below clip height or do_blocking_move_to will abort
-  xyz_pos_t npos = { rx, ry, _MIN(TERN(DELTA, delta_clip_start_height, motion.current_position().z), motion.current_position().z) };
+  xyz_pos_t npos = { rx, ry, _MIN(TERN(DELTA, delta_clip_start_height, motion.current_position_rw().z), motion.current_position_rw().z) };
   if (probe_relative) {                                     // The given position is in terms of the probe
     if (!can_reach(npos)) {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Position Not Reachable");
@@ -748,7 +748,7 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   if (!isnan(measured_z)) {
     const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;
     if (big_raise || raise_after == PROBE_PT_RAISE)
-      do_blocking_move_to_z(motion.current_position().z + (big_raise ? 25 : Z_CLEARANCE_BETWEEN_PROBES), z_probe_fast_mm_s);
+      do_blocking_move_to_z(motion.current_position_rw().z + (big_raise ? 25 : Z_CLEARANCE_BETWEEN_PROBES), z_probe_fast_mm_s);
     else if (raise_after == PROBE_PT_STOW)
       if (stow()) measured_z = NAN;   // Error on stow?
 

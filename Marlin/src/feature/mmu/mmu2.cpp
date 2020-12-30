@@ -977,7 +977,7 @@ bool MMU2::eject_filament(const uint8_t index, const bool recover) {
   LCD_MESSAGEPGM(MSG_MMU2_EJECTING_FILAMENT);
 
   ENABLE_AXIS_E0();
-  motion.current_position().e -= MMU2_FILAMENTCHANGE_EJECT_FEED;
+  motion.current_position_rw().e -= MMU2_FILAMENTCHANGE_EJECT_FEED;
   line_to_current_position(MMM_TO_MMS(2500));
   planner.synchronize();
   command(MMU_CMD_E0 + index);
@@ -1059,7 +1059,7 @@ void MMU2::execute_extruder_sequence(const E_Step * sequence, int steps) {
     DEBUG_ECHO_START();
     DEBUG_ECHOLNPAIR("E step ", es, "/", fr_mm_m);
 
-    motion.current_position().e += es;
+    motion.current_position_rw().e += es;
     line_to_current_position(MMM_TO_MMS(fr_mm_m));
     planner.synchronize();
 

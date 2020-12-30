@@ -43,7 +43,7 @@ void GcodeSuite::G60() {
     return;
   }
 
-  stored_position[slot] = motion.current_position();
+  stored_position[slot] = motion.current_position_rw();
   SBI(saved_slots[slot >> 3], slot & 0x07);
 
   #if ENABLED(SAVED_POSITIONS_DEBUG)

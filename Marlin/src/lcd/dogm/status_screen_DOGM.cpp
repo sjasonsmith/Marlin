@@ -447,7 +447,7 @@ void MarlinUI::draw_status_screen() {
       heat_bits = new_bits;
     #endif
 
-    const xyz_pos_t lpos = motion.current_position().asLogical();
+    const xyz_pos_t lpos = motion.current_position_rw().asLogical();
     const bool is_inch = parser.using_inch_units();
     strcpy(zstring, is_inch ? ftostr42_52(LINEAR_UNIT(lpos.z)) : ftostr52sp(lpos.z));
 

@@ -66,7 +66,7 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
     // This assumes the center is 0,0
     #if ENABLED(DELTA)
       if (axis != Z_AXIS) {
-        max = SQRT(sq((float)(DELTA_PRINTABLE_RADIUS)) - sq(motion.current_position()[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
+        max = SQRT(sq((float)(DELTA_PRINTABLE_RADIUS)) - sq(motion.current_position_rw()[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
         min = -max;
       }
     #endif
@@ -76,15 +76,15 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
     #if IS_KINEMATIC
       ui.manual_move.offset += diff;
       if (int32_t(ui.encoderPosition) < 0)
-        NOLESS(ui.manual_move.offset, min - motion.current_position()[axis]);
+        NOLESS(ui.manual_move.offset, min - motion.current_position_rw()[axis]);
       else
-        NOMORE(ui.manual_move.offset, max - motion.current_position()[axis]);
+        NOMORE(ui.manual_move.offset, max - motion.current_position_rw()[axis]);
     #else
-      motion.current_position()[axis] += diff;
+      motion.current_position_rw()[axis] += diff;
       if (int32_t(ui.encoderPosition) < 0)
-        NOLESS(motion.current_position()[axis], min);
+        NOLESS(motion.current_position_rw()[axis], min);
       else
-        NOMORE(motion.current_position()[axis], max);
+        NOMORE(motion.current_position_rw()[axis], max);
     #endif
 
     ui.manual_move.soon(axis);
@@ -93,7 +93,7 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
   ui.encoderPosition = 0;
   if (ui.should_draw()) {
     const float pos = NATIVE_TO_LOGICAL(
-      ui.manual_move.processing ? motion.destination()[axis] : motion.current_position()[axis] + TERN0(IS_KINEMATIC, ui.manual_move.offset),
+      ui.manual_move.processing ? motion.destination()[axis] : motion.current_position_rw()[axis] + TERN0(IS_KINEMATIC, ui.manual_move.offset),
       axis
     );
     if (parser.using_inch_units()) {
@@ -115,7 +115,7 @@ void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
     if (ui.encoderPosition) {
       if (!ui.manual_move.processing) {
         const float diff = float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
-        TERN(IS_KINEMATIC, ui.manual_move.offset, motion.current_position().e) += diff;
+        TERN(IS_KINEMATIC, ui.manual_move.offset, motion.current_position_rw().e) += diff;
         ui.manual_move.soon(E_AXIS
           #if MULTI_MANUAL
             , eindex
@@ -129,7 +129,7 @@ void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
       TERN_(MULTI_MANUAL, MenuItemBase::init(eindex));
       MenuEditItemBase::draw_edit_screen(
         GET_TEXT(TERN(MULTI_MANUAL, MSG_MOVE_EN, MSG_MOVE_E)),
-        ftostr41sign(motion.current_position().e
+        ftostr41sign(motion.current_position_rw().e
           + TERN0(IS_KINEMATIC, ui.manual_move.offset)
           - TERN0(MANUAL_E_MOVES_RELATIVE, manual_move_e_origin)
         )
@@ -164,7 +164,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
       case Y_AXIS: STATIC_ITEM(MSG_MOVE_Y, SS_DEFAULT|SS_INVERT); break;
       case Z_AXIS: STATIC_ITEM(MSG_MOVE_Z, SS_DEFAULT|SS_INVERT); break;
       default:
-        TERN_(MANUAL_E_MOVES_RELATIVE, manual_move_e_origin = motion.current_position().e);
+        TERN_(MANUAL_E_MOVES_RELATIVE, manual_move_e_origin = motion.current_position_rw().e);
         STATIC_ITEM(MSG_MOVE_E, SS_DEFAULT|SS_INVERT);
         break;
     }
@@ -236,7 +236,7 @@ void menu_move() {
   #endif
 
   if (NONE(IS_KINEMATIC, NO_MOTION_BEFORE_HOMING) || all_axes_homed()) {
-    if (TERN1(DELTA, motion.current_position().z <= delta_clip_start_height)) {
+    if (TERN1(DELTA, motion.current_position_rw().z <= delta_clip_start_height)) {
       SUBMENU(MSG_MOVE_X, []{ _menu_move_distance(X_AXIS, lcd_move_x); });
       SUBMENU(MSG_MOVE_Y, []{ _menu_move_distance(Y_AXIS, lcd_move_y); });
     }

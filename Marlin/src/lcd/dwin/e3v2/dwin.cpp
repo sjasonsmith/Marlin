@@ -1166,14 +1166,14 @@ void HMI_Move_X() {
       if (!planner.is_full()) {
         // Wait for planner moves to finish!
         planner.synchronize();
-        planner.buffer_line(motion.current_position(), homing_feedrate(X_AXIS), active_extruder);
+        planner.buffer_line(motion.current_position_rw(), homing_feedrate(X_AXIS), active_extruder);
       }
       DWIN_UpdateLCD();
       return;
     }
     NOLESS(HMI_ValueStruct.Move_X_scale, (X_MIN_POS) * MINUNITMULT);
     NOMORE(HMI_ValueStruct.Move_X_scale, (X_MAX_POS) * MINUNITMULT);
-    motion.current_position().x = HMI_ValueStruct.Move_X_scale / 10;
+    motion.current_position_rw().x = HMI_ValueStruct.Move_X_scale / 10;
     DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 1, 216, MBASE(1), HMI_ValueStruct.Move_X_scale);
     DWIN_UpdateLCD();
   }
@@ -1189,14 +1189,14 @@ void HMI_Move_Y() {
       if (!planner.is_full()) {
         // Wait for planner moves to finish!
         planner.synchronize();
-        planner.buffer_line(motion.current_position(), homing_feedrate(Y_AXIS), active_extruder);
+        planner.buffer_line(motion.current_position_rw(), homing_feedrate(Y_AXIS), active_extruder);
       }
       DWIN_UpdateLCD();
       return;
     }
     NOLESS(HMI_ValueStruct.Move_Y_scale, (Y_MIN_POS) * MINUNITMULT);
     NOMORE(HMI_ValueStruct.Move_Y_scale, (Y_MAX_POS) * MINUNITMULT);
-    motion.current_position().y = HMI_ValueStruct.Move_Y_scale / 10;
+    motion.current_position_rw().y = HMI_ValueStruct.Move_Y_scale / 10;
     DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 1, 216, MBASE(2), HMI_ValueStruct.Move_Y_scale);
     DWIN_UpdateLCD();
   }
@@ -1212,14 +1212,14 @@ void HMI_Move_Z() {
       if (!planner.is_full()) {
         // Wait for planner moves to finish!
         planner.synchronize();
-        planner.buffer_line(motion.current_position(), homing_feedrate(Z_AXIS), active_extruder);
+        planner.buffer_line(motion.current_position_rw(), homing_feedrate(Z_AXIS), active_extruder);
       }
       DWIN_UpdateLCD();
       return;
     }
     NOLESS(HMI_ValueStruct.Move_Z_scale, Z_MIN_POS * MINUNITMULT);
     NOMORE(HMI_ValueStruct.Move_Z_scale, Z_MAX_POS * MINUNITMULT);
-    motion.current_position().z = HMI_ValueStruct.Move_Z_scale / 10;
+    motion.current_position_rw().z = HMI_ValueStruct.Move_Z_scale / 10;
     DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 1, 216, MBASE(3), HMI_ValueStruct.Move_Z_scale);
     DWIN_UpdateLCD();
   }
@@ -1238,7 +1238,7 @@ void HMI_Move_Z() {
         DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(4), HMI_ValueStruct.Move_E_scale);
         if (!planner.is_full()) {
           planner.synchronize(); // Wait for planner moves to finish!
-          planner.buffer_line(motion.current_position(), MMM_TO_MMS(FEEDRATE_E), active_extruder);
+          planner.buffer_line(motion.current_position_rw(), MMM_TO_MMS(FEEDRATE_E), active_extruder);
         }
         DWIN_UpdateLCD();
         return;
@@ -1247,7 +1247,7 @@ void HMI_Move_Z() {
         HMI_ValueStruct.Move_E_scale = last_E_scale + (EXTRUDE_MAXLENGTH) * MINUNITMULT;
       else if ((last_E_scale - HMI_ValueStruct.Move_E_scale) > (EXTRUDE_MAXLENGTH) * MINUNITMULT)
         HMI_ValueStruct.Move_E_scale = last_E_scale - (EXTRUDE_MAXLENGTH) * MINUNITMULT;
-      motion.current_position().e = HMI_ValueStruct.Move_E_scale / 10;
+      motion.current_position_rw().e = HMI_ValueStruct.Move_E_scale / 10;
       DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, 1, 216, MBASE(4), HMI_ValueStruct.Move_E_scale);
       DWIN_UpdateLCD();
     }
@@ -2319,12 +2319,12 @@ void HMI_Prepare() {
         select_axis.reset();
         Draw_Move_Menu();
 
-        DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(1), motion.current_position().x * MINUNITMULT);
-        DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(2), motion.current_position().y * MINUNITMULT);
-        DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(3), motion.current_position().z * MINUNITMULT);
+        DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(1), motion.current_position_rw().x * MINUNITMULT);
+        DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(2), motion.current_position_rw().y * MINUNITMULT);
+        DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(3), motion.current_position_rw().z * MINUNITMULT);
         #if HAS_HOTEND
           queue.inject_P(PSTR("G92 E0"));
-          motion.current_position().e = HMI_ValueStruct.Move_E_scale = 0;
+          motion.current_position_rw().e = HMI_ValueStruct.Move_E_scale = 0;
           DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(4), 0);
         #endif
         break;
@@ -2575,7 +2575,7 @@ void HMI_AxisMove() {
     if (HMI_flag.ETempTooLow_flag) {
       if (encoder_diffState == ENCODER_DIFF_ENTER) {
         HMI_flag.ETempTooLow_flag = false;
-        motion.current_position().e = HMI_ValueStruct.Move_E_scale = 0;
+        motion.current_position_rw().e = HMI_ValueStruct.Move_E_scale = 0;
         Draw_Move_Menu();
         DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(1), HMI_ValueStruct.Move_X_scale);
         DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(2), HMI_ValueStruct.Move_Y_scale);
@@ -2604,19 +2604,19 @@ void HMI_AxisMove() {
         break;
       case 1: // X axis move
         checkkey = Move_X;
-        HMI_ValueStruct.Move_X_scale = motion.current_position().x * MINUNITMULT;
+        HMI_ValueStruct.Move_X_scale = motion.current_position_rw().x * MINUNITMULT;
         DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 1, 216, MBASE(1), HMI_ValueStruct.Move_X_scale);
         EncoderRate.enabled = true;
         break;
       case 2: // Y axis move
         checkkey = Move_Y;
-        HMI_ValueStruct.Move_Y_scale = motion.current_position().y * MINUNITMULT;
+        HMI_ValueStruct.Move_Y_scale = motion.current_position_rw().y * MINUNITMULT;
         DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 1, 216, MBASE(2), HMI_ValueStruct.Move_Y_scale);
         EncoderRate.enabled = true;
         break;
       case 3: // Z axis move
         checkkey = Move_Z;
-        HMI_ValueStruct.Move_Z_scale = motion.current_position().z * MINUNITMULT;
+        HMI_ValueStruct.Move_Z_scale = motion.current_position_rw().z * MINUNITMULT;
         DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 1, 216, MBASE(3), HMI_ValueStruct.Move_Z_scale);
         EncoderRate.enabled = true;
         break;
@@ -2632,7 +2632,7 @@ void HMI_AxisMove() {
               }
             #endif
             checkkey = Extruder;
-            HMI_ValueStruct.Move_E_scale = motion.current_position().e * MINUNITMULT;
+            HMI_ValueStruct.Move_E_scale = motion.current_position_rw().e * MINUNITMULT;
             DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, 1, 216, MBASE(4), HMI_ValueStruct.Move_E_scale);
             EncoderRate.enabled = true;
             break;

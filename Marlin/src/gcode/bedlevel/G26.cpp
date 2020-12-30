@@ -667,7 +667,7 @@ void GcodeSuite::G26() {
 
   if (turn_on_heaters() != G26_OK) goto LEAVE;
 
-  motion.current_position().e = 0.0;
+  motion.current_position_rw().e = 0.0;
   sync_plan_position_e();
 
   if (g26_prime_flag && prime_nozzle() != G26_OK) goto LEAVE;

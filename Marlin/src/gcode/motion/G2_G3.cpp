@@ -50,7 +50,7 @@
  */
 void plan_arc(
   const xyze_pos_t &cart,   // Destination position
-  const ab_float_t &offset, // Center of rotation relative to motion.current_position()
+  const ab_float_t &offset, // Center of rotation relative to motion.current_position_rw()
   const bool clockwise,     // Clockwise?
   const uint8_t circles     // Take the scenic route
 ) {
@@ -70,11 +70,11 @@ void plan_arc(
   ab_float_t rvec = -offset;
 
   const float radius = HYPOT(rvec.a, rvec.b),
-              center_P = motion.current_position()[p_axis] - rvec.a,
-              center_Q = motion.current_position()[q_axis] - rvec.b,
+              center_P = motion.current_position_rw()[p_axis] - rvec.a,
+              center_Q = motion.current_position_rw()[q_axis] - rvec.b,
               rt_X = cart[p_axis] - center_P,
               rt_Y = cart[q_axis] - center_Q,
-              start_L = motion.current_position()[l_axis];
+              start_L = motion.current_position_rw()[l_axis];
 
   #ifdef MIN_ARC_SEGMENTS
     uint16_t min_segments = MIN_ARC_SEGMENTS;
@@ -86,7 +86,7 @@ void plan_arc(
   float angular_travel;
 
   // Do a full circle if starting and ending positions are "identical"
-  if (NEAR(motion.current_position()[p_axis], cart[p_axis]) && NEAR(motion.current_position()[q_axis], cart[q_axis])) {
+  if (NEAR(motion.current_position_rw()[p_axis], cart[p_axis]) && NEAR(motion.current_position_rw()[q_axis], cart[q_axis])) {
     // Preserve direction for circles
     angular_travel = clockwise ? -RADIANS(360) : RADIANS(360);
   }
@@ -110,7 +110,7 @@ void plan_arc(
   }
 
   float linear_travel = cart[l_axis] - start_L,
-        extruder_travel = cart.e - motion.current_position().e;
+        extruder_travel = cart.e - motion.current_position_rw().e;
 
   // If circling around...
   if (ENABLED(ARC_P_CIRCLES) && circles) {
@@ -118,14 +118,14 @@ void plan_arc(
               part_per_circle = RADIANS(360) / total_angular,             // Each circle's part of the total
                  l_per_circle = linear_travel * part_per_circle,          // L movement per circle
                  e_per_circle = extruder_travel * part_per_circle;        // E movement per circle
-    xyze_pos_t temp_position = motion.current_position();                          // for plan_arc to compare to motion.current_position()
+    xyze_pos_t temp_position = motion.current_position_rw();                          // for plan_arc to compare to motion.current_position_rw()
     for (uint16_t n = circles; n--;) {
       temp_position.e += e_per_circle;                                    // Destination E axis
       temp_position[l_axis] += l_per_circle;                              // Destination L axis
       plan_arc(temp_position, offset, clockwise, 0);                      // Plan a single whole circle
     }
-    linear_travel = cart[l_axis] - motion.current_position()[l_axis];
-    extruder_travel = cart.e - motion.current_position().e;
+    linear_travel = cart[l_axis] - motion.current_position_rw()[l_axis];
+    extruder_travel = cart.e - motion.current_position_rw().e;
   }
 
   const float flat_mm = radius * angular_travel,
@@ -185,10 +185,10 @@ void plan_arc(
               cos_T = 1 - 0.5f * sq_theta_per_segment; // Small angle approximation
 
   // Initialize the linear axis
-  raw[l_axis] = motion.current_position()[l_axis];
+  raw[l_axis] = motion.current_position_rw()[l_axis];
 
   // Initialize the extruder axis
-  raw.e = motion.current_position().e;
+  raw.e = motion.current_position_rw().e;
 
   #if ENABLED(SCARA_FEEDRATE_SCALING)
     const float inv_duration = scaled_fr_mm_s / seg_length;
@@ -272,7 +272,7 @@ void plan_arc(
   );
 
   TERN_(AUTO_BED_LEVELING_UBL, raw[l_axis] = start_L);
-  motion.current_position() = raw;
+  motion.current_position_rw() = raw;
 
 } // plan_arc
 
@@ -319,7 +319,7 @@ void GcodeSuite::G2_G3(const bool clockwise) {
     if (parser.seenval('R')) {
       const float r = parser.value_linear_units();
       if (r) {
-        const xy_pos_t p1 = motion.current_position(), p2 = motion.destination();
+        const xy_pos_t p1 = motion.current_position_rw(), p2 = motion.destination();
         if (p1 != p2) {
           const xy_pos_t d2 = (p2 - p1) * 0.5f;          // XY vector to midpoint of move from current
           const float e = clockwise ^ (r < 0) ? -1 : 1,  // clockwise -1/1, counterclockwise 1/-1

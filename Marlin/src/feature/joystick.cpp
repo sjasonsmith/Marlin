@@ -175,7 +175,7 @@ Joystick joystick;
     }
 
     if (!UNEAR_ZERO(hypot2)) {
-      motion.current_position() += move_dist;
+      motion.current_position_rw() += move_dist;
       apply_motion_limits(motion.current_position());
       const float length = sqrt(hypot2);
       injecting_now = true;
