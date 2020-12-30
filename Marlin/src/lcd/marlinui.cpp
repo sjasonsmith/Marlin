@@ -729,7 +729,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
         motion.current_position_rw() = motion.destination();
         motion.destination_rw() = new_dest;
 
-        // motion.destination_rw() = motion.current_position_rw();
+        // motion.destination_rw() = motion.current_position();
         if (axis <= XYZE) motion.destination_rw()[axis] += offset;
 
         // Reset for the next move
@@ -741,15 +741,15 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
         // previous invocation is being blocked. Modifications to offset shouldn't be made while
         // processing is true or the planner will get out of sync.
         processing = true;
-        prepare_internal_move_to_destination(fr_mm_s);  // will set motion.current_position_rw() from motion.destination()
+        prepare_internal_move_to_destination(fr_mm_s);  // will set motion.current_position() from motion.destination()
         processing = false;
 
         TERN_(HAS_MULTI_EXTRUDER, active_extruder = old_extruder);
 
       #else
 
-        // For Cartesian / Core motion simply move to the motion.current_position_rw()
-        planner.buffer_line(motion.current_position_rw(), fr_mm_s, axis == E_AXIS ? e_index : active_extruder);
+        // For Cartesian / Core motion simply move to the motion.current_position()
+        planner.buffer_line(motion.current_position(), fr_mm_s, axis == E_AXIS ? e_index : active_extruder);
 
         //SERIAL_ECHOLNPAIR("Add planner.move with Axis ", int(axis), " at FR ", fr_mm_s);
 

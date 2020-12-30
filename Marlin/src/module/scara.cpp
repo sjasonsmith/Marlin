@@ -59,7 +59,7 @@ void scara_set_axis_is_at_home(const AxisEnum axis) {
     #endif
 
     // SERIAL_ECHOPGM("Cartesian");
-    // SERIAL_ECHOLNPAIR_P(SP_X_LBL, motion.current_position_rw().x, SP_Y_LBL, motion.current_position_rw().y);
+    // SERIAL_ECHOLNPAIR_P(SP_X_LBL, motion.current_position().x, SP_Y_LBL, motion.current_position().y);
     update_software_endstops(axis);
   }
 }

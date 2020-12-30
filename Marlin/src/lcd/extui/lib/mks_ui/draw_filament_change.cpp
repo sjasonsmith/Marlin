@@ -99,7 +99,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       #endif
       feedrate_mm_s = (float)uiCfg.moveSpeed_bak;
       if (uiCfg.print_state == PAUSED)
-        planner.set_e_position_mm((motion.destination_rw().e = motion.current_position_rw().e = uiCfg.current_e_position_bak));
+        planner.set_e_position_mm((motion.destination_rw().e = motion.current_position().e = uiCfg.current_e_position_bak));
         //motion.current_position_rw().e = motion.destination_rw().e = uiCfg.current_e_position_bak;
       thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = uiCfg.desireSprayerTempBak;
 

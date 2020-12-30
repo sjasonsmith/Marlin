@@ -138,7 +138,7 @@
       constexpr xy_float_t okay_homing_xy = safe_homing_xy;
     #endif
 
-    motion.destination_rw().set(okay_homing_xy, motion.current_position_rw().z);
+    motion.destination_rw().set(okay_homing_xy, motion.current_position().z);
 
     TERN_(HOMING_Z_WITH_PROBE, motion.destination_rw() -= probe.offset_xy);
 
@@ -352,7 +352,7 @@ void GcodeSuite::G28() {
         homeaxis(X_AXIS);
 
         // Remember this extruder's position for later tool change
-        inactive_extruder_x = motion.current_position_rw().x;
+        inactive_extruder_x = motion.current_position().x;
 
         // Home the 1st (left) extruder
         active_extruder = 0;
@@ -409,7 +409,7 @@ void GcodeSuite::G28() {
       homeaxis(X_AXIS);
 
       // Remember this extruder's position for later tool change
-      inactive_extruder_x = motion.current_position_rw().x;
+      inactive_extruder_x = motion.current_position().x;
 
       // Home the 1st (left) extruder
       active_extruder = 0;

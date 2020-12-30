@@ -63,7 +63,7 @@
      */
     void mesh_bed_leveling::line_to_destination(const feedRate_t &scaled_fr_mm_s, uint8_t x_splits, uint8_t y_splits) {
       // Get current and motion.destination() cells for this line
-      xy_int8_t scel = cell_indexes(motion.current_position_rw()), ecel = cell_indexes(motion.destination());
+      xy_int8_t scel = cell_indexes(motion.current_position()), ecel = cell_indexes(motion.destination());
       NOMORE(scel.x, GRID_MAX_POINTS_X - 2);
       NOMORE(scel.y, GRID_MAX_POINTS_Y - 2);
       NOMORE(ecel.x, GRID_MAX_POINTS_X - 2);
@@ -76,7 +76,7 @@
         return;
       }
 
-      #define MBL_SEGMENT_END(A) (motion.current_position_rw().A + (motion.destination().A - motion.current_position_rw().A) * normalized_dist)
+      #define MBL_SEGMENT_END(A) (motion.current_position().A + (motion.destination().A - motion.current_position().A) * normalized_dist)
 
       float normalized_dist;
       xyze_pos_t dest;
@@ -89,7 +89,7 @@
         CBI(x_splits, gcx);
         dest = motion.destination();
         motion.destination_rw().x = index_to_xpos[gcx];
-        normalized_dist = (motion.destination().x - motion.current_position_rw().x) / (dest.x - motion.current_position_rw().x);
+        normalized_dist = (motion.destination().x - motion.current_position().x) / (dest.x - motion.current_position().x);
         motion.destination_rw().y = MBL_SEGMENT_END(y);
       }
       // Crosses on the Y and not already split on this Y?
@@ -98,7 +98,7 @@
         CBI(y_splits, gcy);
         dest = motion.destination();
         motion.destination_rw().y = index_to_ypos[gcy];
-        normalized_dist = (motion.destination().y - motion.current_position_rw().y) / (dest.y - motion.current_position_rw().y);
+        normalized_dist = (motion.destination().y - motion.current_position().y) / (dest.y - motion.current_position().y);
         motion.destination_rw().x = MBL_SEGMENT_END(x);
       }
       else {

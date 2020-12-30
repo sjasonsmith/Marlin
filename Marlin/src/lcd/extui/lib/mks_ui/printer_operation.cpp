@@ -54,8 +54,8 @@ void printer_state_polling() {
         gcode.process_subcommands_now_P(PSTR("M25"));
 
         //save the positon
-        uiCfg.current_x_position_bak = motion.current_position_rw().x;
-        uiCfg.current_y_position_bak = motion.current_position_rw().y;
+        uiCfg.current_x_position_bak = motion.current_position().x;
+        uiCfg.current_y_position_bak = motion.current_position().y;
 
         if (gCfgItems.pausePosZ != (float)-1) {
           gcode.process_subcommands_now_P(PSTR("G91"));
@@ -68,7 +68,7 @@ void printer_state_polling() {
           gcode.process_subcommands_now(public_buf_l);
         }
         uiCfg.print_state = PAUSED;
-        uiCfg.current_e_position_bak = motion.current_position_rw().e;
+        uiCfg.current_e_position_bak = motion.current_position().e;
 
         // #if ENABLED(POWER_LOSS_RECOVERY)
         //  if (recovery.enabled) recovery.save(true);
@@ -125,8 +125,8 @@ void printer_state_polling() {
         // Move back to the saved XY
         char str_1[16], str_2[16];
         sprintf_P(public_buf_m, PSTR("G1 X%s Y%s F2000"),
-          dtostrf(recovery.info.motion.current_position_rw().x, 1, 3, str_1),
-          dtostrf(recovery.info.motion.current_position_rw().y, 1, 3, str_2)
+          dtostrf(recovery.info.motion.current_position().x, 1, 3, str_1),
+          dtostrf(recovery.info.motion.current_position().y, 1, 3, str_2)
         );
         gcode.process_subcommands_now(public_buf_m);
 

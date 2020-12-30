@@ -274,7 +274,7 @@ G29_TYPE GcodeSuite::G29() {
           G29_RETURN(false);
         }
 
-        const float rz = parser.seenval('Z') ? RAW_Z_POSITION(parser.value_linear_units()) : motion.current_position_rw().z;
+        const float rz = parser.seenval('Z') ? RAW_Z_POSITION(parser.value_linear_units()) : motion.current_position().z;
         if (!WITHIN(rz, -10, 10)) {
           SERIAL_ERROR_MSG("Bad Z value");
           G29_RETURN(false);
@@ -486,7 +486,7 @@ G29_TYPE GcodeSuite::G29() {
 
       // For G29 after adjusting Z.
       // Save the previous Z before going to the next point
-      measured_z = motion.current_position_rw().z;
+      measured_z = motion.current_position().z;
 
       #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 
@@ -721,7 +721,7 @@ G29_TYPE GcodeSuite::G29() {
   // return or loop before this point.
   //
 
-  if (DEBUGGING(LEVELING)) DEBUG_POS("> probing complete", motion.current_position_rw());
+  if (DEBUGGING(LEVELING)) DEBUG_POS("> probing complete", motion.current_position());
 
   #if ENABLED(PROBE_MANUALLY)
     g29_in_progress = false;
@@ -829,16 +829,16 @@ G29_TYPE GcodeSuite::G29() {
         // Correct the current XYZ position based on the tilted plane.
         //
 
-        if (DEBUGGING(LEVELING)) DEBUG_POS("G29 uncorrected XYZ", motion.current_position_rw());
+        if (DEBUGGING(LEVELING)) DEBUG_POS("G29 uncorrected XYZ", motion.current_position());
 
-        xyze_pos_t converted = motion.current_position_rw();
+        xyze_pos_t converted = motion.current_position();
         planner.force_unapply_leveling(converted); // use conversion machinery
 
         // Use the last measured distance to the bed, if possible
-        if ( NEAR(motion.current_position_rw().x, probePos.x - probe.offset_xy.x)
-          && NEAR(motion.current_position_rw().y, probePos.y - probe.offset_xy.y)
+        if ( NEAR(motion.current_position().x, probePos.x - probe.offset_xy.x)
+          && NEAR(motion.current_position().y, probePos.y - probe.offset_xy.y)
         ) {
-          const float simple_z = motion.current_position_rw().z - measured_z;
+          const float simple_z = motion.current_position().z - measured_z;
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Probed Z", simple_z, "  Matrix Z", converted.z, "  Discrepancy ", simple_z - converted.z);
           converted.z = simple_z;
         }
@@ -846,20 +846,20 @@ G29_TYPE GcodeSuite::G29() {
         // The rotated XY and corrected Z are now motion.current_position_rw()
         motion.current_position_rw() = converted;
 
-        if (DEBUGGING(LEVELING)) DEBUG_POS("G29 corrected XYZ", motion.current_position_rw());
+        if (DEBUGGING(LEVELING)) DEBUG_POS("G29 corrected XYZ", motion.current_position());
       }
 
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       if (!dryrun) {
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("G29 uncorrected Z:", motion.current_position_rw().z);
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("G29 uncorrected Z:", motion.current_position().z);
 
         // Unapply the offset because it is going to be immediately applied
         // and cause compensation movement in Z
-        const float fade_scaling_factor = TERN(ENABLE_LEVELING_FADE_HEIGHT, planner.fade_scaling_factor_for_z(motion.current_position_rw().z), 1);
-        motion.current_position_rw().z -= fade_scaling_factor * bilinear_z_offset(motion.current_position_rw());
+        const float fade_scaling_factor = TERN(ENABLE_LEVELING_FADE_HEIGHT, planner.fade_scaling_factor_for_z(motion.current_position().z), 1);
+        motion.current_position_rw().z -= fade_scaling_factor * bilinear_z_offset(motion.current_position());
 
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(" corrected Z:", motion.current_position_rw().z);
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(" corrected Z:", motion.current_position().z);
       }
 
     #endif // ABL_PLANAR
@@ -871,7 +871,7 @@ G29_TYPE GcodeSuite::G29() {
   // Restore state after probing
   if (!faux) restore_feedrate_and_scaling();
 
-  // Sync the planner from the motion.current_position_rw()
+  // Sync the planner from the motion.current_position()
   if (planner.leveling_active) sync_plan_position();
 
   #if HAS_BED_PROBE

@@ -66,7 +66,7 @@ void _man_probe_pt(const xy_pos_t &xy) {
     TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Delta Calibration in progress")));
     wait_for_user_response();
     ui.goto_previous_screen_no_defer();
-    return motion.current_position_rw().z;
+    return motion.current_position().z;
   }
 
 #endif

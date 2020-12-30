@@ -257,7 +257,7 @@ void disp_print_time() {
 }
 
 void disp_fan_Zpos() {
-  sprintf_P(public_buf_l, PSTR("%.3f"), motion.current_position_rw()[Z_AXIS]);
+  sprintf_P(public_buf_l, PSTR("%.3f"), motion.current_position()[Z_AXIS]);
   lv_label_set_text(labelZpos, public_buf_l);
 }
 

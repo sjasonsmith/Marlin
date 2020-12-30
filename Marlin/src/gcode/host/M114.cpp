@@ -57,13 +57,13 @@
   void report_current_position_detail() {
     // Position as sent by G-code
     SERIAL_ECHOPGM("\nLogical:");
-    report_xyz(motion.current_position_rw().asLogical());
+    report_xyz(motion.current_position().asLogical());
 
     // Cartesian position in native machine space
     SERIAL_ECHOPGM("Raw:    ");
-    report_xyz(motion.current_position_rw());
+    report_xyz(motion.current_position());
 
-    xyze_pos_t leveled = motion.current_position_rw();
+    xyze_pos_t leveled = motion.current_position();
 
     #if HAS_LEVELING
       // Current position with leveling applied

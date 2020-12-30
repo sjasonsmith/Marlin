@@ -69,7 +69,7 @@ void GcodeSuite::G92() {
         if (parser.seenval(axis_codes[i])) {
           const float l = parser.value_axis_units((AxisEnum)i),
                       v = i == E_AXIS ? l : LOGICAL_TO_NATIVE(l, i),
-                      d = v - motion.current_position_rw()[i];
+                      d = v - motion.current_position()[i];
           if (!NEAR_ZERO(d)) {
             #if IS_SCARA || !HAS_POSITION_SHIFT
               if (i == E_AXIS) sync_E = true; else sync_XYZ = true;

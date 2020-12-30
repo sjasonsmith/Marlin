@@ -50,7 +50,7 @@ inline bool G38_run_probe() {
     // Get direction of move and retract
     xyz_float_t retract_mm;
     LOOP_XYZ(i) {
-      const float dist = motion.destination()[i] - motion.current_position_rw()[i];
+      const float dist = motion.destination()[i] - motion.current_position()[i];
       retract_mm[i] = ABS(dist) < G38_MINIMUM_MOVE ? 0 : home_bump_mm((AxisEnum)i) * (dist > 0 ? -1 : 1);
     }
   #endif
@@ -75,7 +75,7 @@ inline bool G38_run_probe() {
 
     #if MULTIPLE_PROBING > 1
       // Move away by the retract distance
-      motion.destination_rw() = motion.current_position_rw() + retract_mm;
+      motion.destination_rw() = motion.current_position() + retract_mm;
       endstops.enable(false);
       prepare_line_to_destination();
       planner.synchronize();
@@ -120,7 +120,7 @@ void GcodeSuite::G38(const int8_t subcode) {
 
   // If any axis has enough movement, do the move
   LOOP_XYZ(i)
-    if (ABS(motion.destination()[i] - motion.current_position_rw()[i]) >= G38_MINIMUM_MOVE) {
+    if (ABS(motion.destination()[i] - motion.current_position()[i]) >= G38_MINIMUM_MOVE) {
       if (!parser.seenval('F')) feedrate_mm_s = homing_feedrate((AxisEnum)i);
       // If G38.2 fails throw an error
       if (!G38_run_probe() && error_on_fail) SERIAL_ERROR_MSG("Failed to reach target");

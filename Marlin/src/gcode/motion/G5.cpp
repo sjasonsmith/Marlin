@@ -57,7 +57,7 @@ void GcodeSuite::G5() {
       { parser.linearval('P'), parser.linearval('Q') }
     };
 
-    cubic_b_spline(motion.current_position_rw(), motion.destination(), offsets, MMS_SCALED(feedrate_mm_s), active_extruder);
+    cubic_b_spline(motion.current_position(), motion.destination(), offsets, MMS_SCALED(feedrate_mm_s), active_extruder);
     motion.current_position_rw() = motion.destination();
   }
 }

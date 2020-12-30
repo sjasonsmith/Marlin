@@ -218,14 +218,14 @@ void GcodeSuite::G34() {
           const uint8_t iprobe = (iteration & 1) ? NUM_Z_STEPPER_DRIVERS - 1 - i : i;
 
           // Safe clearance even on an incline
-          if ((iteration == 0 || i > 0) && z_probe > motion.current_position_rw().z) do_blocking_move_to_z(z_probe);
+          if ((iteration == 0 || i > 0) && z_probe > motion.current_position().z) do_blocking_move_to_z(z_probe);
 
           if (DEBUGGING(LEVELING))
             DEBUG_ECHOLNPAIR_P(PSTR("Probing X"), z_stepper_align.xy[iprobe].x, SP_Y_STR, z_stepper_align.xy[iprobe].y);
 
           // Probe a Z height for each stepper.
           // Probing sanity check is disabled, as it would trigger even in normal cases because
-          // motion.current_position_rw().z has been manually altered in the "dirty trick" above.
+          // motion.current_position().z has been manually altered in the "dirty trick" above.
           const float z_probed_height = probe.probe_at_point(z_stepper_align.xy[iprobe], raise_after, 0, true, false);
           if (isnan(z_probed_height)) {
             SERIAL_ECHOLNPGM("Probing failed");
@@ -386,7 +386,7 @@ void GcodeSuite::G34() {
           #endif
 
           // Do a move to correct part of the misalignment for the current stepper
-          do_blocking_move_to_z(amplification * z_align_move + motion.current_position_rw().z);
+          do_blocking_move_to_z(amplification * z_align_move + motion.current_position().z);
         } // for (zstepper)
 
         // Back to normal stepper operations
