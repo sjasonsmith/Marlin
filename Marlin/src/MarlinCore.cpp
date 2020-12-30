@@ -626,9 +626,8 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
       #endif
 
       const float olde = motion.current_position().e;
-      motion.current_position_rw().e += EXTRUDER_RUNOUT_EXTRUDE;
-      line_to_current_position(MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED));
-      motion.current_position_rw().e = olde;
+      motion.line_to_position(E_AXIS, motion.current_position().e + (EXTRUDER_RUNOUT_EXTRUDE), MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED));
+      motion.override_axis_pos(E_AXIS. olde);
       planner.set_e_position_mm(olde);
       planner.synchronize();
 

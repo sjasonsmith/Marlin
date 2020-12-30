@@ -885,8 +885,7 @@ void MMU2::filament_runout() {
       // Slowly spin the extruder during C0
       else {
         while (planner.movesplanned() < 3) {
-          motion.current_position().e += 0.25;
-          line_to_current_position(MMM_TO_MMS(120));
+          line_to_position(E_AXIS, motion.current_position().e + 0.25, MMM_TO_MMS(120));
         }
       }
     }
@@ -977,8 +976,7 @@ bool MMU2::eject_filament(const uint8_t index, const bool recover) {
   LCD_MESSAGEPGM(MSG_MMU2_EJECTING_FILAMENT);
 
   ENABLE_AXIS_E0();
-  motion.current_position_rw().e -= MMU2_FILAMENTCHANGE_EJECT_FEED;
-  line_to_current_position(MMM_TO_MMS(2500));
+  line_to_position(E_AXIS, motion.current_position_rw().e - (MMU2_FILAMENTCHANGE_EJECT_FEED), MMM_TO_MMS(2500));
   planner.synchronize();
   command(MMU_CMD_E0 + index);
   manage_response(false, false);
@@ -1059,8 +1057,7 @@ void MMU2::execute_extruder_sequence(const E_Step * sequence, int steps) {
     DEBUG_ECHO_START();
     DEBUG_ECHOLNPAIR("E step ", es, "/", fr_mm_m);
 
-    motion.current_position_rw().e += es;
-    line_to_current_position(MMM_TO_MMS(fr_mm_m));
+    line_to_position(E_AXIS, motion.current_position().e + es, MMM_TO_MMS(fr_mm_m))
     planner.synchronize();
 
     step++;

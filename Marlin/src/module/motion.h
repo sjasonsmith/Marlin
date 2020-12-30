@@ -81,6 +81,7 @@ public:
   static       xyze_pos_t& destination_rw()      { return _destination; }
 
   static void reset_destination() { _destination = _current_position; }
+  static void reset_current_position() { _current_position.reset(); }
   static void line_to_position(AxisEnum axis, const float& position, const feedRate_t &fr_mm_s, uint8_t extruder = active_extruder);
   static void line_to_position(const xy_pos_t   &position, const feedRate_t &fr_mm_s, uint8_t extruder = active_extruder);
   static void line_to_position(const xyz_pos_t  &position, const feedRate_t &fr_mm_s, uint8_t extruder = active_extruder);

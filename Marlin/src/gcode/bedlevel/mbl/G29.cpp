@@ -115,8 +115,7 @@ void GcodeSuite::G29() {
       }
       else {
         // One last "return to the bed" (as originally coded) at completion
-        motion.current_position_rw().z = MANUAL_PROBE_HEIGHT;
-        line_to_current_position();
+        line_to_position(Z_AXIS, (MANUAL_PROBE_HEIGHT));
         planner.synchronize();
 
         // After recording the last point, activate home and activate
@@ -129,8 +128,7 @@ void GcodeSuite::G29() {
         set_bed_leveling_enabled(true);
 
         #if ENABLED(MESH_G28_REST_ORIGIN)
-          motion.current_position_rw().z = 0;
-          line_to_current_position(homing_feedrate(Z_AXIS));
+          line_to_position(Z_AXIS, 0.0, homing_feedrate(Z_AXIS));
           planner.synchronize();
         #endif
 

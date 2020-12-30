@@ -91,7 +91,6 @@ bool relative_mode; // = false;
 /**
  * Cartesian Current Position
  *   Used to track the native machine position as moves are queued.
- *   Used by 'line_to_current_position' to do a move after changing it.
  *   Used by 'sync_plan_position' to update 'planner.position'.
  */
 Marlin::Motion motion;
@@ -1003,17 +1002,15 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
           // Un-park the active extruder
           //
           const feedRate_t fr_zfast = planner.settings.max_feedrate_mm_s[Z_AXIS];
-          #define CURPOS motion.current_position()
-          #define RAISED raised_parked_position
+          float previous_xyz = motion.current_position();
           //  1. Move to the raised parked XYZ. Presumably the tool is already at XY.
-          if (planner.buffer_line(RAISED.x, RAISED.y, RAISED.z, CURPOS.e, fr_zfast, active_extruder)) {
-            //  2. Move to the current native XY and raised Z. Presumably this is a null move.
-            if (planner.buffer_line(CURPOS.x, CURPOS.y, RAISED.z, CURPOS.e, PLANNER_XY_FEEDRATE(), active_extruder)) {
-              //  3. Lower Z back down
-              line_to_current_position(fr_zfast);
-            }
-          }
-          planner.synchronize(); // paranoia
+          motion.line_to_position(raised_parked_position, fr_zfast, active_extruder);
+          //  2. Move to the current native XY and raised Z. Presumably this is a null move.
+          motion.line_to_position((xy_pos_t&)previous_xyz, (PLANNER_XY_FEEDRATE()), active_extruder);
+          //  3. Lower Z back down
+          motion.line_to_position(previous_xyz, fr_zfast, active_extruder);
+
+          planner.synchronize();
           stepper.set_directions();
 
           idex_set_parked(false);
@@ -1338,10 +1335,9 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
 
   #if IS_SCARA
     // Tell the planner the axis is at 0
-    motion.current_position_rw()[axis] = 0;
+    motion.override_axis_pos(axis. 0.0);
     sync_plan_position();
-    motion.current_position_rw()[axis] = distance;
-    line_to_current_position(real_fr_mm_s);
+    motion.line_to_position(axis, distance, real_fr_mm_s);
   #else
     // Get the ABC or XYZ positions in mm
     abce_pos_t target = planner.get_axis_positions_mm();
@@ -1838,13 +1834,9 @@ void homeaxis(const AxisEnum axis) {
   #if DISABLED(DELTA) && defined(HOMING_BACKOFF_POST_MM)
     const xyz_float_t endstop_backoff = HOMING_BACKOFF_POST_MM;
     if (endstop_backoff[axis]) {
-      motion.current_position_rw()[axis] -= ABS(endstop_backoff[axis]) * axis_home_dir;
-      line_to_current_position(
-        #if HOMING_Z_WITH_PROBE
-          (axis == Z_AXIS) ? z_probe_fast_mm_s :
-        #endif
-        homing_feedrate(axis)
-      );
+      const float distance = motion.current_position_rw()[axis] - ABS(endstop_backoff[axis]) * axis_home_dir;
+      const feedRate_t rate = IF_ENABLED(HOMING_Z_WITH_PROBE, (axis == Z_AXIS) ? z_probe_fast_mm_s :) homing_feedrate(axis);
+      line_to_position(axis, distance, rate);
 
       #if ENABLED(SENSORLESS_HOMING)
         planner.synchronize();
