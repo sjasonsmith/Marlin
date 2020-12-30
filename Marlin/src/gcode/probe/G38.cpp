@@ -75,7 +75,7 @@ inline bool G38_run_probe() {
 
     #if MULTIPLE_PROBING > 1
       // Move away by the retract distance
-      motion.destination() = motion.current_position_rw() + retract_mm;
+      motion.destination_rw() = motion.current_position_rw() + retract_mm;
       endstops.enable(false);
       prepare_line_to_destination();
       planner.synchronize();
@@ -83,7 +83,7 @@ inline bool G38_run_probe() {
       REMEMBER(fr, feedrate_mm_s, feedrate_mm_s * 0.25);
 
       // Bump the target more slowly
-      motion.destination() -= retract_mm * 2;
+      motion.destination_rw() -= retract_mm * 2;
 
       G38_single_probe(move_value);
     #endif

@@ -88,18 +88,18 @@
         // Split on the X grid line
         CBI(x_splits, gcx);
         dest = motion.destination();
-        motion.destination().x = index_to_xpos[gcx];
+        motion.destination_rw().x = index_to_xpos[gcx];
         normalized_dist = (motion.destination().x - motion.current_position_rw().x) / (dest.x - motion.current_position_rw().x);
-        motion.destination().y = MBL_SEGMENT_END(y);
+        motion.destination_rw().y = MBL_SEGMENT_END(y);
       }
       // Crosses on the Y and not already split on this Y?
       else if (ecel.y != scel.y && TEST(y_splits, gcy)) {
         // Split on the Y grid line
         CBI(y_splits, gcy);
         dest = motion.destination();
-        motion.destination().y = index_to_ypos[gcy];
+        motion.destination_rw().y = index_to_ypos[gcy];
         normalized_dist = (motion.destination().y - motion.current_position_rw().y) / (dest.y - motion.current_position_rw().y);
-        motion.destination().x = MBL_SEGMENT_END(x);
+        motion.destination_rw().x = MBL_SEGMENT_END(x);
       }
       else {
         // Must already have been split on these border(s)
@@ -109,14 +109,14 @@
         return;
       }
 
-      motion.destination().z = MBL_SEGMENT_END(z);
-      motion.destination().e = MBL_SEGMENT_END(e);
+      motion.destination_rw().z = MBL_SEGMENT_END(z);
+      motion.destination_rw().e = MBL_SEGMENT_END(e);
 
       // Do the split and look for more borders
       line_to_destination(scaled_fr_mm_s, x_splits, y_splits);
 
-      // Restore motion.destination() from stack
-      motion.destination() = dest;
+      // Restore motion.destination_rw() from stack
+      motion.destination_rw() = dest;
       line_to_destination(scaled_fr_mm_s, x_splits, y_splits);
     }
 

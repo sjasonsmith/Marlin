@@ -51,7 +51,7 @@ void GcodeSuite::G61(void) {
 
   SERIAL_ECHOPAIR(STR_RESTORING_POS " S", int(slot));
   LOOP_XYZ(i) {
-    motion.destination()[i] = parser.seen(XYZ_CHAR(i))
+    motion.destination_rw()[i] = parser.seen(XYZ_CHAR(i))
       ? stored_position[slot][i] + parser.value_axis_units((AxisEnum)i)
       : motion.current_position_rw()[i];
     SERIAL_CHAR(' ', XYZ_CHAR(i));

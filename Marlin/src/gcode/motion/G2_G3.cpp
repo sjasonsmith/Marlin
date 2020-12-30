@@ -319,7 +319,7 @@ void GcodeSuite::G2_G3(const bool clockwise) {
     if (parser.seenval('R')) {
       const float r = parser.value_linear_units();
       if (r) {
-        const xy_pos_t p1 = motion.current_position_rw(), p2 = motion.destination();
+        const xy_pos_t p1 = motion.current_position(), p2 = motion.destination();
         if (p1 != p2) {
           const xy_pos_t d2 = (p2 - p1) * 0.5f;          // XY vector to midpoint of move from current
           const float e = clockwise ^ (r < 0) ? -1 : 1,  // clockwise -1/1, counterclockwise 1/-1

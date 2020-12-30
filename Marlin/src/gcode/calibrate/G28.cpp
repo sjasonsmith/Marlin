@@ -138,9 +138,9 @@
       constexpr xy_float_t okay_homing_xy = safe_homing_xy;
     #endif
 
-    motion.destination().set(okay_homing_xy, motion.current_position_rw().z);
+    motion.destination_rw().set(okay_homing_xy, motion.current_position_rw().z);
 
-    TERN_(HOMING_Z_WITH_PROBE, motion.destination() -= probe.offset_xy);
+    TERN_(HOMING_Z_WITH_PROBE, motion.destination_rw() -= probe.offset_xy);
 
     if (position_is_reachable(motion.destination())) {
 

@@ -433,7 +433,7 @@ bool Probe::set_deployed(const bool deploy) {
 /**
  * @brief Used by run_z_probe to do a single Z probe move.
  *
- * @param  z        Z motion.destination()
+ * @param  z        Z motion.destination_rw()
  * @param  fr_mm_s  Feedrate in mm/s
  * @return true to indicate an error
  */

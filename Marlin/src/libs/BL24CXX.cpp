@@ -189,7 +189,7 @@ uint8_t BL24CXX::readOneByte(uint16_t ReadAddr) {
 }
 
 // Write a data at the address specified by BL24CXX
-// WriteAddr: The motion.destination() address for writing data
+// WriteAddr: The motion.destination_rw() address for writing data
 // DataToWrite: the data to be written
 void BL24CXX::writeOneByte(uint16_t WriteAddr, uint8_t DataToWrite) {
   IIC::start();

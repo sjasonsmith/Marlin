@@ -171,9 +171,9 @@ float measuring_movement(const AxisEnum axis, const int dir, const bool stop_sta
   const feedRate_t mms = fast ? MMM_TO_MMS(CALIBRATION_FEEDRATE_FAST) : MMM_TO_MMS(CALIBRATION_FEEDRATE_SLOW);
   const float limit    = fast ? 50 : 5;
 
-  motion.destination() = motion.current_position_rw();
+  motion.destination_rw() = motion.current_position_rw();
   for (float travel = 0; travel < limit; travel += step) {
-    motion.destination()[axis] += dir * step;
+    motion.destination_rw()[axis] += dir * step;
     do_blocking_move_to(motion.destination(), mms);
     planner.synchronize();
     if (read_calibration_pin() == stop_state) break;
@@ -195,7 +195,7 @@ inline float measure(const AxisEnum axis, const int dir, const bool stop_state, 
   const bool fast = uncertainty == CALIBRATION_MEASUREMENT_UNKNOWN;
 
   // Save position
-  motion.destination() = motion.current_position_rw();
+  motion.destination_rw() = motion.current_position_rw();
   const float start_pos = motion.destination()[axis];
   const float measured_pos = measuring_movement(axis, dir, stop_state, fast);
   // Measure backlash
@@ -204,7 +204,7 @@ inline float measure(const AxisEnum axis, const int dir, const bool stop_state, 
     *backlash_ptr = ABS(release_pos - measured_pos);
   }
   // Return to starting position
-  motion.destination()[axis] = start_pos;
+  motion.destination_rw()[axis] = start_pos;
   do_blocking_move_to(motion.destination(), MMM_TO_MMS(CALIBRATION_FEEDRATE_TRAVEL));
   return measured_pos;
 }

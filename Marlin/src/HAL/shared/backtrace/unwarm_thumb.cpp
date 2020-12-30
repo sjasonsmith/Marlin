@@ -245,7 +245,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
 
         UnwPrintd5("TB%c [r%d,r%d%s]\n", H ? 'H' : 'B', rn, (instr2 & 0xF), H ? ",LSL #1" : "");
 
-        // We are only interested if the RN is the PC. Let's choose the 1st motion.destination()
+        // We are only interested if the RN is the PC. Let's choose the 1st destination
         if (rn == 15) {
           if (H) {
             uint16_t rv;
@@ -413,7 +413,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
       }
       /*
        * LDR immediate.
-       *  We are only interested when motion.destination() is PC.
+       *  We are only interested when destination is PC.
        *  LDR Rt,[Rn , #n]
        */
       else if ((instr & 0xFFF0) == 0xF8D0) {
@@ -421,7 +421,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
         uint8_t     rt = (instr2 & 0xF000) >> 12;
         uint16_t imm12 = (instr2 & 0xFFF);
 
-        /* If motion.destination() is PC and we don't know the source value, then fail */
+        /* If destination is PC and we don't know the source value, then fail */
         if (!M_IsOriginValid(state->regData[rn].o)) {
           state->regData[rt].o = state->regData[rn].o;
         }
@@ -433,7 +433,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
       }
       /*
        * LDR immediate
-       *  We are only interested when motion.destination() is PC.
+       *  We are only interested when destination is PC.
        *  LDR Rt,[Rn , #-n]
        *  LDR Rt,[Rn], #+/-n]
        *  LDR Rt,[Rn, #+/-n]!

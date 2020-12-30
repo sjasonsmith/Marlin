@@ -195,11 +195,11 @@ namespace ExtUI {
      * called with all zeros.
      */
     void jog(const xyz_float_t &dir) {
-      // The "motion.destination()" variable is used as a scratchpad in
+      // The "motion.destination_rw()" variable is used as a scratchpad in
       // Marlin by GCODE routines, but should remain untouched
       // during manual jogging, allowing us to reuse the space
       // for our direction vector.
-      motion.destination() = dir;
+      motion.destination_rw() = dir;
       flags.jogging = !NEAR_ZERO(dir.x) || !NEAR_ZERO(dir.y) || !NEAR_ZERO(dir.z);
     }
 
