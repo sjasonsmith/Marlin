@@ -318,13 +318,14 @@ namespace ExtUI {
       }
     #endif
 
-    line_to_position(axis, constrain(position, min, max), feedrate ?: manual_feedrate_mm_s[axis]);
+    // TODO: Had to cast the enum. They are the same for X/Y/Z, so hopefully this is ok.
+    motion.line_to_position(static_cast<AxisEnum>(axis), constrain(position, min, max), feedrate ?: manual_feedrate_mm_s[axis]);
   }
 
   void setAxisPosition_mm(const float position, const extruder_t extruder, const feedRate_t feedrate/*=0*/) {
     setActiveTool(extruder, true);
 
-    line_to_position(E_AXIS, position, feedrate ?: manual_feedrate_mm_s.e);
+    motion.line_to_position(E_AXIS, position, feedrate ?: manual_feedrate_mm_s.e);
   }
 
   void setActiveTool(const extruder_t extruder, bool no_move) {

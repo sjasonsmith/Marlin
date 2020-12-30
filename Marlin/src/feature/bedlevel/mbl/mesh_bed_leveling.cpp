@@ -71,7 +71,7 @@
 
       // Start and end in the same cell? No split needed.
       if (scel == ecel) {
-        line_to_position(motion.destination(), scaled_fr_mm_s);
+        motion.line_to_position(motion.destination(), scaled_fr_mm_s);
         return;
       }
 
@@ -103,7 +103,7 @@
       else {
         // Must already have been split on these border(s)
         // This should be a rare case.
-        line_to_position(motion.destination(), scaled_fr_mm_s);
+        motion.line_to_position(motion.destination(), scaled_fr_mm_s);
         return;
       }
 

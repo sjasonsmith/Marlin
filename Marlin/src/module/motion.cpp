@@ -300,7 +300,7 @@ void Marlin::Motion::line_to_current_position(const feedRate_t &fr_mm_s, uint8_t
   planner.buffer_line(current_position(), fr_mm_s, extruder);
 }
 
-void Marlin::Motion::line_to_position(AxisEnum axis, const float& position, const feedRate_t &fr_mm_s, uint8_t extruder) {
+void Marlin::Motion::line_to_position(AxisEnum axis, const float &position, const feedRate_t &fr_mm_s, uint8_t extruder) {
   _current_position[axis] = position;
   line_to_current_position(fr_mm_s, extruder);
 }
@@ -312,7 +312,7 @@ void Marlin::Motion::line_to_position(const xyz_pos_t  &position, const feedRate
   _current_position = position;
   line_to_current_position(fr_mm_s, extruder);
 }
-void Marlin::Motion::line_to_position(const xyze_pos_t& position, const feedRate_t &fr_mm_s, uint8_t extruder) {
+void Marlin::Motion::line_to_position(const xyze_pos_t &position, const feedRate_t &fr_mm_s, uint8_t extruder) {
   _current_position = position;
   line_to_current_position(fr_mm_s, extruder);
 }
@@ -343,7 +343,7 @@ void Marlin::Motion::line_to_position(const xyze_pos_t& position, const feedRate
       planner.buffer_line(motion.destination(), scaled_fr_mm_s, active_extruder);
     #endif
 
-    motion.current_position() = motion.destination();
+    motion.current_position_rw() = motion.destination();
   }
 
 #endif // IS_KINEMATIC
@@ -987,12 +987,15 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
         case DXC_FULL_CONTROL_MODE: break;
 
         case DXC_AUTO_PARK_MODE: {
-          if (motion.current_position().e == motion.destination().e) {
+          xyze_pos_t previous_pos = motion.current_position();
+          if (previous_pos.e == motion.destination().e) {
+            // TODO: I PROBABLY MESSED THIS UP!
+
             // This is a travel move (with no extrusion)
             // Skip it, but keep track of the current position
             // (so it can be used as the start of the next non-travel move)
             if (delayed_move_time != 0xFFFFFFFFUL) {
-              motion.current_position() = motion.destination();
+              previous_pos = motion.destination();
               NOLESS(raised_parked_position.z, motion.destination().z);
               delayed_move_time = millis();
               return true;
@@ -1002,13 +1005,12 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
           // Un-park the active extruder
           //
           const feedRate_t fr_zfast = planner.settings.max_feedrate_mm_s[Z_AXIS];
-          float previous_xyz = motion.current_position();
           //  1. Move to the raised parked XYZ. Presumably the tool is already at XY.
           motion.line_to_position(raised_parked_position, fr_zfast, active_extruder);
           //  2. Move to the current native XY and raised Z. Presumably this is a null move.
-          motion.line_to_position((xy_pos_t&)previous_xyz, (PLANNER_XY_FEEDRATE()), active_extruder);
+          motion.line_to_position((xy_pos_t&)previous_pos, (PLANNER_XY_FEEDRATE()), active_extruder);
           //  3. Lower Z back down
-          motion.line_to_position(previous_xyz, fr_zfast, active_extruder);
+          motion.line_to_position((xyz_pos_t&)previous_pos, fr_zfast, active_extruder);
 
           planner.synchronize();
           stepper.set_directions();
@@ -1836,7 +1838,7 @@ void homeaxis(const AxisEnum axis) {
     if (endstop_backoff[axis]) {
       const float distance = motion.current_position_rw()[axis] - ABS(endstop_backoff[axis]) * axis_home_dir;
       const feedRate_t rate = IF_ENABLED(HOMING_Z_WITH_PROBE, (axis == Z_AXIS) ? z_probe_fast_mm_s :) homing_feedrate(axis);
-      line_to_position(axis, distance, rate);
+      motion.line_to_position(axis, distance, rate);
 
       #if ENABLED(SENSORLESS_HOMING)
         planner.synchronize();

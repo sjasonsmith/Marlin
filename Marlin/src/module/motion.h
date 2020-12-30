@@ -82,10 +82,10 @@ public:
 
   static void reset_destination() { _destination = _current_position; }
   static void reset_current_position() { _current_position.reset(); }
-  static void line_to_position(AxisEnum axis, const float& position, const feedRate_t &fr_mm_s, uint8_t extruder = active_extruder);
-  static void line_to_position(const xy_pos_t   &position, const feedRate_t &fr_mm_s, uint8_t extruder = active_extruder);
-  static void line_to_position(const xyz_pos_t  &position, const feedRate_t &fr_mm_s, uint8_t extruder = active_extruder);
-  static void line_to_position(const xyze_pos_t &position, const feedRate_t &fr_mm_s, uint8_t extruder = active_extruder);
+  static void line_to_position(AxisEnum axis, const float& position, const feedRate_t &fr_mm_s = feedrate_mm_s, uint8_t extruder = active_extruder);
+  static void line_to_position(const xy_pos_t   &position, const feedRate_t &fr_mm_s = feedrate_mm_s, uint8_t extruder = active_extruder);
+  static void line_to_position(const xyz_pos_t  &position, const feedRate_t &fr_mm_s = feedrate_mm_s, uint8_t extruder = active_extruder);
+  static void line_to_position(const xyze_pos_t &position, const feedRate_t &fr_mm_s = feedrate_mm_s, uint8_t extruder = active_extruder);
 
   static void override_axis_pos(AxisEnum axis, const float& position) { _current_position[axis] = position; }
   static void override_offset_pos(const xyz_pos_t &offset) { _current_position += offset; }

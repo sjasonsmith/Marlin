@@ -151,7 +151,7 @@ constexpr xy_pos_t lf { (X_MIN_BED) + inset_lfrb[0], (Y_MIN_BED) + inset_lfrb[1]
     good_points = 0;
 
     do {
-      xyz_pos_t new_pos = motion.current_potision();
+      xyz_pos_t new_pos = motion.current_position();
       new_pos.z += LEVEL_CORNERS_Z_HOP;
       motion.line_to_position(new_pos); // clearance
       // Select next corner coordinates
@@ -194,20 +194,19 @@ constexpr xy_pos_t lf { (X_MIN_BED) + inset_lfrb[0], (Y_MIN_BED) + inset_lfrb[1]
 #else // !LEVEL_CORNERS_USE_PROBE
 
   static inline void _lcd_goto_next_corner() {
-    xyz_pos_t new_pos = motion.current_potision();
-    new_pos.z += LEVEL_CORNERS_Z_HOP;
-    motion.line_to_position(new_pos); // clearance
+    line_to_z(motion.current_position().z + LEVEL_CORNERS_Z_HOP);
+    xy_pos_t next_pos = motion.current_position();
     switch (bed_corner) {
-      case 0: new_pos   = lf;   break; // copy xy
-      case 1: new_pos.x = rb.x; break;
-      case 2: new_pos.y = rb.y; break;
-      case 3: new_pos.x = lf.x; break;
+      case 0: next_pos   = lf;   break; // copy xy
+      case 1: next_pos.x = rb.x; break;
+      case 2: next_pos.y = rb.y; break;
+      case 3: next_pos.x = lf.x; break;
       #if ENABLED(LEVEL_CENTER_TOO)
-        case 4: new_pos.set(X_CENTER, Y_CENTER); break;
+        case 4: next_pos.set(X_CENTER, Y_CENTER); break;
       #endif
     }
-    motion.line_to_position(new_pos, manual_feedrate_mm_s.x);
-    motion.line_to_position(Z_AXIS, (LEVEL_CORNERS_HEIGHT));
+    motion.line_to_position(next_pos, manual_feedrate_mm_s.x);
+    line_to_z(LEVEL_CORNERS_HEIGHT);
     if (++bed_corner > 3 + ENABLED(LEVEL_CENTER_TOO)) bed_corner = 0;
   }
 

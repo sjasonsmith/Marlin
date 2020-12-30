@@ -740,15 +740,16 @@
     DEBUG_POS("New Extruder", motion.current_position());
 
     switch (dual_x_carriage_mode) {
-      case DXC_FULL_CONTROL_MODE:
+      case DXC_FULL_CONTROL_MODE: {
         // New current position is the position of the activated extruder
-        const float old_x = motion.get_current().x;
+        const float old_x = motion.current_position().x;
         motion.override_axis_pos(X_AXIS, inactive_extruder_x);
         inactive_extruder_x = old_x;
         // Save the inactive extruder's position (from the old motion.current_position())
         // TODO: How did this old code work? inactive_extruder_x = motion.destination().x;
         DEBUG_ECHOLNPAIR("DXC Full Control curr.x=", motion.current_position().x, " dest.x=", motion.current_position().x);
         break;
+      }
       case DXC_AUTO_PARK_MODE:
         idex_set_parked();
         break;
@@ -806,7 +807,7 @@ void tool_change_prime() {
     #endif
 
     // Prime (All distances are added and slowed down to ensure secure priming in all circumstances)
-    motion.unscaled_e_move(toolchange_settings.swap_length + toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed);
+    motion.unscaled_e_move(toolchange_settings.swap_length + toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed));
 
     // Cutting retraction
     #if TOOLCHANGE_FS_WIPE_RETRACT
@@ -835,7 +836,7 @@ void tool_change_prime() {
     motion.unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
     planner.synchronize();
 
-    motion.override_axis_pos(E_AXIS, motion.destination().e;
+    motion.override_axis_pos(E_AXIS, motion.destination().e);
     sync_plan_position_e(); // Resume at the old E position
   }
 }
@@ -1085,19 +1086,19 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
               if (!toolchange_extruder_ready[new_tool]) {
                 toolchange_extruder_ready[new_tool] = true;
                 fr = toolchange_settings.prime_speed;       // Next move is a prime
-                unscaled_e_move(0, MMM_TO_MMS(fr));         // Init planner with 0 length move
+                motion.unscaled_e_move(0, MMM_TO_MMS(fr));         // Init planner with 0 length move
               }
             #endif
 
             // Unretract (or Prime)
-            unscaled_e_move(toolchange_settings.swap_length, MMM_TO_MMS(fr));
+            motion.unscaled_e_move(toolchange_settings.swap_length, MMM_TO_MMS(fr));
 
             // Extra Prime
-            unscaled_e_move(toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed));
+            motion.unscaled_e_move(toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed));
 
             // Cutting retraction
             #if TOOLCHANGE_FS_WIPE_RETRACT
-              unscaled_e_move(-(TOOLCHANGE_FS_WIPE_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
+              motion.unscaled_e_move(-(TOOLCHANGE_FS_WIPE_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
             #endif
 
             // Cool down with fan
@@ -1150,7 +1151,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
           if (should_swap && !too_cold) {
             // Cutting recover
-            unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
+            motion.unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
             motion.override_axis_pos(E_AXIS, 0.0);
             sync_plan_position_e(); // New extruder primed and set to 0
 
@@ -1278,7 +1279,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     // Retract if previously retracted
     #if ENABLED(FWRETRACT)
       if (fwretract.retracted[active_extruder])
-        unscaled_e_move(-fwretract.settings.retract_length, fwretract.settings.retract_feedrate_mm_s);
+        motion.unscaled_e_move(-fwretract.settings.retract_length, fwretract.settings.retract_feedrate_mm_s);
     #endif
 
     // If no available extruder
@@ -1287,7 +1288,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     migration.in_progress = false;
 
-    motion.overrride_axis_pos(E_AXIS, resume_current_e);
+    motion.override_axis_pos(E_AXIS, resume_current_e);
     planner.synchronize();
     planner.set_e_position_mm(motion.current_position().e); // New extruder primed and ready
     DEBUG_ECHOLNPGM("Migration Complete");
