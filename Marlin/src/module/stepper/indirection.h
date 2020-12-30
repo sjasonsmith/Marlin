@@ -863,7 +863,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define DISABLE_AXIS_Z() if (SHOULD_DISABLE(z)) { DISABLE_STEPPER_Z(); DISABLE_STEPPER_Z2(); DISABLE_STEPPER_Z3(); DISABLE_STEPPER_Z4(); AFTER_CHANGE(z, false); set_axis_untrusted(Z_AXIS); Z_RESET(); }
 
 #ifdef Z_AFTER_DEACTIVATE
-  #define Z_RESET() do{ motion.current_position_rw().z = Z_AFTER_DEACTIVATE; sync_plan_position(); }while(0)
+  #define Z_RESET() do{ motion.override_axis_pos(Z_AXIS, Z_AFTER_DEACTIVATE); sync_plan_position(); }while(0)
 #else
   #define Z_RESET()
 #endif
