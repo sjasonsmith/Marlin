@@ -44,8 +44,10 @@ class Motion {
                     _destination; // Destination for a move
 
 public:
-  static xyze_pos_t& current_position() { return _current_position; }
-  static xyze_pos_t& destination()      { return _destination; }
+  static const xyze_pos_t& current_position()    { return _current_position; }
+  static       xyze_pos_t& current_position_rw() { return _current_position; }
+  static const xyze_pos_t& destination()         { return _destination; }
+  static       xyze_pos_t& destination_rw()      { return _destination; }
 };
 extern Motion motion;
 
