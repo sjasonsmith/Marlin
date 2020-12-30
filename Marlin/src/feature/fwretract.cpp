@@ -119,16 +119,16 @@ void FWRetract::retract(const bool retracting
         SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", retracted_swap[i]);
       #endif
     }
-    SERIAL_ECHOLNPAIR("motion.current_position.z ", motion.current_position.z);
-    SERIAL_ECHOLNPAIR("motion.current_position.e ", motion.current_position.e);
+    SERIAL_ECHOLNPAIR("motion.current_position().z ", motion.current_position().z);
+    SERIAL_ECHOLNPAIR("motion.current_position().e ", motion.current_position().e);
     SERIAL_ECHOLNPAIR("current_hop ", current_hop);
   //*/
 
   const float base_retract = TERN1(RETRACT_SYNC_MIXING, (MIXING_STEPPERS))
                 * (swapping ? settings.swap_retract_length : settings.retract_length);
 
-  // The current position will be the motion.destination for E and Z moves
-  motion.destination = motion.current_position;
+  // The current position will be the motion.destination() for E and Z moves
+  motion.destination() = motion.current_position();
 
   #if ENABLED(RETRACT_SYNC_MIXING)
     const uint8_t old_mixing_tool = mixer.get_current_vtool();
@@ -139,7 +139,7 @@ void FWRetract::retract(const bool retracting
   if (retracting) {
     // Retract by moving from a faux E position back to the current E position
     current_retract[active_extruder] = base_retract;
-    prepare_internal_move_to_destination(                 // set current to motion.destination
+    prepare_internal_move_to_destination(                 // set current to motion.destination()
       settings.retract_feedrate_mm_s * TERN1(RETRACT_SYNC_MIXING, (MIXING_STEPPERS))
     );
 
@@ -160,7 +160,7 @@ void FWRetract::retract(const bool retracting
 
     const float extra_recover = swapping ? settings.swap_retract_recover_extra : settings.retract_recover_extra;
     if (extra_recover) {
-      motion.current_position.e -= extra_recover;          // Adjust the current E position by the extra amount to recover
+      motion.current_position().e -= extra_recover;          // Adjust the current E position by the extra amount to recover
       sync_plan_position_e();                             // Sync the planner position so the extra amount is recovered
     }
 
@@ -192,8 +192,8 @@ void FWRetract::retract(const bool retracting
         SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", retracted_swap[i]);
       #endif
     }
-    SERIAL_ECHOLNPAIR("motion.current_position.z ", motion.current_position.z);
-    SERIAL_ECHOLNPAIR("motion.current_position.e ", motion.current_position.e);
+    SERIAL_ECHOLNPAIR("motion.current_position().z ", motion.current_position().z);
+    SERIAL_ECHOLNPAIR("motion.current_position().e ", motion.current_position().e);
     SERIAL_ECHOLNPAIR("current_hop ", current_hop);
   //*/
 }

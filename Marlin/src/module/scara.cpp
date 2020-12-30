@@ -36,7 +36,7 @@ float delta_segments_per_second = SCARA_SEGMENTS_PER_SECOND;
 
 void scara_set_axis_is_at_home(const AxisEnum axis) {
   if (axis == Z_AXIS)
-    motion.current_position.z = Z_HOME_POS;
+    motion.current_position().z = Z_HOME_POS;
   else {
 
     /**
@@ -50,16 +50,16 @@ void scara_set_axis_is_at_home(const AxisEnum axis) {
       // SERIAL_ECHOLNPAIR("homeposition A:", homeposition.a, " B:", homeposition.b);
       inverse_kinematics(homeposition);
       forward_kinematics_SCARA(delta.a, delta.b);
-      motion.current_position[axis] = cartes[axis];
+      motion.current_position()[axis] = cartes[axis];
     #else
       // MP_SCARA uses a Cartesian XY home position
       // SERIAL_ECHOPGM("homeposition");
       // SERIAL_ECHOLNPAIR_P(SP_X_LBL, homeposition.x, SP_Y_LBL, homeposition.y);
-      motion.current_position[axis] = homeposition[axis];
+      motion.current_position()[axis] = homeposition[axis];
     #endif
 
     // SERIAL_ECHOPGM("Cartesian");
-    // SERIAL_ECHOLNPAIR_P(SP_X_LBL, motion.current_position.x, SP_Y_LBL, motion.current_position.y);
+    // SERIAL_ECHOLNPAIR_P(SP_X_LBL, motion.current_position().x, SP_Y_LBL, motion.current_position().y);
     update_software_endstops(axis);
   }
 }

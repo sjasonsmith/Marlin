@@ -165,7 +165,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
         || ELAPSED(ms, next_save_ms)
       #endif
       // Save if Z is above the last-saved position by some minimum height
-      || motion.current_position.z > info.current_position.z + POWER_LOSS_MIN_Z_CHANGE
+      || motion.current_position().z > info.current_position.z + POWER_LOSS_MIN_Z_CHANGE
     #endif
   ) {
 
@@ -179,7 +179,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
     info.valid_foot = info.valid_head;
 
     // Machine state
-    info.current_position = motion.current_position;
+    info.current_position = motion.current_position();
     info.feedrate = uint16_t(MMS_TO_MMM(feedrate_mm_s));
     info.zraise = zraise;
 
@@ -285,7 +285,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
 
     #if POWER_LOSS_ZRAISE
       // Get the limited Z-raise to do now or on resume
-      const float zraise = _MAX(0, _MIN(motion.current_position.z + POWER_LOSS_ZRAISE, Z_MAX_POS - 1) - motion.current_position.z);
+      const float zraise = _MAX(0, _MIN(motion.current_position().z + POWER_LOSS_ZRAISE, Z_MAX_POS - 1) - motion.current_position().z);
     #else
       constexpr float zraise = 0;
     #endif
@@ -545,7 +545,7 @@ void PrintJobRecovery::resume() {
     DEBUG_ECHOLNPAIR(" Job Recovery Info...\nvalid_head:", int(info.valid_head), " valid_foot:", int(info.valid_foot));
     if (info.valid_head) {
       if (info.valid_head == info.valid_foot) {
-        DEBUG_ECHOPGM("motion.current_position: ");
+        DEBUG_ECHOPGM("motion.current_position(): ");
         LOOP_XYZE(i) {
           if (i) DEBUG_CHAR(',');
           DEBUG_DECIMAL(info.current_position[i]);

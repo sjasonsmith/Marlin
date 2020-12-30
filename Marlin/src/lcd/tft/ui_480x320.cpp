@@ -263,11 +263,11 @@ void MarlinUI::draw_status_screen() {
   tft.add_text(330, 3, COLOR_AXIS_HOMED , "Z");
 
   bool not_homed = axis_should_home(X_AXIS);
-  tft_string.set(blink && not_homed ? "?" : ftostr4sign(LOGICAL_X_POSITION(motion.current_position.x)));
+  tft_string.set(blink && not_homed ? "?" : ftostr4sign(LOGICAL_X_POSITION(motion.current_position().x)));
   tft.add_text(102 - tft_string.width(), 3, not_homed ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
 
   not_homed = axis_should_home(Y_AXIS);
-  tft_string.set(blink && not_homed ? "?" : ftostr4sign(LOGICAL_Y_POSITION(motion.current_position.y)));
+  tft_string.set(blink && not_homed ? "?" : ftostr4sign(LOGICAL_Y_POSITION(motion.current_position().y)));
   tft.add_text(280 - tft_string.width(), 3, not_homed ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
 
   uint16_t offset = 32;
@@ -275,7 +275,7 @@ void MarlinUI::draw_status_screen() {
   if (blink && not_homed)
     tft_string.set("?");
   else {
-    const float z = LOGICAL_Z_POSITION(motion.current_position.z);
+    const float z = LOGICAL_Z_POSITION(motion.current_position().z);
     tft_string.set(ftostr52sp((int16_t)z));
     tft_string.rtrim();
     offset += tft_string.width();
@@ -406,13 +406,13 @@ void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const valu
 
       tft_string.set(X_LBL);
       tft.add_text((TFT_WIDTH / 2 - 120), MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
-      tft_string.set(ftostr52(LOGICAL_X_POSITION(motion.current_position.x)));
+      tft_string.set(ftostr52(LOGICAL_X_POSITION(motion.current_position().x)));
       tft_string.trim();
       tft.add_text((TFT_WIDTH / 2 - 16) - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
 
       tft_string.set(Y_LBL);
       tft.add_text((TFT_WIDTH / 2 + 16), MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
-      tft_string.set(ftostr52(LOGICAL_X_POSITION(motion.current_position.y)));
+      tft_string.set(ftostr52(LOGICAL_X_POSITION(motion.current_position().y)));
       tft_string.trim();
       tft.add_text((TFT_WIDTH / 2 + 120) - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
     }
@@ -743,7 +743,7 @@ static void drawAxisValue(AxisEnum axis) {
       probe.offset.z :
     #endif
     NATIVE_TO_LOGICAL(
-      ui.manual_move.processing ? motion.destination[axis] : motion.current_position[axis] + TERN0(IS_KINEMATIC, ui.manual_move.offset),
+      ui.manual_move.processing ? motion.destination()[axis] : motion.current_position()[axis] + TERN0(IS_KINEMATIC, ui.manual_move.offset),
       axis
     );
   xy_int_t pos;
@@ -796,12 +796,12 @@ static void moveAxis(AxisEnum axis, const int8_t direction) {
     #elif HAS_BED_PROBE
       // only change probe.offset.z
       probe.offset.z += diff;
-      if (direction < 0 && motion.current_position[axis] < Z_PROBE_OFFSET_RANGE_MIN) {
-        motion.current_position[axis] = Z_PROBE_OFFSET_RANGE_MIN;
+      if (direction < 0 && motion.current_position()[axis] < Z_PROBE_OFFSET_RANGE_MIN) {
+        motion.current_position()[axis] = Z_PROBE_OFFSET_RANGE_MIN;
         drawMessage(GET_TEXT(MSG_LCD_SOFT_ENDSTOPS));
       }
-      else if (direction > 0 && motion.current_position[axis] > Z_PROBE_OFFSET_RANGE_MAX) {
-        motion.current_position[axis] = Z_PROBE_OFFSET_RANGE_MAX;
+      else if (direction > 0 && motion.current_position()[axis] > Z_PROBE_OFFSET_RANGE_MAX) {
+        motion.current_position()[axis] = Z_PROBE_OFFSET_RANGE_MAX;
         drawMessage(GET_TEXT(MSG_LCD_SOFT_ENDSTOPS));
       }
       else {
@@ -821,7 +821,7 @@ static void moveAxis(AxisEnum axis, const int8_t direction) {
     // This assumes the center is 0,0
     #if ENABLED(DELTA)
       if (axis != Z_AXIS && axis != E_AXIS) {
-        max = SQRT(sq((float)(DELTA_PRINTABLE_RADIUS)) - sq(motion.current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
+        max = SQRT(sq((float)(DELTA_PRINTABLE_RADIUS)) - sq(motion.current_position()[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
         min = -max;
       }
     #endif
@@ -830,17 +830,17 @@ static void moveAxis(AxisEnum axis, const int8_t direction) {
     #if IS_KINEMATIC
       ui.manual_move.offset += diff;
       if (direction < 0)
-        NOLESS(ui.manual_move.offset, min - motion.current_position[axis]);
+        NOLESS(ui.manual_move.offset, min - motion.current_position()[axis]);
       else
-        NOMORE(ui.manual_move.offset, max - motion.current_position[axis]);
+        NOMORE(ui.manual_move.offset, max - motion.current_position()[axis]);
     #else
-      motion.current_position[axis] += diff;
-      if (direction < 0 && motion.current_position[axis] < min) {
-        motion.current_position[axis] = min;
+      motion.current_position()[axis] += diff;
+      if (direction < 0 && motion.current_position()[axis] < min) {
+        motion.current_position()[axis] = min;
         drawMessage(GET_TEXT(MSG_LCD_SOFT_ENDSTOPS));
       }
-      else if (direction > 0 && motion.current_position[axis] > max) {
-        motion.current_position[axis] = max;
+      else if (direction > 0 && motion.current_position()[axis] > max) {
+        motion.current_position()[axis] = max;
         drawMessage(GET_TEXT(MSG_LCD_SOFT_ENDSTOPS));
       }
       else {

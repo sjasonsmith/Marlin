@@ -357,9 +357,9 @@ float bilinear_z_offset(const xy_pos_t &raw) {
    * splitting the move where it crosses grid borders.
    */
   void bilinear_line_to_destination(const feedRate_t &scaled_fr_mm_s, uint16_t x_splits, uint16_t y_splits) {
-    // Get current and motion.destination cells for this line
-    xy_int_t c1 { CELL_INDEX(x, motion.current_position.x), CELL_INDEX(y, motion.current_position.y) },
-             c2 { CELL_INDEX(x, motion.destination.x), CELL_INDEX(y, motion.destination.y) };
+    // Get current and motion.destination() cells for this line
+    xy_int_t c1 { CELL_INDEX(x, motion.current_position().x), CELL_INDEX(y, motion.current_position().y) },
+             c2 { CELL_INDEX(x, motion.destination().x), CELL_INDEX(y, motion.destination().y) };
     LIMIT(c1.x, 0, ABL_BG_POINTS_X - 2);
     LIMIT(c1.y, 0, ABL_BG_POINTS_Y - 2);
     LIMIT(c2.x, 0, ABL_BG_POINTS_X - 2);
@@ -367,12 +367,12 @@ float bilinear_z_offset(const xy_pos_t &raw) {
 
     // Start and end in the same cell? No split needed.
     if (c1 == c2) {
-      motion.current_position = motion.destination;
+      motion.current_position() = motion.destination();
       line_to_current_position(scaled_fr_mm_s);
       return;
     }
 
-    #define LINE_SEGMENT_END(A) (motion.current_position.A + (motion.destination.A - motion.current_position.A) * normalized_dist)
+    #define LINE_SEGMENT_END(A) (motion.current_position().A + (motion.destination().A - motion.current_position().A) * normalized_dist)
 
     float normalized_dist;
     xyze_pos_t end;
@@ -383,36 +383,36 @@ float bilinear_z_offset(const xy_pos_t &raw) {
     if (c2.x != c1.x && TEST(x_splits, gc.x)) {
       // Split on the X grid line
       CBI(x_splits, gc.x);
-      end = motion.destination;
-      motion.destination.x = bilinear_start.x + ABL_BG_SPACING(x) * gc.x;
-      normalized_dist = (motion.destination.x - motion.current_position.x) / (end.x - motion.current_position.x);
-      motion.destination.y = LINE_SEGMENT_END(y);
+      end = motion.destination();
+      motion.destination().x = bilinear_start.x + ABL_BG_SPACING(x) * gc.x;
+      normalized_dist = (motion.destination().x - motion.current_position().x) / (end.x - motion.current_position().x);
+      motion.destination().y = LINE_SEGMENT_END(y);
     }
     // Crosses on the Y and not already split on this Y?
     else if (c2.y != c1.y && TEST(y_splits, gc.y)) {
       // Split on the Y grid line
       CBI(y_splits, gc.y);
-      end = motion.destination;
-      motion.destination.y = bilinear_start.y + ABL_BG_SPACING(y) * gc.y;
-      normalized_dist = (motion.destination.y - motion.current_position.y) / (end.y - motion.current_position.y);
-      motion.destination.x = LINE_SEGMENT_END(x);
+      end = motion.destination();
+      motion.destination().y = bilinear_start.y + ABL_BG_SPACING(y) * gc.y;
+      normalized_dist = (motion.destination().y - motion.current_position().y) / (end.y - motion.current_position().y);
+      motion.destination().x = LINE_SEGMENT_END(x);
     }
     else {
       // Must already have been split on these border(s)
       // This should be a rare case.
-      motion.current_position = motion.destination;
+      motion.current_position() = motion.destination();
       line_to_current_position(scaled_fr_mm_s);
       return;
     }
 
-    motion.destination.z = LINE_SEGMENT_END(z);
-    motion.destination.e = LINE_SEGMENT_END(e);
+    motion.destination().z = LINE_SEGMENT_END(z);
+    motion.destination().e = LINE_SEGMENT_END(e);
 
     // Do the split and look for more borders
     bilinear_line_to_destination(scaled_fr_mm_s, x_splits, y_splits);
 
-    // Restore motion.destination from stack
-    motion.destination = end;
+    // Restore motion.destination() from stack
+    motion.destination() = end;
     bilinear_line_to_destination(scaled_fr_mm_s, x_splits, y_splits);
   }
 

@@ -761,7 +761,7 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
 }
 
 bool ST7920_Lite_Status_Screen::position_changed() {
-  const xyz_pos_t pos = motion.current_position;
+  const xyz_pos_t pos = motion.current_position();
   const uint8_t checksum = uint8_t(pos.x) ^ uint8_t(pos.y) ^ uint8_t(pos.z);
   static uint8_t last_checksum = 0, changed = last_checksum != checksum;
   if (changed) last_checksum = checksum;
@@ -832,7 +832,7 @@ void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
     }
 
     if (countdown == 0 && (forceUpdate || position_changed() || TERN(DISABLE_REDUCED_ACCURACY_WARNING, 0, blink_changed())))
-      draw_position(motion.current_position, TERN(DISABLE_REDUCED_ACCURACY_WARNING, 1, all_axes_trusted()));
+      draw_position(motion.current_position(), TERN(DISABLE_REDUCED_ACCURACY_WARNING, 1, all_axes_trusted()));
   #endif
 }
 

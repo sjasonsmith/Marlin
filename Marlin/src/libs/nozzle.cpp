@@ -46,7 +46,7 @@ Nozzle nozzle;
    * @param strokes number of strokes to execute
    */
   void Nozzle::stroke(const xyz_pos_t &start, const xyz_pos_t &end, const uint8_t &strokes) {
-    TERN_(NOZZLE_CLEAN_GOBACK, const xyz_pos_t oldpos = motion.current_position);
+    TERN_(NOZZLE_CLEAN_GOBACK, const xyz_pos_t oldpos = motion.current_position());
 
     // Move to the starting point
     #if ENABLED(NOZZLE_CLEAN_NO_Z)
@@ -86,7 +86,7 @@ Nozzle nozzle;
     const xy_pos_t diff = end - start;
     if (!diff.x || !diff.y) return;
 
-    TERN_(NOZZLE_CLEAN_GOBACK, const xyz_pos_t back = motion.current_position);
+    TERN_(NOZZLE_CLEAN_GOBACK, const xyz_pos_t back = motion.current_position());
 
     #if ENABLED(NOZZLE_CLEAN_NO_Z)
       do_blocking_move_to_xy(start);
@@ -129,7 +129,7 @@ Nozzle nozzle;
   void Nozzle::circle(const xyz_pos_t &start, const xyz_pos_t &middle, const uint8_t &strokes, const float &radius) {
     if (strokes == 0) return;
 
-    TERN_(NOZZLE_CLEAN_GOBACK, const xyz_pos_t back = motion.current_position);
+    TERN_(NOZZLE_CLEAN_GOBACK, const xyz_pos_t back = motion.current_position());
     TERN(NOZZLE_CLEAN_NO_Z, do_blocking_move_to_xy, do_blocking_move_to)(start);
 
     LOOP_L_N(s, strokes)
@@ -203,10 +203,10 @@ Nozzle nozzle;
       }
     }
     else {
-      if (!TEST(cleans, X_AXIS)) start[arrPos].x = end[arrPos].x = motion.current_position.x;
-      if (!TEST(cleans, Y_AXIS)) start[arrPos].y = end[arrPos].y = motion.current_position.y;
+      if (!TEST(cleans, X_AXIS)) start[arrPos].x = end[arrPos].x = motion.current_position().x;
+      if (!TEST(cleans, Y_AXIS)) start[arrPos].y = end[arrPos].y = motion.current_position().y;
     }
-    if (!TEST(cleans, Z_AXIS)) start[arrPos].z = end[arrPos].z = motion.current_position.z;
+    if (!TEST(cleans, Z_AXIS)) start[arrPos].z = end[arrPos].z = motion.current_position().z;
 
     switch (pattern) {
        case 1: zigzag(start[arrPos], end[arrPos], strokes, objects); break;
@@ -228,12 +228,12 @@ Nozzle nozzle;
         break;
 
       case 2: // Raise by Z-park height
-        do_blocking_move_to_z(_MIN(motion.current_position.z + park.z, Z_MAX_POS), fr_z);
+        do_blocking_move_to_z(_MIN(motion.current_position().z + park.z, Z_MAX_POS), fr_z);
         break;
 
       default: {
         // Apply a minimum raise, overriding G27 Z
-        const float min_raised_z =_MIN(Z_MAX_POS, motion.current_position.z
+        const float min_raised_z =_MIN(Z_MAX_POS, motion.current_position().z
           #ifdef NOZZLE_PARK_Z_RAISE_MIN
             + NOZZLE_PARK_Z_RAISE_MIN
           #endif
@@ -243,8 +243,8 @@ Nozzle nozzle;
     }
 
     do_blocking_move_to_xy(
-      TERN(NOZZLE_PARK_Y_ONLY, motion.current_position, park).x,
-      TERN(NOZZLE_PARK_X_ONLY, motion.current_position, park).y,
+      TERN(NOZZLE_PARK_Y_ONLY, motion.current_position(), park).x,
+      TERN(NOZZLE_PARK_X_ONLY, motion.current_position(), park).y,
       fr_xy
     );
 

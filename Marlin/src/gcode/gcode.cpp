@@ -129,9 +129,9 @@ int8_t GcodeSuite::get_target_e_stepper_from_command() {
 }
 
 /**
- * Set XYZE motion.destination and feedrate from the current GCode command
+ * Set XYZE motion.destination() and feedrate from the current GCode command
  *
- *  - Set motion.destination from included axis codes
+ *  - Set motion.destination() from included axis codes
  *  - Set to current for missing axis codes
  *  - Set the feedrate, if included
  */
@@ -149,21 +149,21 @@ void GcodeSuite::get_destination_from_command() {
     if ( (seen[i] = parser.seenval(XYZ_CHAR(i))) ) {
       const float v = parser.value_axis_units((AxisEnum)i);
       if (skip_move)
-        motion.destination[i] = motion.current_position[i];
+        motion.destination()[i] = motion.current_position()[i];
       else
-        motion.destination[i] = axis_is_relative(AxisEnum(i)) ? motion.current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
+        motion.destination()[i] = axis_is_relative(AxisEnum(i)) ? motion.current_position()[i] + v : LOGICAL_TO_NATIVE(v, i);
     }
     else
-      motion.destination[i] = motion.current_position[i];
+      motion.destination()[i] = motion.current_position()[i];
   }
 
   // Get new E position, whether absolute or relative
   if ( (seen.e = parser.seenval('E')) ) {
     const float v = parser.value_axis_units(E_AXIS);
-    motion.destination.e = axis_is_relative(E_AXIS) ? motion.current_position.e + v : v;
+    motion.destination().e = axis_is_relative(E_AXIS) ? motion.current_position().e + v : v;
   }
   else
-    motion.destination.e = motion.current_position.e;
+    motion.destination().e = motion.current_position().e;
 
   #if ENABLED(POWER_LOSS_RECOVERY) && !PIN_EXISTS(POWER_LOSS)
     // Only update power loss recovery on moves with E
@@ -176,7 +176,7 @@ void GcodeSuite::get_destination_from_command() {
 
   #if ENABLED(PRINTCOUNTER)
     if (!DEBUGGING(DRYRUN) && !skip_move)
-      print_job_timer.incFilamentUsed(motion.destination.e - motion.current_position.e);
+      print_job_timer.incFilamentUsed(motion.destination().e - motion.current_position().e);
   #endif
 
   // Get ABCDHI mixing factors
@@ -731,7 +731,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if HAS_M206_COMMAND
-        case 428: M428(); break;                                  // M428: Apply motion.current_position to home_offset
+        case 428: M428(); break;                                  // M428: Apply motion.current_position() to home_offset
       #endif
 
       #if HAS_POWER_MONITOR

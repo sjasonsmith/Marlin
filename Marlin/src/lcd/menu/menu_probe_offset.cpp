@@ -70,12 +70,12 @@ void _goto_manual_move_z(const float scale) {
 
 void probe_offset_wizard_menu() {
   START_MENU();
-  calculated_z_offset = probe.offset.z + motion.current_position.z - z_offset_ref;
+  calculated_z_offset = probe.offset.z + motion.current_position().z - z_offset_ref;
 
   if (LCD_HEIGHT >= 4)
     STATIC_ITEM(MSG_MOVE_NOZZLE_TO_BED, SS_CENTER|SS_INVERT);
 
-  STATIC_ITEM_P(PSTR("Z="), SS_CENTER, ftostr42_52(motion.current_position.z));
+  STATIC_ITEM_P(PSTR("Z="), SS_CENTER, ftostr42_52(motion.current_position().z));
   STATIC_ITEM(MSG_ZPROBE_ZOFFSET, SS_LEFT, ftostr42_52(calculated_z_offset));
 
   SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move_z( 1);    });
@@ -100,7 +100,7 @@ void probe_offset_wizard_menu() {
 
   ACTION_ITEM(MSG_BUTTON_DONE, []{
     set_offset_and_go_back(calculated_z_offset);
-    motion.current_position.z = z_offset_ref;  // Set Z to z_offset_ref, as we can expect it is at probe height
+    motion.current_position().z = z_offset_ref;  // Set Z to z_offset_ref, as we can expect it is at probe height
     sync_plan_position();
     z_clearance_move();                 // Raise Z as if it was homed
   });
@@ -145,7 +145,7 @@ void prepare_for_probe_offset_wizard() {
 
   // Move Nozzle to Probing/Homing Position
   ui.wait_for_move = true;
-  motion.current_position += probe.offset_xy;
+  motion.current_position() += probe.offset_xy;
   line_to_current_position(MMM_TO_MMS(XY_PROBE_SPEED));
   ui.synchronize(GET_TEXT(MSG_PROBE_WIZARD_MOVING));
   ui.wait_for_move = false;

@@ -102,7 +102,7 @@ void GcodeSuite::G29() {
       }
       else {
         // Save Z for the previous mesh position
-        mbl.set_zigzag_z(mbl_probe_index - 1, motion.current_position.z);
+        mbl.set_zigzag_z(mbl_probe_index - 1, motion.current_position().z);
         SET_SOFT_ENDSTOP_LOOSE(false);
       }
       // If there's another point to sample, move there with optional lift.
@@ -115,7 +115,7 @@ void GcodeSuite::G29() {
       }
       else {
         // One last "return to the bed" (as originally coded) at completion
-        motion.current_position.z = MANUAL_PROBE_HEIGHT;
+        motion.current_position().z = MANUAL_PROBE_HEIGHT;
         line_to_current_position();
         planner.synchronize();
 
@@ -129,7 +129,7 @@ void GcodeSuite::G29() {
         set_bed_leveling_enabled(true);
 
         #if ENABLED(MESH_G28_REST_ORIGIN)
-          motion.current_position.z = 0;
+          motion.current_position().z = 0;
           line_to_current_position(homing_feedrate(Z_AXIS));
           planner.synchronize();
         #endif

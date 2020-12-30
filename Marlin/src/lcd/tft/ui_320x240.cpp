@@ -258,11 +258,11 @@ void MarlinUI::draw_status_screen() {
   tft.add_text(219, 3, COLOR_AXIS_HOMED , "Z");
 
   bool not_homed = axis_should_home(X_AXIS);
-  tft_string.set(blink && not_homed ? "?" : ftostr4sign(LOGICAL_X_POSITION(motion.current_position.x)));
+  tft_string.set(blink && not_homed ? "?" : ftostr4sign(LOGICAL_X_POSITION(motion.current_position().x)));
   tft.add_text( 68 - tft_string.width(), 3, not_homed ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
 
   not_homed = axis_should_home(Y_AXIS);
-  tft_string.set(blink && not_homed ? "?" : ftostr4sign(LOGICAL_Y_POSITION(motion.current_position.y)));
+  tft_string.set(blink && not_homed ? "?" : ftostr4sign(LOGICAL_Y_POSITION(motion.current_position().y)));
   tft.add_text(185 - tft_string.width(), 3, not_homed ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
 
   not_homed = axis_should_home(Z_AXIS);
@@ -270,7 +270,7 @@ void MarlinUI::draw_status_screen() {
   if (blink && not_homed)
     tft_string.set("?");
   else {
-    const float z = LOGICAL_Z_POSITION(motion.current_position.z);
+    const float z = LOGICAL_Z_POSITION(motion.current_position().z);
     tft_string.set(ftostr52sp((int16_t)z));
     tft_string.rtrim();
     offset += tft_string.width();
@@ -399,13 +399,13 @@ void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const valu
 
       tft_string.set(X_LBL);
       tft.add_text(52, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
-      tft_string.set(ftostr52(LOGICAL_X_POSITION(motion.current_position.x)));
+      tft_string.set(ftostr52(LOGICAL_X_POSITION(motion.current_position().x)));
       tft_string.trim();
       tft.add_text(144 - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
 
       tft_string.set(Y_LBL);
       tft.add_text(176, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
-      tft_string.set(ftostr52(LOGICAL_X_POSITION(motion.current_position.y)));
+      tft_string.set(ftostr52(LOGICAL_X_POSITION(motion.current_position().y)));
       tft_string.trim();
       tft.add_text(268 - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
     }

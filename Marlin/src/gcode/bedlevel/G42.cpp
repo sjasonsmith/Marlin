@@ -45,16 +45,16 @@ void GcodeSuite::G42() {
       return;
     }
 
-    // Move to motion.current_position, as modified by I, J, P parameters
-    motion.destination = motion.current_position;
+    // Move to motion.current_position(), as modified by I, J, P parameters
+    motion.destination() = motion.current_position();
 
-    if (hasI) motion.destination.x = _GET_MESH_X(ix);
-    if (hasJ) motion.destination.y = _GET_MESH_Y(iy);
+    if (hasI) motion.destination().x = _GET_MESH_X(ix);
+    if (hasJ) motion.destination().y = _GET_MESH_Y(iy);
 
     #if HAS_PROBE_XY_OFFSET
       if (parser.boolval('P')) {
-        if (hasI) motion.destination.x -= probe.offset_xy.x;
-        if (hasJ) motion.destination.y -= probe.offset_xy.y;
+        if (hasI) motion.destination().x -= probe.offset_xy.x;
+        if (hasJ) motion.destination().y -= probe.offset_xy.y;
       }
     #endif
 

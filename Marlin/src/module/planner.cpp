@@ -2962,7 +2962,7 @@ void Planner::reset_acceleration_rates() {
 // Recalculate position, steps_to_mm if settings.axis_steps_per_mm changes!
 void Planner::refresh_positioning() {
   LOOP_XYZE_N(i) steps_to_mm[i] = 1.0f / settings.axis_steps_per_mm[i];
-  set_position_mm(motion.current_position);
+  set_position_mm(motion.current_position());
   reset_acceleration_rates();
 }
 

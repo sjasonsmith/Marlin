@@ -40,9 +40,12 @@ constexpr float fslop = 0.0001;
 extern bool relative_mode;
 
 class Motion {
+  static xyze_pos_t _current_position,  // High-level current tool position
+                    _destination; // Destination for a move
+
 public:
-  static xyze_pos_t current_position,  // High-level current tool position
-                    destination; // Destination for a move
+  static xyze_pos_t& current_position() { return _current_position; }
+  static xyze_pos_t& destination()      { return _destination; }
 };
 extern Motion motion;
 
@@ -198,8 +201,8 @@ inline float home_bump_mm(const AxisEnum axis) {
     bool enabled() { return false; }
     void get_manual_axis_limits(const AxisEnum axis, float &amin, float &amax) {
       // No limits
-      amin = motion.current_position[axis] - 1000;
-      amax = motion.current_position[axis] + 1000;
+      amin = motion.current_position()[axis] - 1000;
+      amax = motion.current_position()[axis] + 1000;
     }
   } soft_endstops_t;
   extern soft_endstops_t soft_endstop;
@@ -219,7 +222,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis);
 /**
  * sync_plan_position
  *
- * Set the planner/stepper positions directly from motion.current_position with
+ * Set the planner/stepper positions directly from motion.current_position() with
  * no kinematic translation. Used for homing axes and cartesian/core syncing.
  */
 void sync_plan_position();

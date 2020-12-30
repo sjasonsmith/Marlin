@@ -124,7 +124,7 @@ void safe_delay(millis_t ms) {
         #if ABL_PLANAR
           SERIAL_ECHOPGM("ABL Adjustment X");
           LOOP_XYZ(a) {
-            const float v = planner.get_axis_position_mm(AxisEnum(a)) - motion.current_position[a];
+            const float v = planner.get_axis_position_mm(AxisEnum(a)) - motion.current_position()[a];
             SERIAL_CHAR(' ', XYZ_CHAR(a));
             if (v > 0) SERIAL_CHAR('+');
             SERIAL_DECIMAL(v);
@@ -132,15 +132,15 @@ void safe_delay(millis_t ms) {
         #else
           #if ENABLED(AUTO_BED_LEVELING_UBL)
             SERIAL_ECHOPGM("UBL Adjustment Z");
-            const float rz = ubl.get_z_correction(motion.current_position);
+            const float rz = ubl.get_z_correction(motion.current_position());
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
             SERIAL_ECHOPGM("ABL Adjustment Z");
-            const float rz = bilinear_z_offset(motion.current_position);
+            const float rz = bilinear_z_offset(motion.current_position());
           #endif
           SERIAL_ECHO(ftostr43sign(rz, '+'));
           #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
             if (planner.z_fade_height) {
-              SERIAL_ECHOPAIR(" (", ftostr43sign(rz * planner.fade_scaling_factor_for_z(motion.current_position.z), '+'));
+              SERIAL_ECHOPAIR(" (", ftostr43sign(rz * planner.fade_scaling_factor_for_z(motion.current_position().z), '+'));
               SERIAL_CHAR(')');
             }
           #endif
@@ -156,11 +156,11 @@ void safe_delay(millis_t ms) {
       SERIAL_ECHOPGM("Mesh Bed Leveling");
       if (planner.leveling_active) {
         SERIAL_ECHOLNPGM(" (enabled)");
-        SERIAL_ECHOPAIR("MBL Adjustment Z", ftostr43sign(mbl.get_z(motion.current_position), '+'));
+        SERIAL_ECHOPAIR("MBL Adjustment Z", ftostr43sign(mbl.get_z(motion.current_position()), '+'));
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
           if (planner.z_fade_height) {
             SERIAL_ECHOPAIR(" (", ftostr43sign(
-              mbl.get_z(motion.current_position, planner.fade_scaling_factor_for_z(motion.current_position.z)), '+'
+              mbl.get_z(motion.current_position(), planner.fade_scaling_factor_for_z(motion.current_position().z)), '+'
             ));
             SERIAL_CHAR(')');
           }

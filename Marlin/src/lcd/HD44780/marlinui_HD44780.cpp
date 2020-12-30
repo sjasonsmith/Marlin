@@ -839,7 +839,7 @@ void MarlinUI::draw_status_screen() {
               #endif
             }
             else {
-              const xy_pos_t lpos = motion.current_position.asLogical();
+              const xy_pos_t lpos = motion.current_position().asLogical();
               _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink);
               lcd_put_wchar(' ');
               _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink);
@@ -852,7 +852,7 @@ void MarlinUI::draw_status_screen() {
       #endif // LCD_WIDTH >= 20
 
       lcd_moveto(LCD_WIDTH - 8, 1);
-      _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(motion.current_position.z)), blink);
+      _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(motion.current_position().z)), blink);
 
       #if HAS_LEVELING && !HAS_HEATED_BED
         lcd_put_wchar(planner.leveling_active || blink ? '_' : ' ');
@@ -919,7 +919,7 @@ void MarlinUI::draw_status_screen() {
     // Z Coordinate
     //
     lcd_moveto(LCD_WIDTH - 9, 0);
-    _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(motion.current_position.z)), blink);
+    _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(motion.current_position().z)), blink);
 
     #if HAS_LEVELING && (HAS_MULTI_HOTEND || !HAS_HEATED_BED)
       lcd_put_wchar(LCD_WIDTH - 1, 0, planner.leveling_active || blink ? '_' : ' ');

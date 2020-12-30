@@ -236,8 +236,8 @@ void home_delta() {
   DEBUG_SECTION(log_home_delta, "home_delta", DEBUGGING(LEVELING));
 
   // Init the current position of all carriages to 0,0,0
-  motion.current_position.reset();
-  motion.destination.reset();
+  motion.current_position().reset();
+  motion.destination().reset();
   sync_plan_position();
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
@@ -248,7 +248,7 @@ void home_delta() {
   #endif
 
   // Move all carriages together linearly until an endstop is hit.
-  motion.current_position.z = (delta_height + 10 - TERN0(HAS_BED_PROBE, probe.offset.z));
+  motion.current_position().z = (delta_height + 10 - TERN0(HAS_BED_PROBE, probe.offset.z));
   line_to_current_position(homing_feedrate(Z_AXIS));
   planner.synchronize();
 
@@ -278,7 +278,7 @@ void home_delta() {
   #if DISABLED(DELTA_HOME_TO_SAFE_ZONE) && defined(HOMING_BACKOFF_POST_MM)
     constexpr xyz_float_t endstop_backoff = HOMING_BACKOFF_POST_MM;
     if (endstop_backoff.z) {
-      motion.current_position.z -= ABS(endstop_backoff.z) * Z_HOME_DIR;
+      motion.current_position().z -= ABS(endstop_backoff.z) * Z_HOME_DIR;
       line_to_current_position(homing_feedrate(Z_AXIS));
     }
   #endif
