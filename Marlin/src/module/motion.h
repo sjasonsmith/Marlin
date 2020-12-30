@@ -54,6 +54,13 @@ extern feedRate_t feedrate_mm_s;
   #define XY_PROBE_FEEDRATE_MM_S PLANNER_XY_FEEDRATE()
 #endif
 
+// The active extruder (tool). Set with T<extruder> command.
+#if HAS_MULTI_EXTRUDER
+  extern uint8_t active_extruder;
+#else
+  constexpr uint8_t active_extruder = 0;
+#endif
+
 namespace Marlin {
 class Motion {
   static xyze_pos_t _current_position,  // High-level current tool position
@@ -65,7 +72,7 @@ class Motion {
    *
    * CAUTION - Probably does NOT properly handle "flat" moves for delta!
    */
-  static void line_to_current_position(const feedRate_t &fr_mm_s=feedrate_mm_s);
+  static void line_to_current_position(const feedRate_t &fr_mm_s, uint8_t extruder = active_extruder);
 
 public:
   static const xyze_pos_t& current_position()    { return _current_position; }
@@ -74,13 +81,15 @@ public:
   static       xyze_pos_t& destination_rw()      { return _destination; }
 
   static void reset_destination() { _destination = _current_position; }
-  static void line_to_position(AxisEnum axis, const float& position, const feedRate_t &fr_mm_s);
-  static void line_to_position(const xy_pos_t   &position, const feedRate_t &fr_mm_s);
-  static void line_to_position(const xyz_pos_t  &position, const feedRate_t &fr_mm_s);
-  static void line_to_position(const xyze_pos_t &position, const feedRate_t &fr_mm_s);
+  static void line_to_position(AxisEnum axis, const float& position, const feedRate_t &fr_mm_s, uint8_t extruder = active_extruder);
+  static void line_to_position(const xy_pos_t   &position, const feedRate_t &fr_mm_s, uint8_t extruder = active_extruder);
+  static void line_to_position(const xyz_pos_t  &position, const feedRate_t &fr_mm_s, uint8_t extruder = active_extruder);
+  static void line_to_position(const xyze_pos_t &position, const feedRate_t &fr_mm_s, uint8_t extruder = active_extruder);
 
+  static void override_axis_pos(AxisEnum axis, const float& position) { _current_position[axis] = position; }
+  static void override_offset_pos(const xyz_pos_t &offset) { _current_position += offset; }
   #if EXTRUDERS
-    static void unscaled_e_move(const float &length, const feedRate_t &fr_mm_s);
+    static void unscaled_e_move(const float &length, const feedRate_t &fr_mm_s, uint8_t extruder = active_extruder);
   #endif
 
 };
@@ -131,13 +140,6 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis);
  */
 extern int16_t feedrate_percentage;
 #define MMS_SCALED(V) ((V) * 0.01f * feedrate_percentage)
-
-// The active extruder (tool). Set with T<extruder> command.
-#if HAS_MULTI_EXTRUDER
-  extern uint8_t active_extruder;
-#else
-  constexpr uint8_t active_extruder = 0;
-#endif
 
 #if ENABLED(LCD_SHOW_E_TOTAL)
   extern float e_move_accumulator;

@@ -241,15 +241,15 @@ void report_current_position_projected() {
 /**
  * sync_plan_position
  *
- * Set the planner/stepper positions directly from motion.current_position_rw() with
+ * Set the planner/stepper positions directly from motion.current_position() with
  * no kinematic translation. Used for homing axes and cartesian/core syncing.
  */
 void sync_plan_position() {
-  if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position", motion.current_position_rw());
+  if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position", motion.current_position());
   planner.set_position_mm(motion.current_position_rw());
 }
 
-void sync_plan_position_e() { planner.set_e_position_mm(motion.current_position_rw().e); }
+void sync_plan_position_e() { planner.set_e_position_mm(motion.current_position().e); }
 
 /**
  * Get the stepper positions in the cartes[] array.
@@ -258,7 +258,7 @@ void sync_plan_position_e() { planner.set_e_position_mm(motion.current_position_
  * The result is in the current coordinate space with
  * leveling applied. The coordinates need to be run through
  * unapply_leveling to obtain the "ideal" coordinates
- * suitable for motion.current_position_rw(), etc.
+ * suitable for motion.current_position(), etc.
  */
 void get_cartesian_from_steppers() {
   #if ENABLED(DELTA)
@@ -306,31 +306,31 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
  * Move the planner to the current position from wherever it last moved
  * (or from wherever it has been told it is located).
  */
-void Marlin::Motion::line_to_current_position(const feedRate_t &fr_mm_s/*=feedrate_mm_s*/) {
-  planner.buffer_line(current_position_rw(), fr_mm_s, active_extruder);
+void Marlin::Motion::line_to_current_position(const feedRate_t &fr_mm_s, uint8_t extruder) {
+  planner.buffer_line(current_position_rw(), fr_mm_s, extruder);
 }
 
-void Marlin::Motion::line_to_position(AxisEnum axis, const float& position, const feedRate_t &fr_mm_s) {
+void Marlin::Motion::line_to_position(AxisEnum axis, const float& position, const feedRate_t &fr_mm_s, uint8_t extruder) {
   _current_position[axis] = position;
-  line_to_current_position(fr_mm_s);
+  line_to_current_position(fr_mm_s, extruder);
 }
-void Marlin::Motion::line_to_position(const xy_pos_t   &position, const feedRate_t &fr_mm_s) {
+void Marlin::Motion::line_to_position(const xy_pos_t   &position, const feedRate_t &fr_mm_s, uint8_t extruder) {
   _current_position = position;
-  line_to_current_position(fr_mm_s);
+  line_to_current_position(fr_mm_s, extruder);
 }
-void Marlin::Motion::line_to_position(const xyz_pos_t  &position, const feedRate_t &fr_mm_s) {
+void Marlin::Motion::line_to_position(const xyz_pos_t  &position, const feedRate_t &fr_mm_s, uint8_t extruder) {
   _current_position = position;
-  line_to_current_position(fr_mm_s);
+  line_to_current_position(fr_mm_s, extruder);
 }
-void Marlin::Motion::line_to_position(const xyze_pos_t& position, const feedRate_t &fr_mm_s) {
+void Marlin::Motion::line_to_position(const xyze_pos_t& position, const feedRate_t &fr_mm_s, uint8_t extruder) {
   _current_position = position;
-  line_to_current_position(fr_mm_s);
+  line_to_current_position(fr_mm_s, extruder);
 }
 
 #if EXTRUDERS
-  void Marlin::Motion::unscaled_e_move(const float &length, const feedRate_t &fr_mm_s) {
+  void Marlin::Motion::unscaled_e_move(const float &length, const feedRate_t &fr_mm_s, uint8_t extruder) {
     TERN_(HAS_FILAMENT_SENSOR, runout.reset());
-    _current_position.e += length / planner.e_factor[active_extruder];
+    _current_position.e += length / planner.e_factor[extruder];
     line_to_current_position(fr_mm_s);
     planner.synchronize();
   }
