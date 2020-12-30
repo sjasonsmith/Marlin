@@ -306,14 +306,31 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
  * Move the planner to the current position from wherever it last moved
  * (or from wherever it has been told it is located).
  */
-void line_to_current_position(const feedRate_t &fr_mm_s/*=feedrate_mm_s*/) {
-  planner.buffer_line(motion.current_position_rw(), fr_mm_s, active_extruder);
+void Marlin::Motion::line_to_current_position(const feedRate_t &fr_mm_s/*=feedrate_mm_s*/) {
+  planner.buffer_line(current_position_rw(), fr_mm_s, active_extruder);
+}
+
+void Marlin::Motion::line_to_position(AxisEnum axis, const float& position, const feedRate_t &fr_mm_s) {
+  _current_position[axis] = position;
+  line_to_current_position(fr_mm_s);
+}
+void Marlin::Motion::line_to_position(const xy_pos_t   &position, const feedRate_t &fr_mm_s) {
+  _current_position = position;
+  line_to_current_position(fr_mm_s);
+}
+void Marlin::Motion::line_to_position(const xyz_pos_t  &position, const feedRate_t &fr_mm_s) {
+  _current_position = position;
+  line_to_current_position(fr_mm_s);
+}
+void Marlin::Motion::line_to_position(const xyze_pos_t& position, const feedRate_t &fr_mm_s) {
+  _current_position = position;
+  line_to_current_position(fr_mm_s);
 }
 
 #if EXTRUDERS
-  void unscaled_e_move(const float &length, const feedRate_t &fr_mm_s) {
+  void Marlin::Motion::unscaled_e_move(const float &length, const feedRate_t &fr_mm_s) {
     TERN_(HAS_FILAMENT_SENSOR, runout.reset());
-    motion.current_position_rw().e += length / planner.e_factor[active_extruder];
+    _current_position.e += length / planner.e_factor[active_extruder];
     line_to_current_position(fr_mm_s);
     planner.synchronize();
   }
@@ -448,21 +465,16 @@ void do_blocking_move_to(const float rx, const float ry, const float rz, const f
     }
 
   #else
-
     // If Z needs to raise, do it before moving XY
-    if (motion.current_position_rw().z < rz) {
-      motion.current_position_rw().z = rz;
-      line_to_current_position(z_feedrate);
-    }
+    if (motion.current_position_rw().z < rz)
+      motion.line_to_position(Z_AXIS, rz, z_feedrate);
 
-    motion.current_position_rw().set(rx, ry);
-    line_to_current_position(xy_feedrate);
+    const xy_pos_t dest = {rx, ry};
+    motion.line_to_position(dest, xy_feedrate);
 
     // If Z needs to lower, do it after moving XY
-    if (motion.current_position_rw().z > rz) {
-      motion.current_position_rw().z = rz;
-      line_to_current_position(z_feedrate);
-    }
+    if (motion.current_position_rw().z > rz)
+      motion.line_to_position(Z_AXIS, rz, z_feedrate);
 
   #endif
 

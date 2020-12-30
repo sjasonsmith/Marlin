@@ -155,11 +155,13 @@
 
 #endif // SWITCHING_NOZZLE
 
-inline void _line_to_current(const AxisEnum fr_axis, const float fscale=1) {
-  line_to_current_position(planner.settings.max_feedrate_mm_s[fr_axis] * fscale);
-}
-inline void slow_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.5f); }
-inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis); }
+#if HAS_MULTI_EXTRUDER
+  inline void _line_to_current(const AxisEnum fr_axis, const float fscale=1) {
+    line_to_current_position(planner.settings.max_feedrate_mm_s[fr_axis] * fscale);
+  }
+  inline void slow_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.5f); }
+  inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis); }
+#endif
 
 #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
 

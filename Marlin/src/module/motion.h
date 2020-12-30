@@ -39,16 +39,50 @@ constexpr float fslop = 0.0001;
 
 extern bool relative_mode;
 
+
+/**
+ * The default feedrate for many moves, set by the most recent move
+ */
+extern feedRate_t feedrate_mm_s;
+
+#if HAS_ABL_NOT_UBL
+  extern feedRate_t xy_probe_feedrate_mm_s;
+  #define XY_PROBE_FEEDRATE_MM_S xy_probe_feedrate_mm_s
+#elif defined(XY_PROBE_SPEED)
+  #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS(XY_PROBE_SPEED)
+#else
+  #define XY_PROBE_FEEDRATE_MM_S PLANNER_XY_FEEDRATE()
+#endif
+
 namespace Marlin {
 class Motion {
   static xyze_pos_t _current_position,  // High-level current tool position
                     _destination; // Destination for a move
+
+  /**
+   * Move the planner to the current position from wherever it last moved
+   * (or from wherever it has been told it is located).
+   *
+   * CAUTION - Probably does NOT properly handle "flat" moves for delta!
+   */
+  static void line_to_current_position(const feedRate_t &fr_mm_s=feedrate_mm_s);
 
 public:
   static const xyze_pos_t& current_position()    { return _current_position; }
   static       xyze_pos_t& current_position_rw() { return _current_position; }
   static const xyze_pos_t& destination()         { return _destination; }
   static       xyze_pos_t& destination_rw()      { return _destination; }
+
+  static void reset_destination() { _destination = _current_position; }
+  static void line_to_position(AxisEnum axis, const float& position, const feedRate_t &fr_mm_s);
+  static void line_to_position(const xy_pos_t   &position, const feedRate_t &fr_mm_s);
+  static void line_to_position(const xyz_pos_t  &position, const feedRate_t &fr_mm_s);
+  static void line_to_position(const xyze_pos_t &position, const feedRate_t &fr_mm_s);
+
+  #if EXTRUDERS
+    static void unscaled_e_move(const float &length, const feedRate_t &fr_mm_s);
+  #endif
+
 };
 }
 extern Marlin::Motion motion;
@@ -65,15 +99,6 @@ extern xyz_pos_t cartes;
 // Until kinematics.cpp is created, declare this here
 #if IS_KINEMATIC
   extern abc_pos_t delta;
-#endif
-
-#if HAS_ABL_NOT_UBL
-  extern feedRate_t xy_probe_feedrate_mm_s;
-  #define XY_PROBE_FEEDRATE_MM_S xy_probe_feedrate_mm_s
-#elif defined(XY_PROBE_SPEED)
-  #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS(XY_PROBE_SPEED)
-#else
-  #define XY_PROBE_FEEDRATE_MM_S PLANNER_XY_FEEDRATE()
 #endif
 
 constexpr feedRate_t z_probe_fast_mm_s = MMM_TO_MMS(Z_PROBE_SPEED_FAST);
@@ -100,10 +125,6 @@ FORCE_INLINE feedRate_t homing_feedrate(const AxisEnum a) {
 
 feedRate_t get_homing_bump_feedrate(const AxisEnum axis);
 
-/**
- * The default feedrate for many moves, set by the most recent move
- */
-extern feedRate_t feedrate_mm_s;
 
 /**
  * Feedrate scaling is applied to all G0/G1, G2/G3, and G5 moves
@@ -232,15 +253,8 @@ void set_current_from_steppers_for_axis(const AxisEnum axis);
 void sync_plan_position();
 void sync_plan_position_e();
 
-/**
- * Move the planner to the current position from wherever it last moved
- * (or from wherever it has been told it is located).
- */
-void line_to_current_position(const feedRate_t &fr_mm_s=feedrate_mm_s);
 
-#if EXTRUDERS
-  void unscaled_e_move(const float &length, const feedRate_t &fr_mm_s);
-#endif
+
 
 void prepare_line_to_destination();
 
