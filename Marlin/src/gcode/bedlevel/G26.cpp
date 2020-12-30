@@ -213,15 +213,15 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
 
   const xy_pos_t dest = { rx, ry };
 
-  const bool has_xy_component = dest != current_position; // Check if X or Y is involved in the movement.
+  const bool has_xy_component = dest != motion.current_position; // Check if X or Y is involved in the movement.
 
-  destination = current_position;
+  destination = motion.current_position;
 
   if (z != last_z) {
     last_z = destination.z = z;
     const feedRate_t feed_value = planner.settings.max_feedrate_mm_s[Z_AXIS] * 0.5f; // Use half of the Z_AXIS max feed rate
     prepare_internal_move_to_destination(feed_value);
-    destination = current_position;
+    destination = motion.current_position;
   }
 
   // If X or Y is involved do a 'normal' move. Otherwise retract/recover/hop.
@@ -229,7 +229,7 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
   destination.e += e_delta;
   const feedRate_t feed_value = has_xy_component ? feedRate_t(G26_XY_FEEDRATE) : planner.settings.max_feedrate_mm_s[E_AXIS] * 0.666f;
   prepare_internal_move_to_destination(feed_value);
-  destination = current_position;
+  destination = motion.current_position;
 }
 
 FORCE_INLINE void move_to(const xyz_pos_t &where, const float &de) { move_to(where.x, where.y, where.z, de); }
@@ -244,7 +244,7 @@ void retract_filament(const xyz_pos_t &where) {
 // TODO: Parameterize the Z lift with a define
 void retract_lift_move(const xyz_pos_t &s) {
   retract_filament(destination);
-  move_to(current_position.x, current_position.y, current_position.z + 0.5f, 0.0);  // Z lift to minimize scraping
+  move_to(motion.current_position.x, motion.current_position.y, motion.current_position.z + 0.5f, 0.0);  // Z lift to minimize scraping
   move_to(s.x, s.y, s.z + 0.5f, 0.0);  // Get to the starting point with no extrusion while lifted
 }
 
@@ -273,7 +273,7 @@ void recover_filament(const xyz_pos_t &where) {
 void print_line_from_here_to_there(const xyz_pos_t &s, const xyz_pos_t &e) {
 
   // Distances to the start / end of the line
-  xy_float_t svec = current_position - s, evec = current_position - e;
+  xy_float_t svec = motion.current_position - s, evec = motion.current_position - e;
 
   const float dist_start = HYPOT2(svec.x, svec.y),
               dist_end = HYPOT2(evec.x, evec.y),
@@ -415,7 +415,7 @@ inline bool prime_nozzle() {
       ui.set_status_P(GET_TEXT(MSG_G26_MANUAL_PRIME), 99);
       ui.chirp();
 
-      destination = current_position;
+      destination = motion.current_position;
 
       recover_filament(destination); // Make sure G26 doesn't think the filament is retracted().
 
@@ -430,7 +430,7 @@ inline bool prime_nozzle() {
           }
         #endif
         prepare_internal_move_to_destination(fr_slow_e);
-        destination = current_position;
+        destination = motion.current_position;
         planner.synchronize();    // Without this synchronize, the purge is more consistent,
                                   // but because the planner has a buffer, we won't be able
                                   // to stop as quickly. So we put up with the less smooth
@@ -450,7 +450,7 @@ inline bool prime_nozzle() {
       ui.set_status_P(GET_TEXT(MSG_G26_FIXED_LENGTH), 99);
       ui.quick_feedback();
     #endif
-    destination = current_position;
+    destination = motion.current_position;
     destination.e += g26_prime_length;
     prepare_internal_move_to_destination(fr_slow_e);
     destination.e -= g26_prime_length;
@@ -644,9 +644,9 @@ void GcodeSuite::G26() {
     return;
   }
 
-  // Set a position with 'X' and/or 'Y'. Default: current_position
-  g26_xy_pos.set(parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position.x,
-                 parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position.y);
+  // Set a position with 'X' and/or 'Y'. Default: motion.current_position
+  g26_xy_pos.set(parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : motion.current_position.x,
+                 parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : motion.current_position.y);
   if (!position_is_reachable(g26_xy_pos)) {
     SERIAL_ECHOLNPGM("?Specified X,Y coordinate out of bounds.");
     return;
@@ -667,7 +667,7 @@ void GcodeSuite::G26() {
 
   if (turn_on_heaters() != G26_OK) goto LEAVE;
 
-  current_position.e = 0.0;
+  motion.current_position.e = 0.0;
   sync_plan_position_e();
 
   if (g26_prime_flag && prime_nozzle() != G26_OK) goto LEAVE;
@@ -687,7 +687,7 @@ void GcodeSuite::G26() {
   vertical_mesh_line_flags.reset();
 
   // Move nozzle to the specified height for the first layer
-  destination = current_position;
+  destination = motion.current_position;
   destination.z = g26_layer_height;
   move_to(destination, 0.0);
   move_to(destination, g26_ooze_amount);
@@ -717,7 +717,7 @@ void GcodeSuite::G26() {
   mesh_index_pair location;
   do {
     // Find the nearest confluence
-    location = find_closest_circle_to_print(g26_continue_with_closest ? xy_pos_t(current_position) : g26_xy_pos);
+    location = find_closest_circle_to_print(g26_continue_with_closest ? xy_pos_t(motion.current_position) : g26_xy_pos);
 
     if (location.valid()) {
       const xy_pos_t circle = _GET_MESH_POS(location.pos);
@@ -764,11 +764,11 @@ void GcodeSuite::G26() {
         }
 
         const ab_float_t arc_offset = circle - s;
-        const xy_float_t dist = current_position - s;   // Distance from the start of the actual circle
+        const xy_float_t dist = motion.current_position - s;   // Distance from the start of the actual circle
         const float dist_start = HYPOT2(dist.x, dist.y);
         const xyze_pos_t endpoint = {
           e.x, e.y, g26_layer_height,
-          current_position.e + (arc_length * g26_e_axis_feedrate * g26_extrusion_multiplier)
+          motion.current_position.e + (arc_length * g26_e_axis_feedrate * g26_extrusion_multiplier)
         };
 
         if (dist_start > 2.0) {
@@ -785,7 +785,7 @@ void GcodeSuite::G26() {
         feedrate_mm_s = PLANNER_XY_FEEDRATE() * 0.1f;
         plan_arc(endpoint, arc_offset, false, 0);  // Draw a counter-clockwise arc
         feedrate_mm_s = old_feedrate;
-        destination = current_position;
+        destination = motion.current_position;
 
         if (TERN0(HAS_LCD_MENU, user_canceled())) goto LEAVE; // Check if the user wants to stop the Mesh Validation
 

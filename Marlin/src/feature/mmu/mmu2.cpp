@@ -820,7 +820,7 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
         SERIAL_ECHOLNPGM("MMU not responding");
 
         resume_hotend_temp = thermalManager.degTargetHotend(active_extruder);
-        resume_position = current_position;
+        resume_position = motion.current_position;
 
         if (move_axes && all_axes_homed())
           nozzle.park(0, park_point /*= NOZZLE_PARK_POINT*/);
@@ -885,7 +885,7 @@ void MMU2::filament_runout() {
       // Slowly spin the extruder during C0
       else {
         while (planner.movesplanned() < 3) {
-          current_position.e += 0.25;
+          motion.current_position.e += 0.25;
           line_to_current_position(MMM_TO_MMS(120));
         }
       }
@@ -977,7 +977,7 @@ bool MMU2::eject_filament(const uint8_t index, const bool recover) {
   LCD_MESSAGEPGM(MSG_MMU2_EJECTING_FILAMENT);
 
   ENABLE_AXIS_E0();
-  current_position.e -= MMU2_FILAMENTCHANGE_EJECT_FEED;
+  motion.current_position.e -= MMU2_FILAMENTCHANGE_EJECT_FEED;
   line_to_current_position(MMM_TO_MMS(2500));
   planner.synchronize();
   command(MMU_CMD_E0 + index);
@@ -1059,7 +1059,7 @@ void MMU2::execute_extruder_sequence(const E_Step * sequence, int steps) {
     DEBUG_ECHO_START();
     DEBUG_ECHOLNPAIR("E step ", es, "/", fr_mm_m);
 
-    current_position.e += es;
+    motion.current_position.e += es;
     line_to_current_position(MMM_TO_MMS(fr_mm_m));
     planner.synchronize();
 

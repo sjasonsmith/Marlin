@@ -78,9 +78,9 @@
           return;
         }
         idex_set_mirrored_mode(true);
-        float x_jog = current_position.x - .1;
+        float x_jog = motion.current_position.x - .1;
         for (uint8_t i = 2; --i;) {
-          planner.buffer_line(x_jog, current_position.y, current_position.z, current_position.e, feedrate_mm_s, 0);
+          planner.buffer_line(x_jog, motion.current_position.y, motion.current_position.z, motion.current_position.e, feedrate_mm_s, 0);
           x_jog += .1;
         }
         return;
@@ -125,7 +125,7 @@
         DEBUG_ECHOPAIR("\nActive Ext: ", int(active_extruder));
         if (!active_extruder_parked) DEBUG_ECHOPGM(" NOT ");
         DEBUG_ECHOPGM(" parked.");
-        DEBUG_ECHOPAIR("\nactive_extruder_x_pos: ", current_position.x);
+        DEBUG_ECHOPAIR("\nactive_extruder_x_pos: ", motion.current_position.x);
         DEBUG_ECHOPAIR("\ninactive_extruder_x: ", inactive_extruder_x);
         DEBUG_ECHOPAIR("\nextruder_duplication_enabled: ", int(extruder_duplication_enabled));
         DEBUG_ECHOPAIR("\nduplicate_extruder_x_offset: ", duplicate_extruder_x_offset);

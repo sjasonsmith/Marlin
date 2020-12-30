@@ -25,7 +25,7 @@
 #if ENABLED(PHOTO_GCODE)
 
 #include "../../gcode.h"
-#include "../../../module/motion.h" // for active_extruder and current_position
+#include "../../../module/motion.h" // for active_extruder and motion.current_position
 
 #if PIN_EXISTS(CHDK)
   millis_t chdk_timeout; // = 0
@@ -129,9 +129,9 @@ void GcodeSuite::M240() {
     if (homing_needed_error()) return;
 
     const xyz_pos_t old_pos = {
-      current_position.x + parser.linearval('A'),
-      current_position.y + parser.linearval('B'),
-      current_position.z
+      motion.current_position.x + parser.linearval('A'),
+      motion.current_position.y + parser.linearval('B'),
+      motion.current_position.z
     };
 
     #ifdef PHOTO_RETRACT_MM
@@ -156,7 +156,7 @@ void GcodeSuite::M240() {
     xyz_pos_t raw = {
        parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : photo_position.x,
        parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : photo_position.y,
-      (parser.seenval('Z') ? parser.value_linear_units() : photo_position.z) + current_position.z
+      (parser.seenval('Z') ? parser.value_linear_units() : photo_position.z) + motion.current_position.z
     };
     apply_motion_limits(raw);
     do_blocking_move_to(raw, fr_mm_s);

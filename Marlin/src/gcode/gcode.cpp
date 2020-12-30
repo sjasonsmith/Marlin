@@ -149,21 +149,21 @@ void GcodeSuite::get_destination_from_command() {
     if ( (seen[i] = parser.seenval(XYZ_CHAR(i))) ) {
       const float v = parser.value_axis_units((AxisEnum)i);
       if (skip_move)
-        destination[i] = current_position[i];
+        destination[i] = motion.current_position[i];
       else
-        destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
+        destination[i] = axis_is_relative(AxisEnum(i)) ? motion.current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
     }
     else
-      destination[i] = current_position[i];
+      destination[i] = motion.current_position[i];
   }
 
   // Get new E position, whether absolute or relative
   if ( (seen.e = parser.seenval('E')) ) {
     const float v = parser.value_axis_units(E_AXIS);
-    destination.e = axis_is_relative(E_AXIS) ? current_position.e + v : v;
+    destination.e = axis_is_relative(E_AXIS) ? motion.current_position.e + v : v;
   }
   else
-    destination.e = current_position.e;
+    destination.e = motion.current_position.e;
 
   #if ENABLED(POWER_LOSS_RECOVERY) && !PIN_EXISTS(POWER_LOSS)
     // Only update power loss recovery on moves with E
@@ -176,7 +176,7 @@ void GcodeSuite::get_destination_from_command() {
 
   #if ENABLED(PRINTCOUNTER)
     if (!DEBUGGING(DRYRUN) && !skip_move)
-      print_job_timer.incFilamentUsed(destination.e - current_position.e);
+      print_job_timer.incFilamentUsed(destination.e - motion.current_position.e);
   #endif
 
   // Get ABCDHI mixing factors
@@ -731,7 +731,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if HAS_M206_COMMAND
-        case 428: M428(); break;                                  // M428: Apply current_position to home_offset
+        case 428: M428(); break;                                  // M428: Apply motion.current_position to home_offset
       #endif
 
       #if HAS_POWER_MONITOR

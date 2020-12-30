@@ -478,7 +478,7 @@ uint16_t MarlinSettings::datasize() { return sizeof(SettingsData); }
 #endif
 
 void MarlinSettings::postprocess() {
-  xyze_pos_t oldpos = current_position;
+  xyze_pos_t oldpos = motion.current_position;
 
   // steps per s2 needs to be updated to agree with units per s2
   planner.reset_acceleration_rates();
@@ -515,11 +515,11 @@ void MarlinSettings::postprocess() {
   TERN_(CASELIGHT_USES_BRIGHTNESS, caselight.update_brightness());
 
   // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
-  // and init stepper.count[], planner.position[] with current_position
+  // and init stepper.count[], planner.position[] with motion.current_position
   planner.refresh_positioning();
 
   // Various factors can change the current position
-  if (oldpos != current_position)
+  if (oldpos != motion.current_position)
     report_current_position();
 }
 

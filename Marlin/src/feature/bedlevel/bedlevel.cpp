@@ -74,18 +74,18 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
     #endif
 
     if (planner.leveling_active) {      // leveling from on to off
-      if (DEBUGGING(LEVELING)) DEBUG_POS("Leveling ON", current_position);
-      // change unleveled current_position to physical current_position without moving steppers.
-      planner.apply_leveling(current_position);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("Leveling ON", motion.current_position);
+      // change unleveled motion.current_position to physical motion.current_position without moving steppers.
+      planner.apply_leveling(motion.current_position);
       planner.leveling_active = false;  // disable only AFTER calling apply_leveling
-      if (DEBUGGING(LEVELING)) DEBUG_POS("...Now OFF", current_position);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("...Now OFF", motion.current_position);
     }
     else {                              // leveling from off to on
-      if (DEBUGGING(LEVELING)) DEBUG_POS("Leveling OFF", current_position);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("Leveling OFF", motion.current_position);
       planner.leveling_active = true;   // enable BEFORE calling unapply_leveling, otherwise ignored
-      // change physical current_position to unleveled current_position without moving steppers.
-      planner.unapply_leveling(current_position);
-      if (DEBUGGING(LEVELING)) DEBUG_POS("...Now ON", current_position);
+      // change physical motion.current_position to unleveled motion.current_position without moving steppers.
+      planner.unapply_leveling(motion.current_position);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("...Now ON", motion.current_position);
     }
 
     sync_plan_position();
@@ -108,9 +108,9 @@ TemporaryBedLevelingState::TemporaryBedLevelingState(const bool enable) : saved(
     planner.set_z_fade_height(zfh);
 
     if (leveling_was_active) {
-      const xyz_pos_t oldpos = current_position;
+      const xyz_pos_t oldpos = motion.current_position;
       set_bed_leveling_enabled(true);
-      if (do_report && oldpos != current_position)
+      if (do_report && oldpos != motion.current_position)
         report_current_position();
     }
   }
@@ -222,14 +222,14 @@ void reset_bed_level() {
         do_blocking_move_to_xy_z(pos, startz);
       #endif
     #elif MANUAL_PROBE_HEIGHT > 0
-      const float prev_z = current_position.z;
+      const float prev_z = motion.current_position.z;
       do_blocking_move_to_xy_z(pos, MANUAL_PROBE_HEIGHT);
       do_blocking_move_to_z(prev_z);
     #else
       do_blocking_move_to_xy(pos);
     #endif
 
-    current_position = pos;
+    motion.current_position = pos;
 
     TERN_(LCD_BED_LEVELING, ui.wait_for_move = false);
   }

@@ -44,11 +44,11 @@
      * just do the required Z-Height correction, call the Planner's buffer_line() routine, and leave
      */
     #if HAS_POSITION_MODIFIERS
-      xyze_pos_t start = current_position, end = destination;
+      xyze_pos_t start = motion.current_position, end = destination;
       planner.apply_modifiers(start);
       planner.apply_modifiers(end);
     #else
-      const xyze_pos_t &start = current_position, &end = destination;
+      const xyze_pos_t &start = motion.current_position, &end = destination;
     #endif
 
     const xy_int8_t istart = cell_indexes(start), iend = cell_indexes(end);
@@ -69,7 +69,7 @@
 
           end.z += UBL_Z_RAISE_WHEN_OFF_MESH;
           planner.buffer_segment(end, scaled_fr_mm_s, extruder);
-          current_position = destination;
+          motion.current_position = destination;
           return;
         }
       #endif
@@ -87,7 +87,7 @@
       // Replace NAN corrections with 0.0 to prevent NAN propagation.
       if (!isnan(z0)) end.z += z0;
       planner.buffer_segment(end, scaled_fr_mm_s, extruder);
-      current_position = destination;
+      motion.current_position = destination;
       return;
     }
 
@@ -175,10 +175,10 @@
       }
 
       // At the final destination? Usually not, but when on a Y Mesh Line it's completed.
-      if (xy_pos_t(current_position) != xy_pos_t(end))
+      if (xy_pos_t(motion.current_position) != xy_pos_t(end))
         goto FINAL_MOVE;
 
-      current_position = destination;
+      motion.current_position = destination;
       return;
     }
 
@@ -221,10 +221,10 @@
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
-      if (xy_pos_t(current_position) != xy_pos_t(end))
+      if (xy_pos_t(motion.current_position) != xy_pos_t(end))
         goto FINAL_MOVE;
 
-      current_position = destination;
+      motion.current_position = destination;
       return;
     }
 
@@ -297,10 +297,10 @@
       if (cnt.x < 0 || cnt.y < 0) break; // Too far! Exit the loop and go to FINAL_MOVE
     }
 
-    if (xy_pos_t(current_position) != xy_pos_t(end))
+    if (xy_pos_t(motion.current_position) != xy_pos_t(end))
       goto FINAL_MOVE;
 
-    current_position = destination;
+    motion.current_position = destination;
   }
 
 #else // UBL_SEGMENTED
@@ -320,17 +320,17 @@
   /**
    * Prepare a segmented linear move for DELTA/SCARA/CARTESIAN with UBL and FADE semantics.
    * This calls planner.buffer_segment multiple times for small incremental moves.
-   * Returns true if did NOT move, false if moved (requires current_position update).
+   * Returns true if did NOT move, false if moved (requires motion.current_position update).
    */
 
   bool _O2 unified_bed_leveling::line_to_destination_segmented(const feedRate_t &scaled_fr_mm_s) {
     SERIAL_ECHOLN("line_to_destination_segmented");
     if (!position_is_reachable(destination))  // fail if moving outside reachable boundary
-      return true;                            // did not move, so current_position still accurate
+      return true;                            // did not move, so motion.current_position still accurate
 
-    SERIAL_ECHOLNPAIR("   curr x=", current_position.x, ",", current_position.y, ",", current_position.z, ",", current_position.e);
+    SERIAL_ECHOLNPAIR("   curr x=", motion.current_position.x, ",", motion.current_position.y, ",", motion.current_position.z, ",", motion.current_position.e);
     SERIAL_ECHOLNPAIR("   dest x=", destination.x, ",", destination.y, ",", destination.z, ",", destination.e);
-    const xyze_pos_t total = destination - current_position;
+    const xyze_pos_t total = destination - motion.current_position;
 
     const float cart_xy_mm_2 = HYPOT2(total.x, total.y),
                 cart_xy_mm = SQRT(cart_xy_mm_2);                                     // Total XY distance
@@ -357,7 +357,7 @@
     // Note that E segment distance could vary slightly as z mesh height
     // changes for each segment, but small enough to ignore.
 
-    xyze_pos_t raw = current_position;
+    xyze_pos_t raw = motion.current_position;
 
     SERIAL_ECHOLNPAIR("cart_xy_mm=", cart_xy_mm, ", scaled_fr_mm_s=", scaled_fr_mm_s, "seconds=", seconds, "segments=", segments);
     // Just do plain segmentation if UBL is inactive or the target is above the fade height
@@ -472,7 +472,7 @@
       } // segment loop
     } // cell loop
     SERIAL_ECHOLN("<<< 3rd return");
-    return false; // caller will update current_position
+    return false; // caller will update motion.current_position
   }
 
 #endif // UBL_SEGMENTED

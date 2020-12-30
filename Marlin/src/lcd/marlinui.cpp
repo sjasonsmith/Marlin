@@ -691,13 +691,13 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
   /**
    * If a manual move has been posted and its time has arrived, and if the planner
-   * has a space for it, then add a linear move to current_position the planner.
+   * has a space for it, then add a linear move to motion.current_position the planner.
    *
    * If any manual move needs to be interrupted, make sure to force a manual move
-   * by setting manual_move.start_time to millis() after updating current_position.
+   * by setting manual_move.start_time to millis() after updating motion.current_position.
    *
    * To post a manual move:
-   *   - Update current_position to the new place you want to go.
+   *   - Update motion.current_position to the new place you want to go.
    *   - Set manual_move.axis to an axis like X_AXIS. Use ALL_AXES for diagonal moves.
    *   - Set manual_move.start_time to a point in the future (in ms) when the move should be done.
    *
@@ -725,11 +725,11 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
         #endif
 
         // Apply a linear offset to a single axis
-        auto new_dest = current_position;
-        current_position = destination;
+        auto new_dest = motion.current_position;
+        motion.current_position = destination;
         destination = new_dest;
 
-        // destination = current_position;
+        // destination = motion.current_position;
         if (axis <= XYZE) destination[axis] += offset;
 
         // Reset for the next move
@@ -741,15 +741,15 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
         // previous invocation is being blocked. Modifications to offset shouldn't be made while
         // processing is true or the planner will get out of sync.
         processing = true;
-        prepare_internal_move_to_destination(fr_mm_s);  // will set current_position from destination
+        prepare_internal_move_to_destination(fr_mm_s);  // will set motion.current_position from destination
         processing = false;
 
         TERN_(HAS_MULTI_EXTRUDER, active_extruder = old_extruder);
 
       #else
 
-        // For Cartesian / Core motion simply move to the current_position
-        planner.buffer_line(current_position, fr_mm_s, axis == E_AXIS ? e_index : active_extruder);
+        // For Cartesian / Core motion simply move to the motion.current_position
+        planner.buffer_line(motion.current_position, fr_mm_s, axis == E_AXIS ? e_index : active_extruder);
 
         //SERIAL_ECHOLNPAIR("Add planner.move with Axis ", int(axis), " at FR ", fr_mm_s);
 
@@ -760,7 +760,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
   }
 
   //
-  // Tell ui.update() to start a move to current_position after a short delay.
+  // Tell ui.update() to start a move to motion.current_position after a short delay.
   //
   void ManualMove::soon(AxisEnum move_axis
     #if MULTI_MANUAL

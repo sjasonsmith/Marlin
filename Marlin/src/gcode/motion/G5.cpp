@@ -57,8 +57,8 @@ void GcodeSuite::G5() {
       { parser.linearval('P'), parser.linearval('Q') }
     };
 
-    cubic_b_spline(current_position, destination, offsets, MMS_SCALED(feedrate_mm_s), active_extruder);
-    current_position = destination;
+    cubic_b_spline(motion.current_position, destination, offsets, MMS_SCALED(feedrate_mm_s), active_extruder);
+    motion.current_position = destination;
   }
 }
 

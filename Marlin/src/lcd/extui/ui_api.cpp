@@ -293,13 +293,13 @@ namespace ExtUI {
   }
 
   float getAxisPosition_mm(const axis_t axis) {
-    return TERN_(JOYSTICK, flags.jogging ? destination[axis] :) current_position[axis];
+    return TERN_(JOYSTICK, flags.jogging ? destination[axis] :) motion.current_position[axis];
   }
 
   float getAxisPosition_mm(const extruder_t extruder) {
     const extruder_t old_tool = getActiveTool();
     setActiveTool(extruder, true);
-    const float epos = TERN_(JOYSTICK, flags.jogging ? destination.e :) current_position.e;
+    const float epos = TERN_(JOYSTICK, flags.jogging ? destination.e :) motion.current_position.e;
     setActiveTool(old_tool, true);
     return epos;
   }
@@ -313,19 +313,19 @@ namespace ExtUI {
     // This assumes the center is 0,0
     #if ENABLED(DELTA)
       if (axis != Z) {
-        max = SQRT(sq(float(DELTA_PRINTABLE_RADIUS)) - sq(current_position[Y - axis])); // (Y - axis) == the other axis
+        max = SQRT(sq(float(DELTA_PRINTABLE_RADIUS)) - sq(motion.current_position[Y - axis])); // (Y - axis) == the other axis
         min = -max;
       }
     #endif
 
-    current_position[axis] = constrain(position, min, max);
+    motion.current_position[axis] = constrain(position, min, max);
     line_to_current_position(feedrate ?: manual_feedrate_mm_s[axis]);
   }
 
   void setAxisPosition_mm(const float position, const extruder_t extruder, const feedRate_t feedrate/*=0*/) {
     setActiveTool(extruder, true);
 
-    current_position.e = position;
+    motion.current_position.e = position;
     line_to_current_position(feedrate ?: manual_feedrate_mm_s.e);
   }
 

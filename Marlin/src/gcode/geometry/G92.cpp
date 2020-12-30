@@ -58,7 +58,7 @@ void GcodeSuite::G92() {
       case 9: {
         LOOP_XYZE(i) {
           if (parser.seenval(axis_codes[i])) {
-            current_position[i] = parser.value_axis_units((AxisEnum)i);
+            motion.current_position[i] = parser.value_axis_units((AxisEnum)i);
             if (i == E_AXIS) sync_E = true; else sync_XYZ = true;
           }
         }
@@ -69,15 +69,15 @@ void GcodeSuite::G92() {
         if (parser.seenval(axis_codes[i])) {
           const float l = parser.value_axis_units((AxisEnum)i),
                       v = i == E_AXIS ? l : LOGICAL_TO_NATIVE(l, i),
-                      d = v - current_position[i];
+                      d = v - motion.current_position[i];
           if (!NEAR_ZERO(d)) {
             #if IS_SCARA || !HAS_POSITION_SHIFT
               if (i == E_AXIS) sync_E = true; else sync_XYZ = true;
-              current_position[i] = v;        // Without workspaces revert to Marlin 1.0 behavior
+              motion.current_position[i] = v;        // Without workspaces revert to Marlin 1.0 behavior
             #elif HAS_POSITION_SHIFT
               if (i == E_AXIS) {
                 sync_E = true;
-                current_position.e = v;       // When using coordinate spaces, only E is set directly
+                motion.current_position.e = v;       // When using coordinate spaces, only E is set directly
               }
               else {
                 position_shift[i] += d;       // Other axes simply offset the coordinate space

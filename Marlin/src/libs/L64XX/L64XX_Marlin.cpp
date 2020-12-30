@@ -438,10 +438,10 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
   // Position calcs & checks
   //
 
-  const float X_center = LOGICAL_X_POSITION(current_position.x),
-              Y_center = LOGICAL_Y_POSITION(current_position.y),
-              Z_center = LOGICAL_Z_POSITION(current_position.z),
-              E_center = current_position.e;
+  const float X_center = LOGICAL_X_POSITION(motion.current_position.x),
+              Y_center = LOGICAL_Y_POSITION(motion.current_position.y),
+              Z_center = LOGICAL_Z_POSITION(motion.current_position.z),
+              E_center = motion.current_position.e;
 
   switch (axis_mon[0][0]) {
     default: position_max = position_min = 0; break;
