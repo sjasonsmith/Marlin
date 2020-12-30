@@ -39,6 +39,7 @@ constexpr float fslop = 0.0001;
 
 extern bool relative_mode;
 
+namespace Marlin {
 class Motion {
   static xyze_pos_t _current_position,  // High-level current tool position
                     _destination; // Destination for a move
@@ -49,7 +50,8 @@ public:
   static const xyze_pos_t& destination()         { return _destination; }
   static       xyze_pos_t& destination_rw()      { return _destination; }
 };
-extern Motion motion;
+}
+extern Marlin::Motion motion;
 
 // G60/G61 Position Save and Return
 #if SAVED_POSITIONS

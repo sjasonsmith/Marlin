@@ -94,9 +94,9 @@ bool relative_mode; // = false;
  *   Used by 'line_to_current_position' to do a move after changing it.
  *   Used by 'sync_plan_position' to update 'planner.position'.
  */
-Motion motion;
-xyze_pos_t Motion::_current_position, // High-level current tool position
-           Motion::_destination;      // motion.destination_rw() for a move
+Marlin::Motion motion;
+xyze_pos_t Marlin::Motion::_current_position, // High-level current tool position
+           Marlin::Motion::_destination;      // motion.destination_rw() for a move
 // static xyze_pos_t rw_current_position = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
 // const xyze_pos_t &current_position = rw_current_position;
 // /**
@@ -353,7 +353,7 @@ void _internal_move_to_destination(const feedRate_t &fr_mm_s/*=0.0f*/
 ) {
   const feedRate_t old_feedrate = feedrate_mm_s;
   if (fr_mm_s) feedrate_mm_s = fr_mm_s;
-  SERIAL_ECHOLNPAIR("_internal_move_to_destination dest.x=", motion.destination_rw().x, "dest.y=", motion.destination_rw().y, "feed=", feedrate_mm_s, "is_fast=", int(is_fast));
+  // SERIAL_ECHOLNPAIR("_internal_move_to_destination dest.x=", motion.destination_rw().x, "dest.y=", motion.destination_rw().y, "feed=", feedrate_mm_s, "is_fast=", int(is_fast));
 
   const uint16_t old_pct = feedrate_percentage;
   feedrate_percentage = 100;
