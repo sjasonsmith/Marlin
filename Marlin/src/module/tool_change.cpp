@@ -746,7 +746,7 @@
         motion.override_axis_pos(X_AXIS, inactive_extruder_x);
         inactive_extruder_x = old_x;
         // Save the inactive extruder's position (from the old motion.current_position())
-        // TODO: How did this old code work? inactive_extruder_x = motion.destination_rw().x;
+        // TODO: How did this old code work? inactive_extruder_x = motion.destination().x;
         DEBUG_ECHOLNPAIR("DXC Full Control curr.x=", motion.current_position().x, " dest.x=", motion.current_position().x);
         break;
       case DXC_AUTO_PARK_MODE:
@@ -835,7 +835,7 @@ void tool_change_prime() {
     motion.unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
     planner.synchronize();
 
-    motion.override_axis_pos(E_AXIS, motion.destination_rw().e;
+    motion.override_axis_pos(E_AXIS, motion.destination().e;
     sync_plan_position_e(); // Resume at the old E position
   }
 }
@@ -1112,7 +1112,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         // Prevent a move outside physical bounds
         #if ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
           // If the original position is within tool store area, go to X origin at once
-          if (motion.destination_rw().y < SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR) {
+          if (motion.destination().y < SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR) {
             motion.line_to_position(X_AXIS, 0.0, planner.settings.max_feedrate_mm_s[X_AXIS], new_tool);
             planner.synchronize();
           }
@@ -1129,17 +1129,17 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             #if ENABLED(TOOLCHANGE_PARK)
               if (toolchange_settings.enable_park)
             #endif
-            do_blocking_move_to_z(motion.destination_rw().z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
+            do_blocking_move_to_z(motion.destination().z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
 
           #else
             // Move back to the original (or adjusted) position
-            DEBUG_POS("Move back", motion.destination_rw());
+            DEBUG_POS("Move back", motion.destination());
 
             #if ENABLED(TOOLCHANGE_PARK)
-              if (toolchange_settings.enable_park) do_blocking_move_to_xy_z(motion.destination_rw(), motion.destination_rw().z, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
+              if (toolchange_settings.enable_park) do_blocking_move_to_xy_z(motion.destination(), motion.destination().z, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
             #else
-              do_blocking_move_to_xy(motion.destination_rw(), planner.settings.max_feedrate_mm_s[X_AXIS]);
-              do_blocking_move_to_z(motion.destination_rw().z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
+              do_blocking_move_to_xy(motion.destination(), planner.settings.max_feedrate_mm_s[X_AXIS]);
+              do_blocking_move_to_z(motion.destination().z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
             #endif
 
           #endif
@@ -1167,7 +1167,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #if ENABLED(SWITCHING_NOZZLE)
         // Move back down. (Including when the new tool is higher.)
         if (!should_move)
-          do_blocking_move_to_z(motion.destination_rw().z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
+          do_blocking_move_to_z(motion.destination().z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
       #endif
 
       TERN_(SWITCHING_NOZZLE_TWO_SERVOS, lower_nozzle(new_tool));

@@ -218,7 +218,7 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
   motion.destination_rw() = motion.current_position();
 
   if (z != last_z) {
-    last_z = motion.destination_rw().z = z;
+    last_z = motion.destination().z = z;
     const feedRate_t feed_value = planner.settings.max_feedrate_mm_s[Z_AXIS] * 0.5f; // Use half of the Z_AXIS max feed rate
     prepare_internal_move_to_destination(feed_value);
     motion.destination_rw() = motion.current_position();
@@ -454,7 +454,7 @@ inline bool prime_nozzle() {
     motion.destination_rw().e += g26_prime_length;
     prepare_internal_move_to_destination(fr_slow_e);
     motion.destination_rw().e -= g26_prime_length;
-    retract_filament(motion.destination_rw());
+    retract_filament(motion.destination());
   }
 
   return G26_OK;
@@ -689,8 +689,8 @@ void GcodeSuite::G26() {
   // Move nozzle to the specified height for the first layer
   motion.destination_rw() = motion.current_position();
   motion.destination_rw().z = g26_layer_height;
-  move_to(motion.destination_rw(), 0.0);
-  move_to(motion.destination_rw(), g26_ooze_amount);
+  move_to(motion.destination(), 0.0);
+  move_to(motion.destination(), g26_ooze_amount);
 
   TERN_(HAS_LCD_MENU, ui.capture());
 
