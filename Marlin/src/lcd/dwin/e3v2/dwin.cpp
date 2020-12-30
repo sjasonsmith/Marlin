@@ -153,9 +153,9 @@ constexpr uint16_t TROWS = 6, MROWS = TROWS - 1,        // Total rows, and other
 HMI_value_t HMI_ValueStruct;
 HMI_Flag_t HMI_flag{0};
 
-millis_t dwin_heat_time = 0;
+millis_t dwin_heat_time; // = 0;
 
-uint8_t checkkey = 0;
+processID checkkey; // 0 (MainMenu)s
 
 typedef struct {
   uint8_t now, last;

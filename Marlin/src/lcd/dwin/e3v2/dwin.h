@@ -227,10 +227,6 @@ enum processID : uint8_t {
 #define BarFill_Color     0x10E4  // Fill color of progress bar
 #define Select_Color      0x33BB  // Selected color
 
-extern uint8_t checkkey;
-extern float zprobe_zoffset;
-extern char print_filename[16];
-
 extern millis_t dwin_heat_time;
 
 typedef struct {
