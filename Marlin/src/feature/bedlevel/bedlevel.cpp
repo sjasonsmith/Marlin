@@ -76,7 +76,7 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
     if (planner.leveling_active) {      // leveling from on to off
       if (DEBUGGING(LEVELING)) DEBUG_POS("Leveling ON", motion.current_position());
       // change unleveled motion.current_position() to physical motion.current_position() without moving steppers.
-      planner.apply_leveling(motion.current_position());
+      planner.apply_leveling(motion.current_position_rw());
       planner.leveling_active = false;  // disable only AFTER calling apply_leveling
       if (DEBUGGING(LEVELING)) DEBUG_POS("...Now OFF", motion.current_position());
     }
