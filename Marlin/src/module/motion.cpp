@@ -1098,12 +1098,9 @@ void prepare_line_to_destination() {
   if (TERN0(DUAL_X_CARRIAGE, dual_x_carriage_unpark())) return;
 
   if (
-    #if UBL_SEGMENTED
-      #if IS_KINEMATIC // UBL using Kinematic / Cartesian cases as a workaround for now.
+    #if BOTH(UBL_SEGMENTED, IS_KINEMATIC)
+        // Using UBL Kinematic / Cartesian cases as a workaround for now.
         ubl.line_to_destination_segmented(MMS_SCALED(feedrate_mm_s))
-      #else
-        line_to_destination_cartesian()
-      #endif
     #elif IS_KINEMATIC
       line_to_destination_kinematic()
     #else

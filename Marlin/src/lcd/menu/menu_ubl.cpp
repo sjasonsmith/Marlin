@@ -416,7 +416,6 @@ void _lcd_ubl_map_edit_cmd() {
 void ubl_map_move_to_xy() {
 
   #if ENABLED(DELTA)
-  // TODO JASON
     if (current_position.z > delta_clip_start_height) { // Make sure the delta has fully free motion
       SERIAL_ECHOLN(">>>ubl_map_move_to_xy - Move below clipping height");
       destination = current_position;

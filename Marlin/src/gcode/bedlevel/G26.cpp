@@ -221,7 +221,6 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
     last_z = destination.z = z;
     const feedRate_t feed_value = planner.settings.max_feedrate_mm_s[Z_AXIS] * 0.5f; // Use half of the Z_AXIS max feed rate
     prepare_internal_move_to_destination(feed_value);
-    destination = current_position;
   }
 
   // If X or Y is involved do a 'normal' move. Otherwise retract/recover/hop.
