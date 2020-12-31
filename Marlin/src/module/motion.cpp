@@ -322,10 +322,10 @@ void line_to_current_position(const feedRate_t &fr_mm_s/*=feedrate_mm_s*/) {
    * Buffer a fast move without interpolation. Set current_position to destination
    */
   void prepare_fast_move_to_destination(const feedRate_t &scaled_fr_mm_s/*=MMS_SCALED(feedrate_mm_s)*/) {
+    // needs_caller_review_done
     if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_fast_move_to_destination", destination);
 
     #if UBL_SEGMENTED
-      // UBL segmented line will do Z-only moves in single segment
       ubl.line_to_destination_segmented(scaled_fr_mm_s);
     #else
       if (current_position == destination) return;
@@ -348,6 +348,7 @@ void _internal_move_to_destination(const feedRate_t &fr_mm_s/*=0.0f*/
     , const bool is_fast/*=false*/
   #endif
 ) {
+  // needs_caller_review_done
   const feedRate_t old_feedrate = feedrate_mm_s;
   if (fr_mm_s) feedrate_mm_s = fr_mm_s;
   SERIAL_ECHOLNPAIR("_internal_move_to_destination dest.x=", destination.x, "dest.y=", destination.y, "feed=", feedrate_mm_s, "is_fast=", int(is_fast));
@@ -728,6 +729,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
    */
   inline bool line_to_destination_kinematic() {
 
+    // needs_caller_review_done
     // Get the top feedrate of the move in the XY plane
     const float scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
 
@@ -821,6 +823,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
      */
     inline void segmented_line_to_destination(const feedRate_t &fr_mm_s, const float segment_size=LEVELED_SEGMENT_LENGTH) {
 
+      // needs_caller_review_done
       const xyze_float_t diff = destination - current_position;
 
       // If the move is only in Z/E don't split up the move
@@ -889,6 +892,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
    * Return true if 'current_position' was set to 'destination'
    */
   inline bool line_to_destination_cartesian() {
+    // needs_caller_review_done
     const float scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
     #if HAS_MESH
       if (planner.leveling_active && planner.leveling_active_at_z(destination.z)) {
@@ -1055,6 +1059,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
  * Before exit, current_position is set to destination.
  */
 void prepare_line_to_destination() {
+  // needs_caller_review_done
   apply_motion_limits(destination);
 
   #if EITHER(PREVENT_COLD_EXTRUSION, PREVENT_LENGTHY_EXTRUDE)

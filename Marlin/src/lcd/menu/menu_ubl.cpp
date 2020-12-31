@@ -414,6 +414,7 @@ void _lcd_ubl_map_edit_cmd() {
  * UBL LCD Map Movement
  */
 void ubl_map_move_to_xy() {
+  //needs_caller_review_done
 
   #if ENABLED(DELTA)
     if (current_position.z > delta_clip_start_height) { // Make sure the delta has fully free motion
@@ -429,10 +430,10 @@ void ubl_map_move_to_xy() {
   SERIAL_ECHOLNPAIR(">>>ubl_map_move_to_xy moving to actual point x=", x_plot, " y=", y_plot);
 
   // Set the nozzle position to the mesh point
-  current_position.set(xpos, ypos);
+  current_position.set(xpos, ypos); // TODO: This corrupts delta moves. How is destination set? How did it work _at all_?
 
   // Use the built-in manual move handler
-  ui.manual_move.soon(ALL_AXES);
+  ui.manual_move.soon(ALL_AXES); // This needs to be able to work with a provided position, not _only_ an offset. Perhaps this needs to be set as an offset!
 }
 
 inline int32_t grid_index(const uint8_t x, const uint8_t y) {
@@ -443,6 +444,7 @@ inline int32_t grid_index(const uint8_t x, const uint8_t y) {
  * UBL LCD "radar" map
  */
 void ubl_map_screen() {
+  // needs_caller_review_done
   // static millis_t next_move = 0;
   // const millis_t ms = millis();
 
@@ -515,6 +517,7 @@ void ubl_map_screen() {
  * UBL LCD "radar" map homing
  */
 void _ubl_map_screen_homing() {
+  // needs_caller_review_done
   ui.defer_status_screen();
   _lcd_draw_homing();
   if (all_axes_homed()) {

@@ -709,7 +709,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
    * and the ubl_map_move_to_xy funtion in menu_ubl.cpp.
    */
   void ManualMove::task() {
-
+    // needs_caller_review_done - Not really callers though, anything that works with ManualMove and might set current_position, offset, or destination!
     if (processing) return;   // Prevent re-entry from idle() calls
 
     // Add a manual move to the queue?

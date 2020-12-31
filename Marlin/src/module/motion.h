@@ -240,6 +240,7 @@ void _internal_move_to_destination(const feedRate_t &fr_mm_s=0.0f
 );
 
 inline void prepare_internal_move_to_destination(const feedRate_t &fr_mm_s=0.0f) {
+  // needs_caller_review_done
   _internal_move_to_destination(fr_mm_s);
 }
 
@@ -247,6 +248,7 @@ inline void prepare_internal_move_to_destination(const feedRate_t &fr_mm_s=0.0f)
   void prepare_fast_move_to_destination(const feedRate_t &scaled_fr_mm_s=MMS_SCALED(feedrate_mm_s));
 
   inline void prepare_internal_fast_move_to_destination(const feedRate_t &fr_mm_s=0.0f) {
+    // needs_caller_review_done
     _internal_move_to_destination(fr_mm_s, true);
   }
 #endif

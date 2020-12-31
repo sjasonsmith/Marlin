@@ -32,6 +32,7 @@
 #include "../../module/probe.h"
 
 inline void G38_single_probe(const uint8_t move_value) {
+  // needs_caller_review_done
   endstops.enable(true);
   G38_move = move_value;
   prepare_line_to_destination();
@@ -43,6 +44,7 @@ inline void G38_single_probe(const uint8_t move_value) {
 }
 
 inline bool G38_run_probe() {
+  // needs_caller_review_done
 
   bool G38_pass_fail = false;
 

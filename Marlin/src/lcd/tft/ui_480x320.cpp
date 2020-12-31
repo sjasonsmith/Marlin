@@ -742,7 +742,7 @@ static void drawAxisValue(AxisEnum axis) {
       axis == Z_AXIS && motionAxisState.z_selection == Z_SELECTION_Z_PROBE ?
       probe.offset.z :
     #endif
-    NATIVE_TO_LOGICAL(
+    NATIVE_TO_LOGICAL( // TODO: Manual Move weirdness
       ui.manual_move.processing ? destination[axis] : current_position[axis] + TERN0(IS_KINEMATIC, ui.manual_move.offset),
       axis
     );
@@ -827,6 +827,7 @@ static void moveAxis(AxisEnum axis, const int8_t direction) {
     #endif
 
     // Get the new position
+    // TODO: Manual move differences here are fragile!
     #if IS_KINEMATIC
       ui.manual_move.offset += diff;
       if (direction < 0)

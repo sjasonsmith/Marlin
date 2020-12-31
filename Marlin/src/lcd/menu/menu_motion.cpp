@@ -74,12 +74,15 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
     // Get the new position
     const float diff = float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
     #if IS_KINEMATIC
+      // TODO: This uses an offset for kinematic so that it will end up doing more than a single move
       ui.manual_move.offset += diff;
       if (int32_t(ui.encoderPosition) < 0)
         NOLESS(ui.manual_move.offset, min - current_position[axis]);
       else
         NOMORE(ui.manual_move.offset, max - current_position[axis]);
     #else
+      // TODO: Updates current position for non-kinematic and assumes it won't end up neededing current_position later.
+      // Might mess up bed leveled moves.
       current_position[axis] += diff;
       if (int32_t(ui.encoderPosition) < 0)
         NOLESS(current_position[axis], min);
@@ -115,7 +118,7 @@ void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
     if (ui.encoderPosition) {
       if (!ui.manual_move.processing) {
         const float diff = float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
-        TERN(IS_KINEMATIC, ui.manual_move.offset, current_position.e) += diff;
+        TERN(IS_KINEMATIC, ui.manual_move.offset, current_position.e) += diff; // TODO: Another place where these manual moves differ
         ui.manual_move.soon(E_AXIS
           #if MULTI_MANUAL
             , eindex
