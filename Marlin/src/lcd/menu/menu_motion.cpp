@@ -72,30 +72,15 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
     #endif
 
     // Get the new position
-    const float diff = float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
-    #if IS_KINEMATIC
-      ui.manual_move.offset += diff;
-      if (int32_t(ui.encoderPosition) < 0)
-        NOLESS(ui.manual_move.offset, min - current_position[axis]);
-      else
-        NOMORE(ui.manual_move.offset, max - current_position[axis]);
-    #else
-      current_position[axis] += diff;
-      if (int32_t(ui.encoderPosition) < 0)
-        NOLESS(current_position[axis], min);
-      else
-        NOMORE(current_position[axis], max);
-    #endif
-
+    // TODO: Could this happen while a move is in progress, causing it to over-write the destination again?
+    destination[axis] += int32_t(ui.encoderPosition) * ui.manual_move.menu_scale;
+    LIMIT(destination[axis], min, max);
     ui.manual_move.soon(axis);
     ui.refresh(LCDVIEW_REDRAW_NOW);
   }
   ui.encoderPosition = 0;
   if (ui.should_draw()) {
-    const float pos = NATIVE_TO_LOGICAL(
-      ui.manual_move.processing ? destination[axis] : current_position[axis] + TERN0(IS_KINEMATIC, ui.manual_move.offset),
-      axis
-    );
+    const float pos = NATIVE_TO_LOGICAL(destination[axis],axis);
     if (parser.using_inch_units()) {
       const float imp_pos = LINEAR_UNIT(pos);
       MenuEditItemBase::draw_edit_screen(name, ftostr63(imp_pos));
@@ -115,7 +100,7 @@ void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
     if (ui.encoderPosition) {
       if (!ui.manual_move.processing) {
         const float diff = float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
-        TERN(IS_KINEMATIC, ui.manual_move.offset, current_position.e) += diff;
+        destination.e += diff;
         ui.manual_move.soon(E_AXIS
           #if MULTI_MANUAL
             , eindex
@@ -129,10 +114,7 @@ void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
       TERN_(MULTI_MANUAL, MenuItemBase::init(eindex));
       MenuEditItemBase::draw_edit_screen(
         GET_TEXT(TERN(MULTI_MANUAL, MSG_MOVE_EN, MSG_MOVE_E)),
-        ftostr41sign(current_position.e
-          + TERN0(IS_KINEMATIC, ui.manual_move.offset)
-          - TERN0(MANUAL_E_MOVES_RELATIVE, manual_move_e_origin)
-        )
+        ftostr41sign(destination.e - TERN0(MANUAL_E_MOVES_RELATIVE, manual_move_e_origin))
       );
     } // should_draw
   }
@@ -152,6 +134,8 @@ screenFunc_t _manual_move_func_ptr;
 void _goto_manual_move(const float scale) {
   ui.defer_status_screen();
   ui.manual_move.menu_scale = scale;
+  ui.manual_move.axis = NO_AXIS;
+  destination = current_position;
   ui.goto_screen(_manual_move_func_ptr);
 }
 
