@@ -429,11 +429,9 @@ void ubl_map_move_to_xy() {
   auto ypos = ubl.mesh_index_to_ypos(y_plot);
   SERIAL_ECHOLNPAIR(">>>ubl_map_move_to_xy moving to actual point x=", x_plot, " y=", y_plot);
 
-  // Set the nozzle position to the mesh point
-  current_position.set(xpos, ypos); // TODO: This corrupts delta moves. How is destination set? How did it work _at all_?
-
-  // Use the built-in manual move handler
-  ui.manual_move.soon(ALL_AXES); // This needs to be able to work with a provided position, not _only_ an offset. Perhaps this needs to be set as an offset!
+  // Use the built-in manual move handler to move to the mesh point.
+  destination.set(xpos, ypos);
+  ui.manual_move.soon(ALL_AXES);
 }
 
 inline int32_t grid_index(const uint8_t x, const uint8_t y) {

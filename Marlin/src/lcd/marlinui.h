@@ -265,18 +265,13 @@
   public:
     static millis_t start_time;
     static float menu_scale;
-    TERN_(IS_KINEMATIC, static float offset);
-    #if IS_KINEMATIC
-      static bool processing;
-    #else
-      static bool constexpr processing = false;
-    #endif
+    static bool processing;
     #if MULTI_MANUAL
       static int8_t e_index;
     #else
       static int8_t constexpr e_index = 0;
     #endif
-    static uint8_t axis;
+    static AxisEnum axis;
     static void task();
     static void soon(AxisEnum axis
       #if MULTI_MANUAL

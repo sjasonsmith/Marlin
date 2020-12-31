@@ -742,10 +742,7 @@ static void drawAxisValue(AxisEnum axis) {
       axis == Z_AXIS && motionAxisState.z_selection == Z_SELECTION_Z_PROBE ?
       probe.offset.z :
     #endif
-    NATIVE_TO_LOGICAL( // TODO JASON: Manual Move weirdness
-      ui.manual_move.processing ? destination[axis] : current_position[axis] + TERN0(IS_KINEMATIC, ui.manual_move.offset),
-      axis
-    );
+    NATIVE_TO_LOGICAL(destination[axis], axis);
   xy_int_t pos;
   uint16_t color;
   switch (axis) {
@@ -827,27 +824,18 @@ static void moveAxis(AxisEnum axis, const int8_t direction) {
     #endif
 
     // Get the new position
-    // TODO JASON: Manual move differences here are fragile!
-    #if IS_KINEMATIC
-      ui.manual_move.offset += diff;
-      if (direction < 0)
-        NOLESS(ui.manual_move.offset, min - current_position[axis]);
-      else
-        NOMORE(ui.manual_move.offset, max - current_position[axis]);
-    #else
-      current_position[axis] += diff;
-      if (direction < 0 && current_position[axis] < min) {
-        current_position[axis] = min;
-        drawMessage(GET_TEXT(MSG_LCD_SOFT_ENDSTOPS));
-      }
-      else if (direction > 0 && current_position[axis] > max) {
-        current_position[axis] = max;
-        drawMessage(GET_TEXT(MSG_LCD_SOFT_ENDSTOPS));
-      }
-      else {
-        drawMessage(""); // clear the error
-      }
-    #endif
+    destination += diff;
+    if (direction < 0 && destination[axis] < min) {
+      destination[axis] = min;
+      drawMessage(GET_TEXT(MSG_LCD_SOFT_ENDSTOPS));
+    }
+    else if (direction > 0 && destination[axis] > max) {
+      destination[axis] = max;
+      drawMessage(GET_TEXT(MSG_LCD_SOFT_ENDSTOPS));
+    }
+    else {
+      drawMessage(""); // clear the error
+    }
 
     ui.manual_move.soon(axis
       #if MULTI_MANUAL

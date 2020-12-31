@@ -71,6 +71,9 @@ public:
   inline void restore() { ref_ = val_; }
 };
 
+// Usages:
+//  REMEMBER(variable_to_restore); // Restore current value on exit
+//  REMEMBER(variable_to_preserve, temporary_value) // Set temp value, resture current value on exit
 #define REMEMBER(N,X,V...) restorer<__typeof__(X)> restorer_##N(X, ##V)
 #define RESTORE(N) restorer_##N.restore()
 
