@@ -414,17 +414,23 @@ void _lcd_ubl_map_edit_cmd() {
  * UBL LCD Map Movement
  */
 void ubl_map_move_to_xy() {
+  //needs_caller_review_done
 
   #if ENABLED(DELTA)
     if (current_position.z > delta_clip_start_height) { // Make sure the delta has fully free motion
+      SERIAL_ECHOLN(">>>ubl_map_move_to_xy - Move below clipping height");
       destination = current_position;
       destination.z = delta_clip_start_height;
       prepare_internal_fast_move_to_destination(homing_feedrate(Z_AXIS)); // Set current_position from destination
     }
   #endif
 
+  auto xpos = ubl.mesh_index_to_xpos(x_plot);
+  auto ypos = ubl.mesh_index_to_ypos(y_plot);
+  SERIAL_ECHOLNPAIR(">>>ubl_map_move_to_xy moving to actual point x=", x_plot, " y=", y_plot);
+
   // Use the built-in manual move handler to move to the mesh point.
-  destination.set(ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot));
+  destination.set(xpos, ypos);
   ui.manual_move.soon(ALL_AXES);
 }
 
@@ -436,6 +442,7 @@ inline int32_t grid_index(const uint8_t x, const uint8_t y) {
  * UBL LCD "radar" map
  */
 void ubl_map_screen() {
+  // needs_caller_review_done
   // static millis_t next_move = 0;
   // const millis_t ms = millis();
 
@@ -497,6 +504,7 @@ void ubl_map_screen() {
 
   // Add a move if needed to match the grid point
   if (x != x_plot || y != y_plot) {
+    SERIAL_ECHOLNPAIR("MOVING TO UBL POINT X=", int(x), " Y=", int(y));
     x_plot = x; y_plot = y;   // The move is always posted, so update the grid point now
     ubl_map_move_to_xy();     // Sets up a "manual move"
     ui.refresh(LCDVIEW_CALL_REDRAW_NEXT); // Clean up a half drawn box
@@ -507,6 +515,7 @@ void ubl_map_screen() {
  * UBL LCD "radar" map homing
  */
 void _ubl_map_screen_homing() {
+  // needs_caller_review_done
   ui.defer_status_screen();
   _lcd_draw_homing();
   if (all_axes_homed()) {
@@ -524,6 +533,7 @@ void _ubl_map_screen_homing() {
 void _ubl_goto_map_screen() {
   if (planner.movesplanned()) return;     // The ACTION_ITEM will do nothing
   if (!all_axes_trusted()) {
+    SERIAL_ECHOLN(">>>_ubl_goto_map_screen - Home because not all trusted");
     set_all_unhomed();
     queue.inject_P(G28_STR);
   }

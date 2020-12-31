@@ -324,10 +324,13 @@
    */
 
   bool _O2 unified_bed_leveling::line_to_destination_segmented(const feedRate_t &scaled_fr_mm_s) {
-
+    // needs_caller_review_done
+    SERIAL_ECHOLN("line_to_destination_segmented");
     if (!position_is_reachable(destination))  // fail if moving outside reachable boundary
       return true;                            // did not move, so current_position still accurate
 
+    SERIAL_ECHOLNPAIR("   curr x=", current_position.x, ",", current_position.y, ",", current_position.z, ",", current_position.e);
+    SERIAL_ECHOLNPAIR("   dest x=", destination.x, ",", destination.y, ",", destination.z, ",", destination.e);
     const xyze_pos_t total = destination - current_position;
 
     const float cart_xy_mm_2 = HYPOT2(total.x, total.y),
@@ -357,6 +360,7 @@
 
     xyze_pos_t raw = current_position;
 
+    SERIAL_ECHOLNPAIR("cart_xy_mm=", cart_xy_mm, ", scaled_fr_mm_s=", scaled_fr_mm_s, "seconds=", seconds, "segments=", segments);
     // Just do plain segmentation if UBL is inactive or the target is above the fade height
     if (!planner.leveling_active || !planner.leveling_active_at_z(destination.z)) {
       while (--segments) {
@@ -372,6 +376,7 @@
           , inv_duration
         #endif
       );
+      SERIAL_ECHOLN("<<< 1st return");
       return false; // Did not set current from destination
     }
 
@@ -448,8 +453,10 @@
           #endif
         );
 
-        if (segments == 0)                        // done with last segment
+        if (segments == 0) {                        // done with last segment
+          SERIAL_ECHOLN("<<< 2nd return");
           return false;                           // didn't set current from destination
+        }
 
         raw += diff;
         cell += diff;
@@ -465,7 +472,7 @@
 
       } // segment loop
     } // cell loop
-
+    SERIAL_ECHOLN("<<< 3rd return");
     return false; // caller will update current_position
   }
 

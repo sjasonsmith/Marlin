@@ -2122,9 +2122,7 @@ void MarlinSettings::postprocess() {
              = DIGIPOT_MOTOR_CURRENT
           #endif
         ;
-        DEBUG_ECHOLNPGM("DIGIPOTS Loading");
         EEPROM_READ(motor_current_setting);
-        DEBUG_ECHOLNPGM("DIGIPOTS Loaded");
         #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
           if (!validating)
             COPY(stepper.motor_current_setting, motor_current_setting);
@@ -2867,10 +2865,8 @@ void MarlinSettings::reset() {
   //
   #if HAS_MOTOR_CURRENT_SPI
     static constexpr uint32_t tmp_motor_current_setting[] = DIGIPOT_MOTOR_CURRENT;
-    DEBUG_ECHOLNPGM("Writing Digipot");
     LOOP_L_N(q, COUNT(tmp_motor_current_setting))
       stepper.set_digipot_current(q, tmp_motor_current_setting[q]);
-    DEBUG_ECHOLNPGM("Digipot Written");
   #endif
 
   //
