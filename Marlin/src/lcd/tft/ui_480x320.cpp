@@ -824,7 +824,7 @@ static void moveAxis(AxisEnum axis, const int8_t direction) {
     #endif
 
     // Get the new position
-    destination += diff;
+    destination[axis] += diff;
     if (direction < 0 && destination[axis] < min) {
       destination[axis] = min;
       drawMessage(GET_TEXT(MSG_LCD_SOFT_ENDSTOPS));

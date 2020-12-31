@@ -73,7 +73,6 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
 
     // Get the new position
     // TODO: Could this happen while a move is in progress, causing it to over-write the destination again?
-    const float diff = float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
     destination[axis] += int32_t(ui.encoderPosition) * ui.manual_move.menu_scale;
     LIMIT(destination[axis], min, max);
     ui.manual_move.soon(axis);
@@ -137,7 +136,6 @@ void _goto_manual_move(const float scale) {
   ui.manual_move.menu_scale = scale;
   ui.manual_move.axis = NO_AXIS;
   destination = current_position;
-  planner.synchronize();
   ui.goto_screen(_manual_move_func_ptr);
 }
 
