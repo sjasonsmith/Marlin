@@ -659,7 +659,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
       // travel moves have been received so enact them
       delayed_move_time = 0xFFFFFFFFUL; // force moves to be done
       destination = current_position;
-      prepare_line_to_destination(); // TODO: This is likely a problem, may expect current != destination
+      prepare_line_to_destination(); // TODO JASON: This is likely a problem, may expect current != destination
     }
   #endif
 
